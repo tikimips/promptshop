@@ -980,3 +980,17 @@ input:focus {
 .feed-post-name { font-family: 'DM Sans', sans-serif; font-weight: 500; }
 .feed-post-sub, .feed-post-time { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.06em; }
 .feed-article-tag { font-family: 'DM Mono', monospace !important; font-size: 9px !important; letter-spacing: 0.12em !important; }
+
+/* ── Network ticker ── */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Offset page content below ticker */
+.page-container {
+  padding-top: 0 !important;
+}
+.three-col {
+  padding-top: calc(var(--nav-h) + 26px + 16px) !important;
+}
