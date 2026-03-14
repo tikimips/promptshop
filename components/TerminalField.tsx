@@ -1,25 +1,12 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
-const LABELS = ['INT DEC', 'CRV TRD', 'NC', 'SIG', 'PROC', '0x4F', 'BUF', 'TX', 'RX', '∆NET', 'SYNC', 'ACK'];
+const CYAN   = '#00ffcc';
+const PURPLE = '#9b5de5';
+const PINK   = '#f72585';
+const DIM    = 'rgba(0,255,204,0.18)';
 
-interface Particle {
-  x: number; y: number;
-  size: number;
-  color: string;
-  brightness: number;
-  flickerSpeed: number;
-  flickerOffset: number;
-}
-
-interface Label {
-  x: number; y: number;
-  text: string;
-  alpha: number;
-  fadeDir: number;
-}
-
-export default function TerminalField({ height = 72 }: { height?: number }) {
+export default function TerminalField({ height = 88 }: { height?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -30,96 +17,217 @@ export default function TerminalField({ height = 72 }: { height?: number }) {
 
     const dpr = window.devicePixelRatio || 1;
     let W = canvas.offsetWidth;
-    let H = height;
+    const H = height;
     canvas.width  = W * dpr;
     canvas.height = H * dpr;
     ctx.scale(dpr, dpr);
 
-    const colors = ['#34D399', '#a3e635', '#facc15', '#bbf7d0', '#86efac', '#d9f99d'];
-
-    // Scatter particles — denser in center, sparse on edges
-    const particles: Particle[] = Array.from({ length: 180 }, () => {
-      const cx = W * (0.3 + Math.random() * 0.5);
-      const cy = H * (0.1 + Math.random() * 0.8);
-      const spread = Math.random();
-      return {
-        x: cx + (Math.random() - 0.5) * W * 0.7 * spread,
-        y: cy + (Math.random() - 0.5) * H * 1.4 * spread,
-        size: Math.random() < 0.6 ? 1 : Math.random() < 0.8 ? 1.5 : 2.5,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        brightness: 0.3 + Math.random() * 0.7,
-        flickerSpeed: 0.8 + Math.random() * 3,
-        flickerOffset: Math.random() * Math.PI * 2,
-      };
-    });
-
-    // Text labels scattered around
-    const labels: Label[] = LABELS.map((text, i) => ({
-      x: 4 + Math.random() * (W * 0.85),
-      y: 8 + (i / LABELS.length) * (H - 10) + (Math.random() - 0.5) * 10,
-      text,
-      alpha: 0.2 + Math.random() * 0.5,
-      fadeDir: Math.random() > 0.5 ? 1 : -1,
-    }));
-
     let frame = 0;
     let raf: number;
 
+    // Waveform history
+    const wave: number[] = Array.from({ length: 40 }, () => 0.3 + Math.random() * 0.7);
+
+    // Bar values that slowly drift
+    const bars = [
+      { label: 'PROC', val: 0.72, color: CYAN },
+      { label: 'MEM',  val: 0.45, color: PURPLE },
+      { label: 'NET',  val: 0.88, color: CYAN },
+    ];
+
+    // Status pills
+    const pills = ['SYNC', 'ACK', 'TX/RX', 'NODE'];
+
+    function drawPolygon(cx: number, cy: number, r: number, sides: number, rot: number) {
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const a = rot + (i / sides) * Math.PI * 2;
+        const x = cx + Math.cos(a) * r;
+        const y = cy + Math.sin(a) * r;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
     function draw() {
-      if (!ctx) return;
       W = canvas!.offsetWidth;
       ctx.clearRect(0, 0, W, H);
 
       // Background
-      ctx.fillStyle = '#060a07';
+      ctx.fillStyle = '#050810';
       ctx.fillRect(0, 0, W, H);
 
-      // Subtle horizontal scanlines
-      for (let y = 0; y < H; y += 3) {
-        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      // Scanlines
+      for (let y = 0; y < H; y += 2) {
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
         ctx.fillRect(0, y, W, 1);
       }
 
       const t = frame / 60;
 
-      // Draw particles
-      for (const p of particles) {
-        const flicker = 0.5 + 0.5 * Math.sin(t * p.flickerSpeed + p.flickerOffset);
-        const alpha = p.brightness * flicker;
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
-      }
+      /* ── LEFT: Radar triangle ── */
+      const cx = 52, cy = H / 2;
+      const rot = t * 0.4;
+      const pulse = 0.85 + 0.15 * Math.sin(t * 2.1);
 
-      // Draw text labels
-      ctx.font = '7px "DM Mono", monospace';
-      for (const lbl of labels) {
-        lbl.alpha += lbl.fadeDir * 0.004;
-        if (lbl.alpha > 0.65) lbl.fadeDir = -1;
-        if (lbl.alpha < 0.12) lbl.fadeDir = 1;
-        ctx.globalAlpha = lbl.alpha;
-        ctx.fillStyle = Math.random() > 0.998 ? '#facc15' : '#34D399';
-        ctx.fillText(lbl.text, lbl.x, lbl.y);
-      }
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, 34, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,255,204,0.12)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
-      // Occasional bright flash on a random particle
-      if (frame % 8 === 0) {
-        const p = particles[Math.floor(Math.random() * particles.length)];
-        ctx.globalAlpha = 0.9;
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(p.x - 0.5, p.y - 0.5, p.size + 1, p.size + 1);
-      }
+      ctx.beginPath();
+      ctx.arc(cx, cy, 24, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,255,204,0.08)';
+      ctx.stroke();
 
+      // Rotating outer triangle
+      drawPolygon(cx, cy, 30 * pulse, 3, rot);
+      ctx.strokeStyle = CYAN;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.55;
+      ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Border glow
-      const grad = ctx.createLinearGradient(0, 0, W, 0);
-      grad.addColorStop(0,   'rgba(52,211,153,0.18)');
-      grad.addColorStop(0.5, 'rgba(168,85,247,0.08)');
-      grad.addColorStop(1,   'rgba(52,211,153,0.18)');
-      ctx.strokeStyle = grad;
+      // Inner filled triangle (pinkish)
+      drawPolygon(cx, cy, 18 * pulse, 3, rot + Math.PI);
+      ctx.strokeStyle = PINK;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.8;
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(247,37,133,0.07)';
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Dot at center
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+      ctx.fillStyle = CYAN;
+      ctx.globalAlpha = 0.9;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Corner labels around triangle
+      ctx.font = '7px "DM Mono", monospace';
+      ctx.fillStyle = CYAN;
+      ctx.globalAlpha = 0.7;
+      ctx.fillText('L/SUP', cx - 14, cy - 36);
+      ctx.fillText('ION',   cx - 38, cy + 20);
+      ctx.fillText('PSI',   cx + 18, cy + 20);
+      ctx.globalAlpha = 0.45;
+      ctx.fillStyle = '#fff';
+      ctx.fillText('D:' + (0.59 + Math.sin(t)*0.01).toFixed(2), cx - 44, cy - 20);
+      ctx.fillText('T:2.' + ((frame % 9)+1), cx - 44, cy - 12);
+      ctx.globalAlpha = 1;
+
+      /* ── CENTER: Status pills ── */
+      const pillX = 110;
+      ctx.font = '8px "DM Mono", monospace';
+      pills.forEach((p, i) => {
+        const px = pillX;
+        const py = 12 + i * 18;
+        const active = (Math.floor(t * 0.7 + i) % 3) !== 0;
+        ctx.strokeStyle = active ? PURPLE : 'rgba(155,93,229,0.3)';
+        ctx.lineWidth = 1;
+        ctx.fillStyle = active ? 'rgba(155,93,229,0.15)' : 'transparent';
+        ctx.beginPath();
+        ctx.roundRect(px, py, 44, 12, 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = active ? PURPLE : 'rgba(155,93,229,0.4)';
+        ctx.globalAlpha = active ? 1 : 0.5;
+        ctx.fillText(p, px + 6, py + 9);
+        ctx.globalAlpha = 1;
+      });
+
+      /* ── CENTER-RIGHT: Progress bars ── */
+      const bx = 168;
+      bars.forEach((b, i) => {
+        const by = 8 + i * 24;
+        b.val += (Math.random() - 0.5) * 0.015;
+        b.val = Math.max(0.1, Math.min(0.99, b.val));
+
+        // Track
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        ctx.beginPath();
+        ctx.roundRect(bx + 28, by + 2, W - bx - 56, 10, 2);
+        ctx.fill();
+
+        // Fill
+        const fillW = (W - bx - 56) * b.val;
+        const grad = ctx.createLinearGradient(bx + 28, 0, bx + 28 + fillW, 0);
+        grad.addColorStop(0, b.color);
+        grad.addColorStop(1, b.i === 1 ? PURPLE : CYAN);
+        ctx.fillStyle = b.color;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.roundRect(bx + 28, by + 2, fillW, 10, 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Label
+        ctx.font = '7px "DM Mono", monospace';
+        ctx.fillStyle = b.color;
+        ctx.fillText(b.label, bx, by + 10);
+
+        // Value
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.fillText(Math.round(b.val * 100) + '%', W - bx - 22, by + 10);
+      });
+
+      /* ── RIGHT: Mini waveform ── */
+      const wx = W - 48, wy = 10, ww = 42, wh = H - 20;
+      ctx.strokeStyle = 'rgba(0,255,204,0.2)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(wx, wy, ww, wh);
+
+      wave.shift();
+      wave.push(0.2 + Math.random() * 0.6 + 0.2 * Math.sin(t * 4));
+
+      ctx.beginPath();
+      wave.forEach((v, i) => {
+        const x = wx + (i / wave.length) * ww;
+        const y = wy + wh - v * wh;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = CYAN;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.7;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Waveform fill
+      ctx.lineTo(wx + ww, wy + wh);
+      ctx.lineTo(wx, wy + wh);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(0,255,204,0.06)';
+      ctx.fill();
+
+      // Label
+      ctx.font = '6px "DM Mono", monospace';
+      ctx.fillStyle = CYAN;
+      ctx.globalAlpha = 0.5;
+      ctx.fillText('SIG', wx + 2, wy + 8);
+      ctx.globalAlpha = 1;
+
+      /* ── Outer border glow ── */
+      ctx.strokeStyle = 'rgba(0,255,204,0.15)';
       ctx.lineWidth = 1;
       ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+
+      // Corner ticks
+      const tk = 8;
+      ctx.strokeStyle = CYAN;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.5;
+      [[0,0],[W,0],[0,H],[W,H]].forEach(([x,y]) => {
+        ctx.beginPath();
+        ctx.moveTo(x === 0 ? x : x - tk, y === 0 ? y + tk : y - tk);
+        ctx.lineTo(x === 0 ? x + tk : x, y === 0 ? y : y);
+        ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
 
       frame++;
       raf = requestAnimationFrame(draw);
@@ -132,7 +240,7 @@ export default function TerminalField({ height = 72 }: { height?: number }) {
   return (
     <canvas
       ref={canvasRef}
-      style={{ display: 'block', width: '100%', height, borderRadius: 6, cursor: 'default' }}
+      style={{ display: 'block', width: '100%', height, borderRadius: 4, cursor: 'default' }}
     />
   );
 }
