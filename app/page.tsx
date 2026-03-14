@@ -101,7 +101,7 @@ export default function HomePage() {
           position: 'relative',
           borderRadius: 12,
           overflow: 'hidden',
-          marginTop: 'calc(var(--nav-h) + 16px)',
+          marginTop: 'calc(var(--nav-h) + 26px + 16px)',
           marginBottom: 4,
           textDecoration: 'none',
           boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
