@@ -758,3 +758,94 @@ aside .sidebar-card:nth-child(2) { animation-delay: 0.2s; }
   opacity: 0;
   animation-fill-mode: forwards;
 }
+
+/* ── LED Processing Animation ── */
+@keyframes led-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.15; }
+}
+@keyframes led-scan {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(400%); opacity: 0; }
+}
+@keyframes bar-fill {
+  0%   { width: 0%; }
+  60%  { width: 100%; }
+  100% { width: 100%; }
+}
+@keyframes bit-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.led-cluster {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0 14px;
+  font-family: 'DM Mono', monospace;
+}
+
+.led-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  animation: led-blink 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.led-dot:nth-child(1) { animation-delay: 0s;    background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.led-dot:nth-child(2) { animation-delay: 0.18s; background: var(--accent); }
+.led-dot:nth-child(3) { animation-delay: 0.36s; background: #34D399cc; }
+.led-dot:nth-child(4) { animation-delay: 0.54s; background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+.led-dot:nth-child(5) { animation-delay: 0.72s; background: #34D399; }
+.led-dot:nth-child(6) { animation-delay: 0.9s;  background: var(--warm); box-shadow: 0 0 6px var(--warm); }
+.led-dot:nth-child(7) { animation-delay: 1.08s; background: var(--accent); }
+
+.led-bar-wrap {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.led-bar-scan {
+  position: absolute;
+  top: 0; left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: led-scan 2.4s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+.led-bits {
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  width: 80px;
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  opacity: 0.55;
+  white-space: nowrap;
+}
+.led-bits-inner {
+  display: flex;
+  gap: 3px;
+  animation: bit-scroll 3s linear infinite;
+}
+
+.led-status {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.7;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
