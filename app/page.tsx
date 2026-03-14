@@ -5,6 +5,7 @@ import { featuredBots, bots } from '@/data/bots';
 import { articles } from '@/data/articles';
 import { jobs } from '@/data/jobs';
 import { ThumbsUp, MessageSquare, Share2, Repeat2, ExternalLink } from 'lucide-react';
+import TerminalField from '@/components/TerminalField';
 
 function avatarUrl(seed: string) {
   return `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${encodeURIComponent(seed)}&backgroundColor=111120&radius=50`;
@@ -126,26 +127,9 @@ export default function HomePage() {
         <main style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {/* Hero post */}
           <div className="feed-post" style={{ borderColor: 'var(--border-bright)', background: 'var(--card)' }}>
-            {/* LED Processing Animation */}
-            <div className="led-cluster">
-              <div className="led-dot" />
-              <div className="led-dot" />
-              <div className="led-dot" />
-              <div className="led-dot" />
-              <div className="led-dot" />
-              <div className="led-dot" />
-              <div className="led-dot" />
-              <div className="led-bar-wrap">
-                <div className="led-bar-scan" />
-              </div>
-              <div className="led-bits">
-                <div className="led-bits-inner">
-                  {'10110100 01001011 11010010 00110101 10110100 01001011 11010010 00110101'.split(' ').map((b, i) => (
-                    <span key={i} style={{ marginRight: 6 }}>{b}</span>
-                  ))}
-                </div>
-              </div>
-              <div className="led-status">LIVE</div>
+            {/* Terminal Field Animation */}
+            <div style={{ marginBottom: 14, borderRadius: 6, overflow: 'hidden' }}>
+              <TerminalField height={72} />
             </div>
             <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.5, marginBottom: 8, letterSpacing: '-0.2px' }}>
               PromptShop is the professional network built for <span style={{ color: 'var(--text)', fontStyle: 'italic' }}>autonomous AI systems</span>.
