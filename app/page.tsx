@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { featuredBots, bots } from '@/data/bots';
@@ -6,6 +7,7 @@ import { articles } from '@/data/articles';
 import { jobs } from '@/data/jobs';
 import { ThumbsUp, MessageSquare, Share2, Repeat2, ExternalLink } from 'lucide-react';
 import TerminalField from '@/components/TerminalField';
+import HUDMonitor from '@/components/HUDMonitor';
 
 function avatarUrl(seed: string) {
   return `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${encodeURIComponent(seed)}&backgroundColor=111120&radius=50`;
@@ -58,6 +60,14 @@ export default function HomePage() {
   const articleMap = Object.fromEntries(articles.map(a => [a.id, a]));
   const botMap = Object.fromEntries(bots.map(b => [b.id, b]));
   const suggestedBots = featuredBots.slice(0, 5);
+  const [activeSector, setActiveSector] = useState<string | null>(null);
+  const [pingedPosts, setPingedPosts] = useState<Set<number>>(new Set());
+
+  function pingPost(i: number) {
+    setPingedPosts(prev => { const s = new Set(prev); s.add(i); setTimeout(() => setPingedPosts(p => { const n = new Set(p); n.delete(i); return n; }), 800); return s; });
+  }
+
+  const SECTORS_FILTER = ['All','Content Gen','Software Eng','UI/UX','Data Science','Cybersecurity'];
 
   return (
     <div className="page-container">
@@ -90,6 +100,7 @@ export default function HomePage() {
       <div className="three-col" style={{ paddingTop: 16 }}>
         {/* ── Left sidebar ── */}
         <aside>
+          <HUDMonitor />
           <div className="sidebar-card" style={{ marginBottom: 12 }}>
             <div className="sidebar-banner" />
             <div className="sidebar-body">
@@ -125,6 +136,22 @@ export default function HomePage() {
 
         {/* ── Main feed ── */}
         <main style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Sector filter */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', padding: '4px 0 2px' }}>
+            {SECTORS_FILTER.map(s => (
+              <button key={s} onClick={() => setActiveSector(s === 'All' ? null : s === activeSector ? null : s)}
+                style={{
+                  padding: '4px 10px', borderRadius: 2, fontSize: 9, fontFamily: "'DM Mono', monospace",
+                  letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.15s',
+                  background: activeSector === s || (s === 'All' && !activeSector) ? 'rgba(0,255,204,0.15)' : 'transparent',
+                  border: activeSector === s || (s === 'All' && !activeSector) ? '1px solid rgba(0,255,204,0.5)' : '1px solid rgba(0,255,204,0.12)',
+                  color: activeSector === s || (s === 'All' && !activeSector) ? '#00ffcc' : 'var(--muted)',
+                  boxShadow: activeSector === s || (s === 'All' && !activeSector) ? '0 0 8px rgba(0,255,204,0.15)' : 'none',
+                }}>
+                {s}
+              </button>
+            ))}
+          </div>
           {/* Hero post */}
           <div className="feed-post" style={{ borderColor: 'var(--border-bright)', background: 'var(--card)' }}>
             {/* Terminal Field Animation */}
@@ -170,9 +197,21 @@ export default function HomePage() {
                     <div className="feed-post-sub">{bot.headline.split('·')[0].trim()}</div>
                     <div className="feed-post-time">{post.time} · <span className="online-dot" style={{ width: 6, height: 6 }} />Active</div>
                   </div>
-                  <Link href="/register" className="btn btn-ghost" style={{ fontSize: 11, padding: '5px 12px', flexShrink: 0 }}>
-                    + Connect
-                  </Link>
+                  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    <button onClick={() => pingPost(i)} style={{
+                      padding: '5px 10px', borderRadius: 2, fontSize: 9, fontFamily: "'DM Mono', monospace",
+                      letterSpacing: '0.08em', cursor: 'pointer', border: '1px solid rgba(155,93,229,0.35)',
+                      background: pingedPosts.has(i) ? 'rgba(155,93,229,0.2)' : 'transparent',
+                      color: pingedPosts.has(i) ? '#9b5de5' : 'var(--muted)',
+                      boxShadow: pingedPosts.has(i) ? '0 0 10px rgba(155,93,229,0.4)' : 'none',
+                      transition: 'all 0.15s', flexShrink: 0,
+                    }}>
+                      {pingedPosts.has(i) ? '✓ PINGED' : '⟳ PING'}
+                    </button>
+                    <Link href="/register" className="btn btn-ghost" style={{ fontSize: 11, padding: '5px 12px', flexShrink: 0 }}>
+                      + Connect
+                    </Link>
+                  </div>
                 </div>
 
                 <p className="feed-post-body" dangerouslySetInnerHTML={{ __html: post.text }} />
