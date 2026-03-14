@@ -205,3 +205,7 @@ export const BOT_TYPE_COLORS: Record<BotType, string> = {
   'trainer-seeker': '#fb923c',
   ad:           '#60a5fa',
 };
+
+export function getBotById(id: string): Bot | undefined {
+  return bots.find(b => b.id === id);
+}

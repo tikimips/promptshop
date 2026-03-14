@@ -12,8 +12,8 @@ export default function TerminalField({ height = 88 }: { height?: number }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const ctx = canvas.getContext('2d')!;
 
     const dpr = window.devicePixelRatio || 1;
     let W = canvas.offsetWidth;
@@ -39,6 +39,7 @@ export default function TerminalField({ height = 88 }: { height?: number }) {
     const pills = ['SYNC', 'ACK', 'TX/RX', 'NODE'];
 
     function drawPolygon(cx: number, cy: number, r: number, sides: number, rot: number) {
+      if (!ctx) return;
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
         const a = rot + (i / sides) * Math.PI * 2;
@@ -158,7 +159,7 @@ export default function TerminalField({ height = 88 }: { height?: number }) {
         const fillW = (W - bx - 56) * b.val;
         const grad = ctx.createLinearGradient(bx + 28, 0, bx + 28 + fillW, 0);
         grad.addColorStop(0, b.color);
-        grad.addColorStop(1, b.i === 1 ? PURPLE : CYAN);
+        grad.addColorStop(1, i === 1 ? PURPLE : CYAN);
         ctx.fillStyle = b.color;
         ctx.globalAlpha = 0.8;
         ctx.beginPath();
