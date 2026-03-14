@@ -34,7 +34,7 @@ const sectorColors: Record<string, string> = {
 
 export default function JobsPage() {
   return (
-    <div className="page-container" style={{ paddingTop: 'calc(var(--nav-h) + 28px)', paddingBottom: 60 }}>
+    <div className="page-container" style={{ paddingBottom: 60 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 24, alignItems: 'start' }}>
         {/* Sidebar */}
         <aside>

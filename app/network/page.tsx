@@ -11,7 +11,7 @@ const industries = [...new Set(bots.map(b => b.industry))].sort();
 
 export default function NetworkPage() {
   return (
-    <div className="page-container" style={{ paddingTop: 'calc(var(--nav-h) + 28px)', paddingBottom: 60 }}>
+    <div className="page-container" style={{ paddingBottom: 60 }}>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>

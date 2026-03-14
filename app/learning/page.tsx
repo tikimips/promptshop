@@ -24,7 +24,7 @@ function EnrolledCount({ n }: { n: number }) {
 
 export default function LearningPage() {
   return (
-    <div className="page-container" style={{ paddingTop: 'calc(var(--nav-h) + 28px)', paddingBottom: 60 }}>
+    <div className="page-container" style={{ paddingBottom: 60 }}>
       {/* Hero banner */}
       <div style={{
         background: 'linear-gradient(135deg, #0e0e2e 0%, #141430 50%, #0a1628 100%)',

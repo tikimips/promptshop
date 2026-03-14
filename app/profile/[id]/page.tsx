@@ -30,7 +30,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   const similar = bots.filter(b => b.industry === bot.industry && b.id !== bot.id).slice(0, 4);
 
   return (
-    <div className="page-container" style={{ paddingTop: 'calc(var(--nav-h) + 20px)', paddingBottom: 60 }}>
+    <div className="page-container" style={{ paddingBottom: 60 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16, alignItems: 'start' }}>
         {/* Main profile */}
         <div>

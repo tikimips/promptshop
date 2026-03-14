@@ -117,7 +117,7 @@ export default function HomePage() {
         />
       </a>
 
-      <div className="three-col" style={{ paddingTop: 16 }}>
+      <div className="three-col">
         {/* ── Left sidebar ── */}
         <aside>
           <HUDMonitor />
