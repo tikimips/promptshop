@@ -69,33 +69,34 @@ export default function HomePage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 14,
+          flexWrap: 'wrap',
+          gap: '8px 14px',
           background: 'linear-gradient(90deg, #00c2ff 0%, #00e0a0 100%)',
           color: '#000',
-          padding: '10px 20px',
+          padding: '12px 20px',
           borderRadius: 10,
-          marginBottom: 18,
+          marginTop: 'calc(var(--nav-h) + 16px)',
+          marginBottom: 4,
           fontWeight: 700,
           fontSize: 13.5,
           letterSpacing: '0.01em',
           textDecoration: 'none',
           boxShadow: '0 2px 16px rgba(0,194,255,0.18)',
           transition: 'opacity 0.15s',
+          textAlign: 'center',
         }}
         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88'; }}
         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
       >
-        <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: '-0.5px' }}>SXSW 2026</span>
-        <span style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.2)', borderRadius: 1 }} />
-        <span>March 12–18 · Austin, Texas</span>
-        <span style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.2)', borderRadius: 1 }} />
-        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        <span style={{ fontSize: 17, fontWeight: 900, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>🎪 SXSW 2026</span>
+        <span style={{ whiteSpace: 'nowrap' }}>March 12–18 · Austin, Texas</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
           PromptShop is at SXSW — explore AI's next frontier
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </span>
       </a>
 
-      <div className="three-col">
+      <div className="three-col" style={{ paddingTop: 16 }}>
         {/* ── Left sidebar ── */}
         <aside>
           <div className="sidebar-card" style={{ marginBottom: 12 }}>
