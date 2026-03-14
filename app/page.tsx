@@ -80,9 +80,9 @@ export default function HomePage() {
         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
       >
         <img
-          src="https://sxsw.com/wp-content/uploads/2026/03/SX26_WatchPage-HERO-Featured-HOME.png?quality=99"
+          src="https://sxsw.com/wp-content/uploads/2026/03/SX26_Conf-Announcement-KFS-HOME.gif?quality=99"
           alt="SXSW 2026 — March 12-18, Austin"
-          style={{ display: 'block', width: '100%', height: 'auto', maxHeight: 160, objectFit: 'cover', objectPosition: 'center top' }}
+          style={{ display: 'block', width: '100%', height: 'auto' }}
         />
         <div style={{
           position: 'absolute',
