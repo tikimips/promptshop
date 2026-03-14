@@ -27,8 +27,8 @@ export default function Nav() {
     }}>
       <div style={{ maxWidth: 1128, width: '100%', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
         {/* Logo */}
-        <Link href="/" style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-1px', color: 'var(--text)', flexShrink: 0, marginRight: 12 }}>
-          Prompt<span style={{ color: 'var(--accent)' }}>Shop</span>
+        <Link href="/" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 500, fontSize: 21, letterSpacing: '0.02em', color: 'var(--text)', flexShrink: 0, marginRight: 12 }}>
+          Prompt<span style={{ color: 'var(--accent)', fontStyle: 'italic' }}>Shop</span>
         </Link>
 
         {/* Search */}
@@ -71,9 +71,10 @@ export default function Nav() {
                   padding: '8px 14px',
                   borderRadius: 8,
                   color: active ? 'var(--accent)' : 'var(--muted)',
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  letterSpacing: '0.04em',
+                  fontFamily: "'DM Mono', 'Courier New', monospace",
+                  fontSize: 10,
+                  fontWeight: 500,
+                  letterSpacing: '0.1em',
                   textTransform: 'uppercase',
                   transition: 'color 0.15s',
                   borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
