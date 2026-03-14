@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promptshop</title>
+  <meta name="description" content="Something's coming. These are the people making it worth the wait.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,700;0,14..32,900;1,14..32,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #242424;
+      --card-bg: #141414;
+      --text: #fff;
+      --muted: rgba(255,255,255,0.5);
+      --dim: rgba(255,255,255,0.25);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Top bar ── */
+    .top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 52px 60px 0;
+    }
+
+    .logo {
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+      color: #fff;
+    }
+
+    /* ── Email form ── */
+    .subscribe-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding-top: 6px;
+    }
+
+    .subscribe-form {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      transition: border-color 0.2s;
+    }
+
+    .subscribe-form:focus-within {
+      border-bottom-color: rgba(255,255,255,0.75);
+    }
+
+    .subscribe-form input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      padding: 6px 8px 6px 0;
+      width: 210px;
+      outline: none;
+    }
+
+    .subscribe-form input::placeholder {
+      color: rgba(255,255,255,0.35);
+    }
+
+    .subscribe-form button {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 6px 0 6px 10px;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+
+    .subscribe-form button:hover { color: #fff; }
+
+    .subscribe-status {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 7px;
+      letter-spacing: 0.03em;
+      min-height: 14px;
+    }
+
+    /* ── Intro ── */
+    .intro {
+      padding: 44px 60px 0;
+      max-width: 580px;
+    }
+
+    .intro p {
+      font-size: 14.5px;
+      font-weight: 300;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.58);
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Tiles ── */
+    .tiles-wrapper {
+      padding: 52px 60px 0;
+    }
+
+    .tiles-track {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 28px 28px 32px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .tiles-track::-webkit-scrollbar { display: none; }
+
+    .tile {
+      flex: 0 0 auto;
+      width: 228px;
+    }
+
+    .tile-img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      display: block;
+      border-radius: 3px;
+    }
+
+    .tile-body {
+      padding: 13px 2px 0;
+    }
+
+    .tile-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.45;
+      margin-bottom: 5px;
+    }
+
+    .tile-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .tile-title a:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(255,255,255,0.4);
+    }
+
+    .tile-source {
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 52px 60px 44px;
+      color: rgba(255,255,255,0.15);
+      font-size: 11.5px;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .top { padding: 36px 28px 0; flex-direction: column; gap: 24px; }
+      .logo { font-size: 40px; }
+      .subscribe-wrap { align-items: flex-start; }
+      .intro { padding: 32px 28px 0; }
+      .tiles-wrapper { padding: 36px 16px 0; }
+      .footer { padding: 40px 28px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo">Promptshop</div>
+  <div class="subscribe-wrap">
+    <form class="subscribe-form" id="subscribeForm" novalidate>
+      <input type="email" id="emailInput" placeholder="find out cool things" autocomplete="email">
+      <button type="submit" aria-label="Subscribe">→</button>
+    </form>
+    <div class="subscribe-status" id="subscribeStatus"></div>
+  </div>
+</div>
+
+<div class="intro">
+  <p>We're not ready yet. These people already are.</p>
+</div>
+
+<div class="tiles-wrapper">
+  <div class="tiles-track">
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=456&h=608&fit=crop&q=85" alt="City at dusk" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://monocle.com/magazine/" target="_blank" rel="noopener">The cities that refuse to compromise on how well they work</a></div>
+        <div class="tile-source">Monocle</div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=456&h=608&fit=crop&q=85" alt="Forest" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://emergencemagazine.org/" target="_blank" rel="noopener">What the forest knows that we keep forgetting to ask</a></div>
+        <div class="tile-source">Emergence Magazine</div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=456&h=608&fit=crop&q=85" alt="Laboratory" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://www.technologyreview.com/" target="_blank" rel="noopener">The scientists teaching machines what humans can't explain</a></div>
+        <div class="tile-source">MIT Technology Review</div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=456&h=608&fit=crop&q=85" alt="Design studio" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://www.itsnicethat.com/" target="_blank" rel="noopener">Designers doing stranger, better work without explanation</a></div>
+        <div class="tile-source">It's Nice That</div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=456&h=608&fit=crop&q=85" alt="Abstract light" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://nautil.us/" target="_blank" rel="noopener">Why beauty might be the most reliable instrument science has</a></div>
+        <div class="tile-source">Nautilus</div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=456&h=608&fit=crop&q=85" alt="Books" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://www.theparisreview.org/" target="_blank" rel="noopener">Writing at the edge of what language can hold</a></div>
+        <div class="tile-source">The Paris Review</div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=456&h=608&fit=crop&q=85" alt="Architecture" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://www.dezeen.com/" target="_blank" rel="noopener">Architecture that earns its place in a landscape</a></div>
+        <div class="tile-source">Dezeen</div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <img class="tile-img" src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=456&h=608&fit=crop&q=85" alt="Cosmos" loading="lazy">
+      <div class="tile-body">
+        <div class="tile-title"><a href="https://aeon.co/essays" target="_blank" rel="noopener">On the strange dignity of not knowing what you are</a></div>
+        <div class="tile-source">Aeon</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">© 2026 Promptshop</div>
+
+<script>
+  const SUPABASE_URL = 'https://ebewoojmfbyewqwfkbsd.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViZXdvb2ptZmJ5ZXdxd2ZrYnNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5ODMzOTUsImV4cCI6MjA4ODU1OTM5NX0.ydSBQisms78GDUwD9jmM9M1YzHUiyzTlYxPSgu8zabg';
+
+  document.getElementById('subscribeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('emailInput').value.trim();
+    const status = document.getElementById('subscribeStatus');
+
+    if (!email || !email.includes('@')) {
+      status.textContent = 'Valid email required.';
+      return;
+    }
+
+    status.textContent = '...';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/promptshop_subscribers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      if (res.ok || res.status === 201) {
+        status.textContent = "You're in.";
+        document.getElementById('emailInput').value = '';
+      } else if (res.status === 409) {
+        status.textContent = 'Already on the list.';
+      } else {
+        status.textContent = 'Something went wrong. Try again.';
+      }
+    } catch {
+      status.textContent = 'Connection error.';
+    }
+  });
+</script>
+
+</body>
+</html>
