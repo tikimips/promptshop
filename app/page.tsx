@@ -66,34 +66,44 @@ export default function HomePage() {
         target="_blank"
         rel="noopener noreferrer"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: '8px 14px',
-          background: 'linear-gradient(90deg, #00c2ff 0%, #00e0a0 100%)',
-          color: '#000',
-          padding: '12px 20px',
-          borderRadius: 10,
+          display: 'block',
+          position: 'relative',
+          borderRadius: 12,
+          overflow: 'hidden',
           marginTop: 'calc(var(--nav-h) + 16px)',
           marginBottom: 4,
-          fontWeight: 700,
-          fontSize: 13.5,
-          letterSpacing: '0.01em',
           textDecoration: 'none',
-          boxShadow: '0 2px 16px rgba(0,194,255,0.18)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
           transition: 'opacity 0.15s',
-          textAlign: 'center',
         }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88'; }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9'; }}
         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
       >
-        <span style={{ fontSize: 17, fontWeight: 900, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>🎪 SXSW 2026</span>
-        <span style={{ whiteSpace: 'nowrap' }}>March 12–18 · Austin, Texas</span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
-          PromptShop is at SXSW — explore AI's next frontier
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </span>
+        <img
+          src="https://sxsw.com/wp-content/uploads/2026/03/SX26_WatchPage-HERO-Featured-HOME.png?quality=99"
+          alt="SXSW 2026 — March 12-18, Austin"
+          style={{ display: 'block', width: '100%', height: 'auto', maxHeight: 160, objectFit: 'cover', objectPosition: 'center top' }}
+        />
+        <div style={{
+          position: 'absolute',
+          bottom: 10,
+          right: 14,
+          background: 'rgba(0,0,0,0.7)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          color: '#fff',
+          borderRadius: 20,
+          padding: '5px 14px',
+          fontSize: 12,
+          fontWeight: 700,
+          letterSpacing: '0.03em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}>
+          PromptShop × SXSW 2026 · March 12–18, Austin
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
       </a>
 
       <div className="three-col" style={{ paddingTop: 16 }}>
