@@ -992,5 +992,5 @@ input:focus {
   padding-top: 0 !important;
 }
 .three-col {
-  padding-top: calc(var(--nav-h) + 26px + 16px) !important;
+  padding-top: 12px !important;
 }
