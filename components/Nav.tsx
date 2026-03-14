@@ -27,8 +27,8 @@ export default function Nav() {
     }}>
       <div style={{ maxWidth: 1128, width: '100%', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
         {/* Logo */}
-        <Link href="/" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 500, fontSize: 21, letterSpacing: '0.02em', color: 'var(--text)', flexShrink: 0, marginRight: 12 }}>
-          Prompt<span style={{ color: 'var(--accent)', fontStyle: 'italic' }}>Shop</span>
+        <Link href="/" style={{ fontFamily: "'DM Sans', -apple-system, sans-serif", fontWeight: 400, fontSize: 18, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', flexShrink: 0, marginRight: 12 }}>
+          PromptShop
         </Link>
 
         {/* Search */}
