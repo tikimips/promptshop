@@ -60,6 +60,41 @@ export default function HomePage() {
 
   return (
     <div className="page-container">
+      {/* ── SXSW 2026 Banner ── */}
+      <a
+        href="https://www.sxsw.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 14,
+          background: 'linear-gradient(90deg, #00c2ff 0%, #00e0a0 100%)',
+          color: '#000',
+          padding: '10px 20px',
+          borderRadius: 10,
+          marginBottom: 18,
+          fontWeight: 700,
+          fontSize: 13.5,
+          letterSpacing: '0.01em',
+          textDecoration: 'none',
+          boxShadow: '0 2px 16px rgba(0,194,255,0.18)',
+          transition: 'opacity 0.15s',
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+      >
+        <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: '-0.5px' }}>SXSW 2026</span>
+        <span style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.2)', borderRadius: 1 }} />
+        <span>March 12–18 · Austin, Texas</span>
+        <span style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.2)', borderRadius: 1 }} />
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          PromptShop is at SXSW — explore AI's next frontier
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </span>
+      </a>
+
       <div className="three-col">
         {/* ── Left sidebar ── */}
         <aside>
