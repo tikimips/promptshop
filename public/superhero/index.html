@@ -29,9 +29,15 @@
   #heroRow { display: flex; gap: clamp(2rem, 8vw, 7rem); align-items: center; justify-content: center; }
   .hero-card { background: none; border: none; cursor: pointer; padding: 1rem; border-radius: 24px; transition: transform .15s; }
   .hero-card:active { transform: scale(.95); }
-  .hero-card svg { width: clamp(140px, 24vw, 260px); height: auto; display: block; }
   .hero-card img { width: clamp(160px, 26vw, 300px); aspect-ratio: 2 / 3; object-fit: cover; display: block;
     border-radius: 20px; border: 5px solid #ffd23f; box-shadow: 0 14px 44px rgba(0,0,0,.55); }
+  .card-ph { width: clamp(160px, 26vw, 300px); aspect-ratio: 2 / 3; border-radius: 20px; border: 5px solid #ffd23f;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem;
+    background: linear-gradient(110deg, #181832 40%, #262658 50%, #181832 60%); background-size: 200% 100%;
+    animation: shimmerCard 1.4s linear infinite; box-shadow: 0 14px 44px rgba(0,0,0,.55); }
+  .card-ph .q { font-size: 3.6rem; }
+  .card-ph b { font-size: 1.5rem; font-weight: 900; letter-spacing: .12em; color: #ffd23f; }
+  @keyframes shimmerCard { to { background-position: -200% 0; } }
   .hero-card.boy   { animation: floatA 3.4s ease-in-out infinite; }
   .hero-card.girl  { animation: floatB 3.8s ease-in-out infinite; }
   @keyframes floatA { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-22px) rotate(2deg); } }
@@ -171,72 +177,6 @@
   var GEN_ENDPOINT = '/api/superhero';
   var GEMINI_TIMEOUT_MS = 60000;
   var CAN_GENERATE = location.protocol !== 'file:';
-
-  // ================================================================
-  // Select-screen hero art (full hero with head), viewBox 0 0 400 640
-  // ================================================================
-  function boyBody() {
-    return '' +
-      '<path d="M120 210 C 70 320, 60 480, 85 600 L 140 560 L 200 250 L 260 560 L 315 600 C 340 480, 330 320, 280 210 C 250 195, 150 195, 120 210 Z" fill="#c1121f"/>' +
-      '<path d="M178 186 L 222 186 L 226 216 L 174 216 Z" fill="#f2c49b"/>' +
-      '<path d="M148 212 C 170 200, 230 200, 252 212 L 292 260 L 272 300 L 262 272 L 258 400 L 142 400 L 138 272 L 128 300 L 108 260 Z" fill="#1d4ed8"/>' +
-      '<path d="M108 260 L 70 350 L 108 396 L 138 372 L 116 330 L 132 288 Z" fill="#1d4ed8"/>' +
-      '<path d="M292 260 L 330 350 L 292 396 L 262 372 L 284 330 L 268 288 Z" fill="#1d4ed8"/>' +
-      '<circle cx="96" cy="382" r="17" fill="#f2c49b"/>' +
-      '<circle cx="304" cy="382" r="17" fill="#f2c49b"/>' +
-      '<rect x="142" y="392" width="116" height="26" rx="8" fill="#ffd23f"/>' +
-      '<circle cx="200" cy="405" r="12" fill="#e63946"/>' +
-      '<path d="M146 418 L 190 418 L 186 540 L 150 540 Z" fill="#1d4ed8"/>' +
-      '<path d="M210 418 L 254 418 L 250 540 L 214 540 Z" fill="#1d4ed8"/>' +
-      '<path d="M148 540 L 188 540 L 186 596 L 200 610 L 142 610 Z" fill="#c1121f"/>' +
-      '<path d="M212 540 L 252 540 L 258 610 L 200 610 L 214 596 Z" fill="#c1121f"/>' +
-      '<path d="M200 236 L 236 252 L 228 296 L 200 316 L 172 296 L 164 252 Z" fill="#ffd23f" stroke="#e63946" stroke-width="6"/>' +
-      '<path d="M200 252 L 216 262 L 210 284 L 200 292 L 190 284 L 184 262 Z" fill="#e63946"/>';
-  }
-
-  function girlBody() {
-    return '' +
-      '<path d="M125 210 C 80 310, 72 460, 95 580 L 148 545 L 200 250 L 252 545 L 305 580 C 328 460, 320 310, 275 210 C 248 196, 152 196, 125 210 Z" fill="#5a189a"/>' +
-      '<path d="M178 186 L 222 186 L 226 216 L 174 216 Z" fill="#f2c49b"/>' +
-      '<path d="M150 212 C 172 200, 228 200, 250 212 L 288 258 L 268 298 L 258 270 L 252 386 L 148 386 L 142 270 L 132 298 L 112 258 Z" fill="#e63946"/>' +
-      '<path d="M112 258 L 76 344 L 112 390 L 140 366 L 120 326 L 134 286 Z" fill="#e63946"/>' +
-      '<path d="M288 258 L 324 344 L 288 390 L 260 366 L 280 326 L 266 286 Z" fill="#e63946"/>' +
-      '<circle cx="100" cy="376" r="16" fill="#f2c49b"/>' +
-      '<circle cx="300" cy="376" r="16" fill="#f2c49b"/>' +
-      '<rect x="146" y="378" width="108" height="24" rx="8" fill="#ffd23f"/>' +
-      '<circle cx="200" cy="390" r="11" fill="#5a189a"/>' +
-      '<path d="M146 402 L 254 402 L 286 470 L 114 470 Z" fill="#e63946"/>' +
-      '<path d="M146 402 L 170 402 L 138 470 L 114 470 Z" fill="#c1121f"/>' +
-      '<path d="M230 402 L 254 402 L 286 470 L 262 470 Z" fill="#c1121f"/>' +
-      '<path d="M158 470 L 192 470 L 188 545 L 160 545 Z" fill="#f2c49b"/>' +
-      '<path d="M208 470 L 242 470 L 240 545 L 212 545 Z" fill="#f2c49b"/>' +
-      '<path d="M158 545 L 190 545 L 188 598 L 202 612 L 152 612 Z" fill="#ffd23f"/>' +
-      '<path d="M210 545 L 242 545 L 248 612 L 198 612 L 212 598 Z" fill="#ffd23f"/>' +
-      '<circle cx="200" cy="266" r="34" fill="#ffd23f" stroke="#5a189a" stroke-width="6"/>' +
-      '<path d="M200 246 L 206 260 L 221 260 L 209 269 L 214 284 L 200 275 L 186 284 L 191 269 L 179 260 L 194 260 Z" fill="#e63946"/>';
-  }
-
-  function heroWithHead(body, hair) {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 640">' +
-      body +
-      hair.back +
-      '<ellipse cx="200" cy="120" rx="62" ry="78" fill="#f2c49b"/>' +
-      hair.front +
-      '<path d="M200 88 C 178 78, 152 79, 141 90 C 134 97, 137 110, 149 113 C 164 117, 182 112, 190 102 L 200 96 L 210 102 C 218 112, 236 117, 251 113 C 263 110, 266 97, 259 90 C 248 79, 222 78, 200 88 Z" fill="#111318"/>' +
-      '<ellipse cx="170" cy="97" rx="11" ry="6.5" fill="#fff"/>' +
-      '<ellipse cx="230" cy="97" rx="11" ry="6.5" fill="#fff"/>' +
-      '<path d="M176 158 Q 200 176 224 158" fill="none" stroke="#a9683f" stroke-width="6" stroke-linecap="round"/>' +
-      '</svg>';
-  }
-
-  var BOY_HAIR = {
-    back: '<path d="M140 96 C 138 58, 168 34, 200 34 C 232 34, 262 58, 260 96 C 262 74, 200 60, 200 60 C 200 60, 138 74, 140 96 Z" fill="#3d2817"/>',
-    front: '<path d="M138 104 C 134 56, 166 30, 200 30 C 234 30, 266 56, 262 104 C 254 78, 236 62, 200 62 C 164 62, 146 78, 138 104 Z" fill="#3d2817"/>'
-  };
-  var GIRL_HAIR = {
-    back: '<path d="M136 100 C 128 48, 164 24, 200 24 C 236 24, 272 48, 264 100 C 276 150, 272 200, 258 224 L 232 208 C 244 176, 246 140, 240 116 L 160 116 C 154 140, 156 176, 168 208 L 142 224 C 128 200, 124 150, 136 100 Z" fill="#6b3410"/>',
-    front: '<path d="M136 104 C 130 52, 164 26, 200 26 C 236 26, 270 52, 264 104 C 258 76, 240 58, 200 58 C 160 58, 142 76, 136 104 Z" fill="#6b3410"/>'
-  };
 
   // ================================================================
   // Scene artwork, viewBox 0 0 1800 1200. Head goes at scene.head.
@@ -496,34 +436,32 @@
   var errorMsg = $('errorMsg'), retryBtn = $('retryBtn');
   var frameCanvas = $('frameCanvas'), finalCanvas = $('finalCanvas');
 
-  $('pickBoy').innerHTML = heroWithHead(boyBody(), BOY_HAIR);
-  $('pickGirl').innerHTML = heroWithHead(girlBody(), GIRL_HAIR);
-
-  // Replace the cartoon select-screen heroes with photorealistic Gemini
-  // renders, generated once per page load. SVGs stay as fallback.
-  function heroCardPrompt(heroKey) {
-    var who = heroKey === 'boy'
-      ? 'a heroic adult man superhero with an athletic build, wearing a bright blue suit with a flowing red cape, yellow belt and red boots'
-      : 'a heroic adult woman superhero with an athletic build, wearing a bright red suit with a flowing purple cape, yellow belt and yellow boots';
-    return 'A photorealistic, cinematic full-body photograph of ' + who +
-      ', floating mid-air in a confident hero pose, cape billowing, dramatic blue sky with clouds behind, ' +
-      'movie-poster lighting, sharp focus, high detail. Confident smiling face looking at the camera. ' +
-      'Portrait orientation, full body visible head to boots, centered. No text, no watermark, no logo.';
+  function cardPlaceholder(label) {
+    return '<div class="card-ph"><span class="q">\u2728</span><b>' + label + '</b></div>';
   }
+  $('pickBoy').innerHTML = cardPlaceholder('MAN');
+  $('pickGirl').innerHTML = cardPlaceholder('WOMAN');
 
-  function loadHeroCards() {
-    if (!CAN_GENERATE) return;
-    ['boy', 'girl'].forEach(function (heroKey) {
-      callGemini(heroCardPrompt(heroKey), null, '2:3', function (b64) {
-        var img = document.createElement('img');
-        img.alt = heroKey + ' superhero';
-        img.src = 'data:image/png;base64,' + b64;
-        var btn = $(heroKey === 'boy' ? 'pickBoy' : 'pickGirl');
-        btn.innerHTML = '';
-        btn.appendChild(img);
-      }, function (why) {
-        console.warn('Hero card generation failed (' + heroKey + '), keeping cartoon:', why);
-      });
+  // Load the photorealistic hero cards from the server (cached CDN-side,
+  // so this is instant except the very first hit after a deploy).
+  function setCard(btnId, b64, alt) {
+    var img = document.createElement('img');
+    img.alt = alt;
+    img.src = 'data:image/png;base64,' + b64;
+    var btn = $(btnId);
+    btn.innerHTML = '';
+    btn.appendChild(img);
+  }
+  function loadHeroCards(attempt) {
+    if (!CAN_GENERATE) return; // offline copy keeps the placeholder cards
+    fetch('/api/superhero/cards').then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.boy && j.girl) {
+        setCard('pickBoy', j.boy, 'Man superhero');
+        setCard('pickGirl', j.girl, 'Woman superhero');
+      } else { throw new Error((j && j.error) || 'bad response'); }
+    }).catch(function (e) {
+      console.warn('Hero cards not ready:', e && e.message);
+      if ((attempt || 0) < 5) setTimeout(function () { loadHeroCards((attempt || 0) + 1); }, 6000);
     });
   }
   loadHeroCards();

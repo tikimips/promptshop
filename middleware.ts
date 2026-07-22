@@ -67,5 +67,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/superhero', '/superhero/:path*', '/api/superhero'],
+  matcher: ['/superhero', '/superhero/:path*', '/api/superhero', '/api/superhero/:path*'],
 };
