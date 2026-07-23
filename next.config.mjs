@@ -6,6 +6,7 @@ const nextConfig = {
   async rewrites() {
     return [
       { source: '/superhero', destination: '/superhero/index.html' },
+      { source: '/anime', destination: '/anime/index.html' },
     ];
   },
 };

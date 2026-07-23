@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Anime Photo Booth</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; background: #120820; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #fff; }
+
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; }
+  .screen.active { display: flex; }
+
+  /* ===== Screen 1: Attract ===== */
+  #attract { background: radial-gradient(ellipse at 50% 30%, #3a1a5e 0%, #120820 70%); cursor: pointer; z-index: 30; }
+  #attract h1 { font-size: clamp(2.6rem, 8vw, 6.5rem); font-weight: 900; letter-spacing: .02em; text-align: center; line-height: 1.05;
+    color: #ff9ecf; text-shadow: 4px 4px 0 #7b2cbf, 8px 8px 0 rgba(0,0,0,.45); text-transform: uppercase; }
+  .cam-wrap { position: relative; margin-bottom: 1.5rem; animation: bounce 2.2s ease-in-out infinite; }
+  .cam-wrap .cam { font-size: clamp(5rem, 12vw, 9rem); display: block; line-height: 1; }
+  .cam-wrap .spark { position: absolute; font-size: clamp(1.6rem, 4vw, 3rem); animation: twinkle 1.6s ease-in-out infinite; }
+  .cam-wrap .s1 { top: -8%; right: -14%; }
+  .cam-wrap .s2 { bottom: -4%; left: -16%; animation-delay: .8s; }
+  @keyframes twinkle { 0%,100% { opacity: .3; transform: scale(.8) rotate(-10deg); } 50% { opacity: 1; transform: scale(1.15) rotate(10deg); } }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+  #goText { margin-top: 1.6rem; font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 900; letter-spacing: .15em;
+    color: #2eea6d; text-shadow: 0 0 24px rgba(46, 234, 109, .6); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+  #keyWarn { position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: #7a1020;
+    color: #ffd7dc; padding: .6rem 1.4rem; border-radius: 999px; font-size: .95rem; display: none; white-space: nowrap; }
+
+  /* ===== Screen 2: Booth ===== */
+  #booth { z-index: 10; background: #000; }
+  #stage { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+  #video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  #faceOval { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); height: 66%; aspect-ratio: 78 / 100;
+    border: 6px dashed #ff5fa2; border-radius: 50%; z-index: 3; pointer-events: none;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,.25); }
+  #banner { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); z-index: 5; background: rgba(18,8,32,.75);
+    border: 3px solid #ff9ecf; border-radius: 999px; padding: .8rem 2rem; font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+    font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #ff9ecf; white-space: nowrap; display: none; }
+  #countdown { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 6; pointer-events: none; }
+  #countdown span { font-size: clamp(8rem, 30vw, 22rem); font-weight: 900; color: #fff; text-shadow: 0 0 60px rgba(0,0,0,.7); animation: countPop .95s ease-out; }
+  @keyframes countPop { 0% { transform: scale(1.6); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 85% { opacity: 1; } 100% { transform: scale(.9); opacity: 0; } }
+  #flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 7; }
+  #flash.go { animation: flashAnim .5s ease-out; }
+  @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* ===== Working screen ===== */
+  #working { background: radial-gradient(ellipse at 50% 40%, #3a1a5e 0%, #120820 75%); z-index: 15; }
+  #working .burst { width: 140px; height: 140px; border-radius: 50%; border: 10px dashed #ff5fa2;
+    animation: spin 1.6s linear infinite; margin-bottom: 2.5rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #working h2 { font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 900; text-transform: uppercase; text-align: center;
+    color: #ff9ecf; text-shadow: 4px 4px 0 #7b2cbf; animation: pulse 1.4s ease-in-out infinite; }
+  #working p { margin-top: 1.2rem; color: #ffffffaa; font-size: clamp(1rem, 2.5vw, 1.5rem); }
+
+  /* ===== Screen 3: Preview ===== */
+  #preview { background: #0a0512; z-index: 18; }
+  #previewImg { max-width: 96vw; max-height: 92vh; border-radius: 10px; box-shadow: 0 16px 64px rgba(0,0,0,.7); }
+  #previewTimer { position: absolute; right: 2rem; bottom: 2rem; width: 96px; height: 96px; border-radius: 50%;
+    background: rgba(18,8,32,.8); border: 5px solid #ff9ecf; display: flex; align-items: center; justify-content: center;
+    font-size: 2.6rem; font-weight: 900; color: #ff9ecf; z-index: 5; }
+
+  /* ===== Screen 4: Done ===== */
+  #done { background: radial-gradient(ellipse at 50% 25%, #3a1a5e 0%, #120820 75%); z-index: 20; cursor: pointer; padding: 2rem; }
+  #done h2 { font-size: clamp(2.2rem, 7vw, 5.5rem); font-weight: 900; text-transform: uppercase; text-align: center; line-height: 1.1;
+    color: #ff9ecf; text-shadow: 4px 4px 0 #7b2cbf, 8px 8px 0 rgba(0,0,0,.45); }
+  #done .sub { margin-top: 1rem; font-size: clamp(1.3rem, 4vw, 2.6rem); font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: .1em; }
+  #done .again { margin-top: 3rem; color: #ffffff88; font-size: 1.1rem; animation: pulse 2s ease-in-out infinite; }
+
+  /* ===== Error ===== */
+  #error { background: #120820; z-index: 40; padding: 2rem; text-align: center; }
+  #error h2 { font-size: 2rem; margin-bottom: 1rem; }
+  #error p { color: #b5a5c8; max-width: 480px; line-height: 1.5; margin-bottom: 2rem; }
+  #retryBtn { border: none; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: 999px;
+    padding: 1.1rem 2.6rem; font-size: 1.25rem; background: linear-gradient(90deg, #7b2cbf, #ff5fa2); color: #fff; }
+
+  canvas.work { display: none; }
+</style>
+</head>
+<body>
+
+  <!-- Screen 1: Attract -->
+  <div id="attract" class="screen active">
+    <div class="cam-wrap">
+      <span class="cam">📸</span>
+      <span class="spark s1">✨</span>
+      <span class="spark s2">✨</span>
+    </div>
+    <h1>Anime<br>Photo Booth</h1>
+    <div id="goText">GO</div>
+    <div id="keyWarn">Offline copy: AI photos need the hosted version at promptshop.ai/anime.</div>
+  </div>
+
+  <!-- Screen 2: Booth -->
+  <div id="booth" class="screen">
+    <div id="stage">
+      <video id="video" autoplay playsinline muted></video>
+      <div id="faceOval"></div>
+      <div id="banner">Put your face in the oval</div>
+      <div id="countdown"><span id="countNum">3</span></div>
+      <div id="flash"></div>
+    </div>
+  </div>
+
+  <!-- Working screen -->
+  <div id="working" class="screen">
+    <div class="burst"></div>
+    <h2>Drawing You In&hellip;</h2>
+    <p>Your anime photo is being created</p>
+  </div>
+
+  <!-- Screen 3: Preview -->
+  <div id="preview" class="screen">
+    <img id="previewImg" alt="Your anime photo">
+    <div id="previewTimer">10</div>
+  </div>
+
+  <!-- Screen 4: Done -->
+  <div id="done" class="screen">
+    <h2>Your Photo<br>Is Ready</h2>
+    <div class="sub">at the printing station</div>
+    <div class="again">Tap anywhere to go again</div>
+  </div>
+
+  <!-- Error -->
+  <div id="error" class="screen">
+    <h2>Something went wrong</h2>
+    <p id="errorMsg"></p>
+    <button id="retryBtn">Try Again</button>
+  </div>
+
+<canvas id="frameCanvas" class="work"></canvas>
+
+<script>
+(function () {
+  'use strict';
+
+  // AI generation goes through the site's API route (key stays server-side).
+  var GEN_ENDPOINT = '/api/anime';
+  var GEN_TIMEOUT_MS = 60000;
+  var CAN_GENERATE = location.protocol !== 'file:';
+
+  var IDLE_RESET_MS = 90000;
+  var PREVIEW_S = 10;
+  var DONE_RESET_MS = 12000;
+  var POSITION_MS = 4000;
+
+  var stream = null, busy = false;
+  var idleTimer = null, doneTimer = null, previewInterval = null;
+  var seqTimers = [];
+  var lastUrl = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var attract = $('attract'), booth = $('booth'), working = $('working'), preview = $('preview'), done = $('done'), errorScreen = $('error');
+  var video = $('video'), banner = $('banner');
+  var countdown = $('countdown'), countNum = $('countNum'), flash = $('flash');
+  var previewImg = $('previewImg'), previewTimer = $('previewTimer');
+  var errorMsg = $('errorMsg'), retryBtn = $('retryBtn');
+  var frameCanvas = $('frameCanvas');
+
+  function show(screen) {
+    [attract, booth, working, preview, done, errorScreen].forEach(function (s) { s.classList.remove('active'); });
+    screen.classList.add('active');
+  }
+
+  if (!CAN_GENERATE) $('keyWarn').style.display = 'block';
+
+  function later(fn, ms) { var t = setTimeout(fn, ms); seqTimers.push(t); return t; }
+  function clearSeq() { seqTimers.forEach(clearTimeout); seqTimers = []; }
+
+  function pokeIdle() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { if (!busy) resetAll(); }, IDLE_RESET_MS);
+  }
+  ['pointerdown', 'touchstart', 'keydown'].forEach(function (evt) {
+    document.addEventListener(evt, pokeIdle, { passive: true });
+  });
+
+  function resetAll() {
+    clearSeq();
+    clearTimeout(doneTimer);
+    clearInterval(previewInterval);
+    // Camera intentionally kept running so consent is only asked once per page load
+    busy = false;
+    banner.style.display = 'none';
+    countdown.style.display = 'none';
+    show(attract);
+  }
+
+  // ================== Camera ==================
+  function startCamera(onReady) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showError('This browser does not support camera access. Use a recent Chrome, Edge, or Safari.');
+      return;
+    }
+    // Reuse the stream so the browser only asks for camera consent once
+    if (stream && stream.getTracks().some(function (t) { return t.readyState === 'live'; })) {
+      video.srcObject = stream;
+      onReady();
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1920, min: 1280 }, height: { ideal: 1080, min: 720 }, frameRate: { ideal: 30 } },
+      audio: false
+    }).then(function (s) {
+      stream = s;
+      video.srcObject = s;
+      var track = s.getVideoTracks()[0];
+      var st = track.getSettings();
+      if (track.applyConstraints && (st.width < 1920 || st.height < 1080)) {
+        track.applyConstraints({ width: 1920, height: 1080 }).catch(function () {});
+      }
+      onReady();
+    }).catch(function () {
+      navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false
+      }).then(function (s) {
+        stream = s;
+        video.srcObject = s;
+        onReady();
+      }).catch(function (err2) {
+        showError(cameraErrorText(err2));
+      });
+    });
+  }
+
+  function cameraErrorText(err) {
+    if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'))
+      return 'Camera permission was denied. Allow camera access for this page in browser settings, then tap Try Again.';
+    if (err && err.name === 'NotFoundError')
+      return 'No camera found. Check the webcam, then tap Try Again.';
+    if (err && err.name === 'NotReadableError')
+      return 'The camera is in use by another app. Close it, then tap Try Again.';
+    return 'Could not start the camera (' + (err && err.name ? err.name : 'unknown error') + '). Tap Try Again.';
+  }
+
+  function showError(msg) {
+    busy = false;
+    errorMsg.textContent = msg;
+    show(errorScreen);
+  }
+
+  // ================== Flow ==================
+  attract.addEventListener('click', function () {
+    if (busy) return;
+    busy = true;
+    if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(function () {});
+    }
+    startCamera(runBoothSequence);
+    pokeIdle();
+  });
+
+  retryBtn.addEventListener('click', function () {
+    busy = true;
+    startCamera(runBoothSequence);
+  });
+
+  function runBoothSequence() {
+    show(booth);
+    banner.style.display = 'block';
+    later(function () {
+      banner.style.display = 'none';
+      runCountdown(3, snap);
+    }, POSITION_MS);
+  }
+
+  function runCountdown(from, cb) {
+    countdown.style.display = 'flex';
+    var n = from;
+    (function tick() {
+      if (n <= 0) { countdown.style.display = 'none'; cb(); return; }
+      countNum.textContent = n;
+      countNum.style.animation = 'none';
+      void countNum.offsetWidth;
+      countNum.style.animation = '';
+      n--;
+      later(tick, 1000);
+    })();
+  }
+
+  function snap() {
+    flash.classList.remove('go');
+    void flash.offsetWidth;
+    flash.classList.add('go');
+
+    // Grab the mirrored frame at stage resolution
+    var stage = $('stage');
+    var sw = stage.clientWidth, sh = stage.clientHeight;
+    var K = 2;
+    frameCanvas.width = sw * K; frameCanvas.height = sh * K;
+    var fctx = frameCanvas.getContext('2d');
+    var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
+    var cs = Math.max(sw * K / vw, sh * K / vh);
+    var dw = vw * cs, dh = vh * cs;
+    var dx = (sw * K - dw) / 2, dy = (sh * K - dh) / 2;
+    fctx.save();
+    fctx.translate(sw * K, 0); fctx.scale(-1, 1);
+    fctx.drawImage(video, dx, dy, dw, dh);
+    fctx.restore();
+
+    // Head-and-shoulders crop around the face oval (matches #faceOval CSS)
+    var OH = sh * 0.66, OW = OH * 0.78;
+    var ocx = sw / 2, ocy = sh * 0.46;
+    var cw2 = OW * 1.9 * K, ch2 = OH * 1.6 * K;
+    var cx2 = ocx * K - cw2 / 2, cy2 = (ocy - OH * 0.5 * 0.15) * K - ch2 / 2 + OH * 0.15 * K;
+    cx2 = Math.max(0, Math.min(cx2, frameCanvas.width - cw2));
+    cy2 = Math.max(0, Math.min(cy2, frameCanvas.height - ch2));
+    var cropCanvas = document.createElement('canvas');
+    cropCanvas.width = Math.round(Math.min(cw2, frameCanvas.width));
+    cropCanvas.height = Math.round(Math.min(ch2, frameCanvas.height));
+    cropCanvas.getContext('2d').drawImage(frameCanvas, cx2, cy2, cropCanvas.width, cropCanvas.height, 0, 0, cropCanvas.width, cropCanvas.height);
+    var faceB64 = cropCanvas.toDataURL('image/jpeg', 0.92).split(',')[1];
+
+    later(function () {
+      show(working);
+      if (!CAN_GENERATE) {
+        showError('This offline copy cannot create anime photos. Use the hosted version at promptshop.ai/anime.');
+        return;
+      }
+      generate(faceB64, 0);
+    }, 550);
+  }
+
+  function generate(faceB64, attempt) {
+    var ctrl = new AbortController();
+    var to = setTimeout(function () { ctrl.abort(); }, GEN_TIMEOUT_MS);
+    fetch(GEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: ctrl.signal,
+      body: JSON.stringify({ imageB64: faceB64 })
+    }).then(function (r) {
+      clearTimeout(to);
+      return r.json().then(function (j) {
+        if (r.ok && j && j.image) { onGenerated(j.image); return; }
+        throw new Error((j && j.error) || ('HTTP ' + r.status));
+      });
+    }).catch(function (e) {
+      clearTimeout(to);
+      if (attempt < 1) { generate(faceB64, attempt + 1); return; } // one silent retry
+      console.warn('Anime generation failed:', e && e.message);
+      showError('Could not create the anime photo. Tap Try Again.');
+    });
+  }
+
+  function onGenerated(pngB64) {
+    var bytes = atob(pngB64);
+    var arr = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    var blob = new Blob([arr], { type: 'image/png' });
+    if (lastUrl) URL.revokeObjectURL(lastUrl);
+    lastUrl = URL.createObjectURL(blob);
+    autoDownload(lastUrl);
+    previewImg.src = lastUrl;
+    startPreview();
+  }
+
+  function autoDownload(url) {
+    var a = document.createElement('a');
+    var ts = new Date();
+    var pad = function (x) { return String(x).padStart(2, '0'); };
+    a.download = 'anime_' + ts.getFullYear() + pad(ts.getMonth() + 1) + pad(ts.getDate()) +
+      '_' + pad(ts.getHours()) + pad(ts.getMinutes()) + pad(ts.getSeconds()) + '.png';
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function startPreview() {
+    show(preview);
+    var n = PREVIEW_S;
+    previewTimer.textContent = n;
+    clearInterval(previewInterval);
+    previewInterval = setInterval(function () {
+      n--;
+      if (n <= 0) {
+        clearInterval(previewInterval);
+        finishToDone();
+        return;
+      }
+      previewTimer.textContent = n;
+    }, 1000);
+  }
+
+  function finishToDone() {
+    busy = false;
+    show(done);
+    clearTimeout(doneTimer);
+    doneTimer = setTimeout(resetAll, DONE_RESET_MS);
+  }
+  done.addEventListener('click', resetAll);
+
+})();
+</script>
+</body>
+</html>
