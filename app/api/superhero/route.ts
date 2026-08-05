@@ -93,7 +93,7 @@ export async function POST(req: Request) {
   prompt +=
     'IMPORTANT: the costumes must be completely plain — absolutely no logos, emblems, chest symbols, insignia or lettering anywhere on any uniform, cape or belt. ' +
     'Match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
-    'Landscape orientation. No text, no watermark, no logo.';
+    'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.';
 
   const parts: object[] = [{ text: prompt }];
   for (const f of faces) {

@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       'Keep the commentator on the LEFT side of the reference photo exactly as he appears there — same face, glasses, gray suit, pose and microphone. ' +
       guests + `. ${preserve}. ` +
       'They hold black broadcast microphones and smile at the camera. Same framing, lighting, color grading and stadium crowd background as the reference so it looks like one seamless professional broadcast photo, not a collage. ' +
-      'Landscape orientation. No added text overlays, no watermark.';
+      'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No added text overlays, no watermark.';
     parts.push({ text: prompt });
     for (const f of faces) parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
     try {
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
     prompt =
       `A photorealistic, cinematic professional sports photograph of ${subject}. ${preserve}, ` +
       'and match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
-      'Landscape orientation. No text overlays, no watermark.';
+      'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text overlays, no watermark.';
     parts.push({ text: prompt });
     for (const f of faces) parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
   }

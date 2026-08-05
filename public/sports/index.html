@@ -111,6 +111,13 @@
     font-weight: 700; font-size: 1rem; cursor: pointer; }
   #flashToggle.on { background: #FFF6E8; color: #1a1a1a; border-color: #FFF6E8; }
 
+
+  /* ===== Print orientation toggle ===== */
+  #orientToggle { position: absolute; left: 2rem; bottom: 2rem; display: flex; gap: .7rem; z-index: 5; }
+  #orientToggle button { background: rgba(0,0,0,.6); color: #fff; border: 2px solid #ffffff55; border-radius: 999px;
+    padding: .7rem 1.4rem; font-family: inherit; font-weight: 800; font-size: 1.05rem; cursor: pointer; }
+  #orientToggle button.sel { background: #FFF6E8; color: #1a1a1a; border-color: #FFF6E8; }
+
   canvas.work { display: none; }
 </style>
 </head>
@@ -168,6 +175,10 @@
   <!-- Preview -->
   <div id="preview" class="screen">
     <img id="previewImg" alt="Your sports photo">
+    <div id="orientToggle">
+      <button id="orientPortrait">▯ Portrait</button>
+      <button id="orientLandscape">▭ Landscape</button>
+    </div>
     <div id="previewTimer">10</div>
   </div>
 
@@ -527,6 +538,27 @@
     });
   }
 
+
+  // ===== 4x6 print orientation with face-aware safe area =====
+  var genImage = null, faceSafeBox = null, orientation = 'landscape', printUrl = null;
+  var orientPortraitBtn = $('orientPortrait'), orientLandscapeBtn = $('orientLandscape');
+
+  // pico.js fallback (the FaceDetector API is flag-gated on desktop Chrome)
+  var picoCascade = null;
+  if (CAN_GENERATE) {
+    (function () {
+      var sc = document.createElement('script');
+      sc.src = '/vendor/pico.js';
+      sc.onload = function () {
+        fetch('/vendor/facefinder').then(function (r) { return r.arrayBuffer(); }).then(function (b) {
+          picoCascade = pico.unpack_cascade(new Int8Array(b));
+        }).catch(function () {});
+      };
+      sc.onerror = function () {};
+      document.head.appendChild(sc);
+    })();
+  }
+
   function onGenerated(pngB64) {
     var bytes = atob(pngB64);
     var arr = new Uint8Array(bytes.length);
@@ -534,17 +566,132 @@
     var blob = new Blob([arr], { type: 'image/png' });
     if (lastUrl) URL.revokeObjectURL(lastUrl);
     lastUrl = URL.createObjectURL(blob);
-    autoDownload(lastUrl);
-    previewImg.src = lastUrl;
-    startPreview();
+    var img = new Image();
+    img.onload = function () {
+      genImage = img;
+      detectFaces(img, function (box) {
+        faceSafeBox = box;
+        orientation = (box && fitsPortrait(img, box)) ? 'portrait' : 'landscape';
+        applyOrientation();
+        startPreview();
+      });
+    };
+    img.onerror = function () { showError('Could not load the photo. Tap Try Again.'); };
+    img.src = lastUrl;
   }
 
-  function autoDownload(url) {
+  // Hard ~1s budget; never blocks or delays the flow
+  function detectFaces(img, cb) {
+    var done = false;
+    var to = setTimeout(function () { done = true; cb(null); }, 1000);
+    function finish(box) { if (!done) { done = true; clearTimeout(to); cb(box); } }
+    try {
+      if (window.FaceDetector) {
+        new window.FaceDetector({ fastMode: true, maxDetectedFaces: 8 }).detect(img)
+          .then(function (faces) {
+            var rects = (faces || []).map(function (f) { return f.boundingBox; });
+            if (rects.length) finish(safeBoxFrom(rects, img)); else picoDetect(img, finish);
+          })
+          .catch(function () { picoDetect(img, finish); });
+      } else {
+        picoDetect(img, finish);
+      }
+    } catch (e) { finish(null); }
+  }
+
+  function picoDetect(img, finish) {
+    if (!picoCascade || !window.pico) { finish(null); return; }
+    try {
+      var maxDim = 800;
+      var k = Math.min(1, maxDim / Math.max(img.width, img.height));
+      var w = Math.round(img.width * k), h = Math.round(img.height * k);
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      var cx = c.getContext('2d');
+      cx.drawImage(img, 0, 0, w, h);
+      var rgba = cx.getImageData(0, 0, w, h).data;
+      var gray = new Uint8Array(w * h);
+      for (var i = 0; i < w * h; i++)
+        gray[i] = (2 * rgba[4 * i] + 7 * rgba[4 * i + 1] + rgba[4 * i + 2]) / 10;
+      var dets = pico.run_cascade({ pixels: gray, nrows: h, ncols: w, ldim: w }, picoCascade, {
+        shiftfactor: 0.1, minsize: Math.max(24, Math.round(Math.min(w, h) * 0.08)), maxsize: Math.max(w, h), scalefactor: 1.1
+      });
+      dets = pico.cluster_detections(dets, 0.2);
+      var rects = [];
+      for (var d = 0; d < dets.length; d++) {
+        if (dets[d][3] > 20) {
+          var s = dets[d][2] / k, row = dets[d][0] / k, col = dets[d][1] / k;
+          rects.push({ x: col - s / 2, y: row - s / 2, width: s, height: s });
+        }
+      }
+      finish(rects.length ? safeBoxFrom(rects, img) : null);
+    } catch (e) { finish(null); }
+  }
+
+  // Union of all faces, then pad: headroom above, mid-chest below, side margins
+  function safeBoxFrom(rects, img) {
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity, maxW = 0, maxH = 0;
+    rects.forEach(function (r) {
+      x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y);
+      x1 = Math.max(x1, r.x + r.width); y1 = Math.max(y1, r.y + r.height);
+      maxW = Math.max(maxW, r.width); maxH = Math.max(maxH, r.height);
+    });
+    x0 -= maxW * 0.25; x1 += maxW * 0.25;
+    y0 -= maxH * 0.5;
+    y1 += maxH * 1.2;
+    x0 = Math.max(0, x0); y0 = Math.max(0, y0);
+    x1 = Math.min(img.width, x1); y1 = Math.min(img.height, y1);
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  }
+
+  function fitsPortrait(img, box) {
+    // Width-only test: a portrait crop keeps the full frame height, so
+    // vertical fit is decided by the generation itself.
+    var cw = img.height * 2 / 3;
+    return box.w <= cw * 0.9;
+  }
+
+  function computeCrop(img, box, orient) {
+    if (orient !== 'portrait') return { x: 0, y: 0, w: img.width, h: img.height };
+    var ch = img.height, cw = Math.round(ch * 2 / 3);
+    var center = box ? box.x + box.w / 2 : img.width / 2;
+    var x = Math.round(center - cw / 2);
+    x = Math.max(0, Math.min(x, img.width - cw));
+    if (box) {
+      var inset = cw * 0.05;
+      if (box.x < x + inset) x = Math.max(0, Math.round(box.x - inset));
+      if (box.x + box.w > x + cw - inset) x = Math.min(img.width - cw, Math.round(box.x + box.w + inset - cw));
+      if (box.x < x) x = Math.max(0, Math.round(box.x)); // faces beat centering
+    }
+    return { x: x, y: 0, w: cw, h: ch };
+  }
+
+  function applyOrientation() {
+    if (!genImage) return;
+    var crop = computeCrop(genImage, faceSafeBox, orientation);
+    var c = document.createElement('canvas');
+    c.width = crop.w; c.height = crop.h;
+    c.getContext('2d').drawImage(genImage, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+    var bin = atob(c.toDataURL('image/jpeg', 0.95).split(',')[1]);
+    var a2 = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) a2[i] = bin.charCodeAt(i);
+    if (printUrl) URL.revokeObjectURL(printUrl);
+    printUrl = URL.createObjectURL(new Blob([a2], { type: 'image/jpeg' }));
+    previewImg.src = printUrl;
+    orientPortraitBtn.classList.toggle('sel', orientation === 'portrait');
+    orientLandscapeBtn.classList.toggle('sel', orientation === 'landscape');
+  }
+
+  orientPortraitBtn.addEventListener('click', function () { orientation = 'portrait'; applyOrientation(); });
+  orientLandscapeBtn.addEventListener('click', function () { orientation = 'landscape'; applyOrientation(); });
+
+
+  function autoDownload(url, ext) {
     var a = document.createElement('a');
     var ts = new Date();
     var pad = function (x) { return String(x).padStart(2, '0'); };
     a.download = 'sports_' + (team || 'team') + '_' + ts.getFullYear() + pad(ts.getMonth() + 1) + pad(ts.getDate()) +
-      '_' + pad(ts.getHours()) + pad(ts.getMinutes()) + pad(ts.getSeconds()) + '.png';
+      '_' + pad(ts.getHours()) + pad(ts.getMinutes()) + pad(ts.getSeconds()) + (ext || '.png');
     a.href = url;
     document.body.appendChild(a);
     a.click();
@@ -568,6 +715,8 @@
   }
 
   function finishToDone() {
+    // Print file goes out at the finally-selected orientation and aspect
+    autoDownload(printUrl || lastUrl, orientation === 'portrait' ? '_portrait.jpg' : '_landscape.jpg');
     busy = false;
     show(done);
     clearTimeout(doneTimer);

@@ -105,7 +105,7 @@ export async function POST(req: Request) {
       ' Replicate the exact art style of the attached style reference image (line work, shading, eye rendering).';
   }
   prompt +=
-    ' The final result must be one cohesive anime illustration, landscape orientation. No text, no watermark, no logo.';
+    ' The final result must be one cohesive anime illustration, landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.';
 
   const parts: object[] = [{ text: prompt }];
   for (const f of faces) {

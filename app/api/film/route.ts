@@ -95,7 +95,7 @@ export async function POST(req: Request) {
     "Each character must preserve the corresponding person's real facial features, expression, skin tone, apparent age, gender and hair. " +
     'All background creatures and side characters are original designs merely inspired by the described aesthetic, not copies of any existing copyrighted characters. ' +
     'The result must look like one cohesive frame from the film, not a collage or paste. ' +
-    'Landscape orientation. No text, no watermark, no logo.';
+    'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.';
 
   const parts: object[] = [{ text: prompt }];
   for (const f of faces) {

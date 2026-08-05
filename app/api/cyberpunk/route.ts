@@ -9,7 +9,7 @@ function scenePrompt(gender: 'man' | 'woman') {
     `A futuristic cyberpunk aesthetic photo of the person in the attached photo (a ${gender}) playing tennis on a glowing neon court at night. ` +
     'Magenta and cyan rim lighting, reflective dark court surface, glowing tennis ball, modern tech-wear athletic outfit, synthwave vibe, dark background with glowing stadium lights. ' +
     "Preserve the person's real facial features, expression, skin tone, apparent age and hair exactly, and blend them seamlessly into the scene so it looks like one single professionally shot photograph, not a collage or paste. " +
-    'Landscape orientation. No text, no watermark, no logo.'
+    'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.'
   );
 }
 
