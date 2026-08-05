@@ -8,6 +8,7 @@ const THEMES = {
   anime: { title: 'Anime', bg: '#3a1a5e 0%, #120820', fg: '#ff9ecf', shadow: '#7b2cbf', grad: '#7b2cbf,#ff5fa2', btnFg: '#fff' },
   cyber: { title: 'Cyberpunk', bg: '#240f4a 0%, #050510', fg: '#00e5ff', shadow: '#ff2ec4', grad: '#ff2ec4,#00e5ff', btnFg: '#050510' },
   sports: { title: 'Sports', bg: '#0e3d20 0%, #06120a', fg: '#ffd23f', shadow: '#1b6b3a', grad: '#1b6b3a,#ffd23f', btnFg: '#06120a' },
+  film: { title: 'Movie', bg: '#471019 0%, #140508', fg: '#ffd23f', shadow: '#8a1522', grad: '#8a1522,#ffd23f', btnFg: '#140508' },
 };
 
 const loginPage = (bad: boolean, t: (typeof THEMES)[keyof typeof THEMES]) => `<!DOCTYPE html>
@@ -70,6 +71,7 @@ export function middleware(req: NextRequest) {
   const theme = pathname.startsWith('/anime') ? THEMES.anime
     : pathname.startsWith('/cyberpunk') ? THEMES.cyber
     : pathname.startsWith('/sports') ? THEMES.sports
+    : pathname.startsWith('/film') ? THEMES.film
     : THEMES.hero;
   return new NextResponse(loginPage(pw !== null, theme), {
     status: 401,
@@ -83,5 +85,6 @@ export const config = {
     '/anime', '/anime/:path*', '/api/anime', '/api/anime/:path*',
     '/cyberpunk', '/cyberpunk/:path*', '/api/cyberpunk', '/api/cyberpunk/:path*',
     '/sports', '/sports/:path*', '/api/sports', '/api/sports/:path*',
+    '/film', '/film/:path*', '/api/film', '/api/film/:path*',
   ],
 };

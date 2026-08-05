@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Movie Photo Booth</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; background: #140508; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #fff; }
+
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; }
+  .screen.active { display: flex; }
+
+  /* ===== Screen 1: Attract ===== */
+  #attract { background: radial-gradient(ellipse at 50% 30%, #471019 0%, #140508 70%); cursor: pointer; z-index: 30; }
+  #attract h1 { font-size: clamp(2.6rem, 8vw, 6.5rem); font-weight: 900; letter-spacing: .02em; text-align: center; line-height: 1.05;
+    color: #ffd23f; text-shadow: 4px 4px 0 #8a1522, 8px 8px 0 rgba(0,0,0,.45); text-transform: uppercase; }
+  .cam-wrap { position: relative; margin-bottom: 1.5rem; animation: bounce 2.2s ease-in-out infinite; }
+  .cam-wrap .cam { font-size: clamp(5rem, 12vw, 9rem); display: block; line-height: 1; }
+  .cam-wrap .spark { position: absolute; font-size: clamp(1.6rem, 4vw, 3rem); animation: twinkle 1.6s ease-in-out infinite; }
+  .cam-wrap .s1 { top: -8%; right: -16%; }
+  .cam-wrap .s2 { bottom: -4%; left: -18%; animation-delay: .8s; }
+  @keyframes twinkle { 0%,100% { opacity: .3; transform: scale(.8) rotate(-10deg); } 50% { opacity: 1; transform: scale(1.15) rotate(10deg); } }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+  #goText { margin-top: 1.6rem; font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 900; letter-spacing: .15em;
+    color: #2eea6d; text-shadow: 0 0 24px rgba(46, 234, 109, .6); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+  #keyWarn { position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: #7a1020;
+    color: #ffd7dc; padding: .6rem 1.4rem; border-radius: 999px; font-size: .95rem; display: none; white-space: nowrap; }
+
+  /* ===== Screen 2: Team select ===== */
+  #teamSelect { background: radial-gradient(ellipse at 50% 20%, #471019 0%, #140508 75%); z-index: 26; padding: 2rem; }
+  #teamSelect h2 { font-size: clamp(1.6rem, 4.5vw, 3rem); font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
+    color: #ffd23f; text-shadow: 3px 3px 0 #8a1522; margin-bottom: 1.8rem; animation: pulse 1.8s ease-in-out infinite; }
+  #teamGrid { display: grid; grid-template-columns: repeat(3, minmax(160px, 1fr)); gap: clamp(.8rem, 2vw, 1.4rem);
+    width: min(94vw, 1000px); }
+  @media (max-width: 900px) { #teamGrid { grid-template-columns: repeat(3, 1fr); } }
+  .team-tile { background: #26101a; border: 3px solid #ffffff22; border-radius: 18px; cursor: pointer; padding: 1rem .6rem;
+    display: flex; flex-direction: column; align-items: center; gap: .7rem; transition: transform .12s, border-color .15s; font-family: inherit; }
+  .team-tile:active { transform: scale(.94); }
+  .team-tile:hover { border-color: #ffd23f; }
+  .film-logo { width: 100%; aspect-ratio: 16 / 10; border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: .4rem; padding: .5rem; }
+  .fl-emoji { font-size: clamp(1.6rem, 4vw, 2.8rem); }
+  .fl-name { font-weight: 900; font-size: clamp(.9rem, 1.9vw, 1.25rem); text-transform: uppercase;
+    letter-spacing: .04em; text-align: center; line-height: 1.15; }
+
+  /* ===== Screen 3: Count select ===== */
+  #countSelect { background: radial-gradient(ellipse at 50% 20%, #471019 0%, #140508 75%); z-index: 25; }
+  #countSelect h2 { font-size: clamp(1.6rem, 4.5vw, 3rem); font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
+    color: #ffd23f; text-shadow: 3px 3px 0 #8a1522; margin-bottom: 2.5rem; animation: pulse 1.8s ease-in-out infinite; }
+  #countRow { display: flex; gap: clamp(1rem, 3.5vw, 2.5rem); }
+  .count-btn { width: clamp(80px, 13vw, 140px); height: clamp(80px, 13vw, 140px); border-radius: 50%;
+    border: 5px solid #ffd23f; background: #26101a; color: #ffd23f; font-family: inherit; cursor: pointer;
+    font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 900; transition: transform .12s, background .15s; }
+  .count-btn:active { transform: scale(.9); }
+  .count-btn:hover { background: #331520; }
+
+  /* ===== Screen 4: Booth ===== */
+  #booth { z-index: 10; background: #000; }
+  #stage { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+  #video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  .face-oval { position: absolute; border: 6px dashed #2eea6d; border-radius: 50%; z-index: 3; pointer-events: none; }
+  #banner { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); z-index: 5; background: rgba(6,18,10,.75);
+    border: 3px solid #ffd23f; border-radius: 999px; padding: .8rem 2rem; font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+    font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #ffd23f; white-space: nowrap; display: none; }
+  #countdown { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 6; pointer-events: none; }
+  #countdown span { font-size: clamp(8rem, 30vw, 22rem); font-weight: 900; color: #fff; text-shadow: 0 0 60px rgba(0,0,0,.7); animation: countPop .95s ease-out; }
+  @keyframes countPop { 0% { transform: scale(1.6); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 85% { opacity: 1; } 100% { transform: scale(.9); opacity: 0; } }
+  #flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 7; }
+  #flash.go { animation: flashAnim .5s ease-out; }
+  @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* ===== Working ===== */
+  #working { background: radial-gradient(ellipse at 50% 40%, #471019 0%, #140508 75%); z-index: 15; }
+  #working .burst { width: 140px; height: 140px; border-radius: 50%; border: 10px dashed #ffd23f;
+    animation: spin 1.6s linear infinite; margin-bottom: 2.5rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #working h2 { font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 900; text-transform: uppercase; text-align: center;
+    color: #ffd23f; text-shadow: 4px 4px 0 #8a1522; animation: pulse 1.4s ease-in-out infinite; }
+  #working p { margin-top: 1.2rem; color: #ffffffaa; font-size: clamp(1rem, 2.5vw, 1.5rem); }
+
+  /* ===== Preview ===== */
+  #preview { background: #0a0406; z-index: 18; }
+  #previewImg { max-width: 96vw; max-height: 92vh; border-radius: 10px; box-shadow: 0 16px 64px rgba(0,0,0,.7); }
+  #previewTimer { position: absolute; right: 2rem; bottom: 2rem; width: 96px; height: 96px; border-radius: 50%;
+    background: rgba(6,18,10,.8); border: 5px solid #ffd23f; display: flex; align-items: center; justify-content: center;
+    font-size: 2.6rem; font-weight: 900; color: #ffd23f; z-index: 5; }
+
+  /* ===== Done ===== */
+  #done { background: radial-gradient(ellipse at 50% 25%, #471019 0%, #140508 75%); z-index: 20; cursor: pointer; padding: 2rem; }
+  #done h2 { font-size: clamp(2.2rem, 7vw, 5.5rem); font-weight: 900; text-transform: uppercase; text-align: center; line-height: 1.1;
+    color: #ffd23f; text-shadow: 4px 4px 0 #8a1522, 8px 8px 0 rgba(0,0,0,.45); }
+  #done .sub { margin-top: 1rem; font-size: clamp(1.3rem, 4vw, 2.6rem); font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: .1em; }
+  #done .again { margin-top: 3rem; color: #ffffff88; font-size: 1.1rem; animation: pulse 2s ease-in-out infinite; }
+
+  /* ===== Error ===== */
+  #error { background: #140508; z-index: 40; padding: 2rem; text-align: center; }
+  #error h2 { font-size: 2rem; margin-bottom: 1rem; }
+  #error p { color: #c8a8b0; max-width: 480px; line-height: 1.5; margin-bottom: 2rem; }
+  #retryBtn { border: none; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: 999px;
+    padding: 1.1rem 2.6rem; font-size: 1.25rem; background: linear-gradient(90deg, #8a1522, #ffd23f); color: #140508; }
+
+  canvas.work { display: none; }
+</style>
+</head>
+<body>
+
+  <!-- Screen 1: Attract -->
+  <div id="attract" class="screen active">
+    <div class="cam-wrap">
+      <span class="cam">📸</span>
+      <span class="spark s1">🎬</span>
+      <span class="spark s2">🍿</span>
+    </div>
+    <h1>Movie<br>Photo Booth</h1>
+    <div id="goText">GO</div>
+    <div id="keyWarn">Offline copy: AI photos need the hosted version at promptshop.ai/film.</div>
+  </div>
+
+  <!-- Screen 2: Team select -->
+  <div id="teamSelect" class="screen">
+    <h2>Pick Your Movie</h2>
+    <div id="teamGrid"></div>
+  </div>
+
+  <!-- Screen 3: Count select -->
+  <div id="countSelect" class="screen">
+    <h2>How Many People?</h2>
+    <div id="countRow">
+      <button class="count-btn">1</button>
+      <button class="count-btn">2</button>
+      <button class="count-btn">3</button>
+      <button class="count-btn">4</button>
+      <button class="count-btn">5</button>
+    </div>
+  </div>
+
+  <!-- Screen 4: Booth -->
+  <div id="booth" class="screen">
+    <div id="stage">
+      <video id="video" autoplay playsinline muted></video>
+      <div id="ovals"></div>
+      <div id="banner">Put your face in the oval</div>
+      <div id="countdown"><span id="countNum">3</span></div>
+      <div id="flash"></div>
+    </div>
+  </div>
+
+  <!-- Working -->
+  <div id="working" class="screen">
+    <div class="burst"></div>
+    <h2>Rolling Cameras&hellip;</h2>
+    <p>Your movie photo is being created</p>
+  </div>
+
+  <!-- Preview -->
+  <div id="preview" class="screen">
+    <img id="previewImg" alt="Your movie photo">
+    <div id="previewTimer">10</div>
+  </div>
+
+  <!-- Done -->
+  <div id="done" class="screen">
+    <h2>Your Photo<br>Is Ready</h2>
+    <div class="sub">at the printing station</div>
+    <div class="again">Tap anywhere to go again</div>
+  </div>
+
+  <!-- Error -->
+  <div id="error" class="screen">
+    <h2>Something went wrong</h2>
+    <p id="errorMsg"></p>
+    <button id="retryBtn">Try Again</button>
+  </div>
+
+<canvas id="frameCanvas" class="work"></canvas>
+
+<script>
+(function () {
+  'use strict';
+
+  var GEN_ENDPOINT = '/api/film';
+  var GEN_TIMEOUT_MS = 60000;
+  var CAN_GENERATE = location.protocol !== 'file:';
+
+  var IDLE_RESET_MS = 90000;
+  var PREVIEW_S = 10;
+  var DONE_RESET_MS = 12000;
+  var POSITION_MS = 4000;
+
+  // Movie tiles: styled text "logos" per film (attach official logo images
+  // any time and they can be swapped in like the NBC tile).
+  var TEAMS = [
+    { key: 'mario',      name: 'Super Mario Galaxy', emoji: '\u2B50', bg: '#1a1e5e', fg: '#ff4d4d', sh: '#ffd23f' },
+    { key: 'disclosure', name: 'Disclosure Day',     emoji: '\uD83D\uDEF8', bg: '#0a1a2e', fg: '#9fd8ff', sh: '#274b78' },
+    { key: 'minions',    name: 'Minions & Monsters', emoji: '\uD83D\uDC7E', bg: '#ffd23f', fg: '#1a1a2e', sh: '#ffffff' },
+    { key: 'odyssey',    name: 'The Odyssey',        emoji: '\u2694\uFE0F', bg: '#10151d', fg: '#d8c9a3', sh: '#5a4a2a' },
+    { key: 'werwulf',    name: 'Werwulf',            emoji: '\uD83D\uDC3A', bg: '#0d0d0d', fg: '#e8e8e8', sh: '#444444' },
+    { key: 'httyd',      name: 'How to Train Your Dragon 2', emoji: '\uD83D\uDC09', bg: '#123244', fg: '#7fd4c1', sh: '#0a1a26' },
+    { key: 'shrek',      name: 'Shrek',              emoji: '\uD83E\uDDC5', bg: '#2d4a1e', fg: '#b7e26a', sh: '#16260e' },
+    { key: 'wicked',     name: 'Wicked',             emoji: '\uD83E\uDDF9', bg: '#0d2b18', fg: '#58e08a', sh: '#ff9ecf' },
+    { key: 'sing',       name: 'Sing 2',             emoji: '\uD83C\uDFA4', bg: '#2a0f3d', fg: '#ffd23f', sh: '#7b2cbf' }
+  ];
+
+  var team = null, groupN = 1, ovalRects = [], stream = null, busy = false;
+  var idleTimer = null, doneTimer = null, previewInterval = null;
+  var seqTimers = [];
+  var lastUrl = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var attract = $('attract'), teamSelect = $('teamSelect'), countSelect = $('countSelect'), booth = $('booth'),
+      working = $('working'), preview = $('preview'), done = $('done'), errorScreen = $('error');
+  var video = $('video'), banner = $('banner');
+  var countdown = $('countdown'), countNum = $('countNum'), flash = $('flash');
+  var previewImg = $('previewImg'), previewTimer = $('previewTimer');
+  var errorMsg = $('errorMsg'), retryBtn = $('retryBtn');
+  var frameCanvas = $('frameCanvas');
+
+  function show(screen) {
+    [attract, teamSelect, countSelect, booth, working, preview, done, errorScreen].forEach(function (s) { s.classList.remove('active'); });
+    screen.classList.add('active');
+  }
+
+  if (!CAN_GENERATE) $('keyWarn').style.display = 'block';
+
+  // ===== Movie grid =====
+  var grid = $('teamGrid');
+  TEAMS.forEach(function (t) {
+    var btn = document.createElement('button');
+    btn.className = 'team-tile';
+    btn.innerHTML =
+      '<div class="film-logo" style="background:' + t.bg + '">' +
+        '<span class="fl-emoji">' + t.emoji + '</span>' +
+        '<span class="fl-name" style="color:' + t.fg + ';text-shadow:2px 2px 0 ' + t.sh + '">' + t.name + '</span>' +
+      '</div>';
+    btn.addEventListener('click', function () { pickTeam(t.key); });
+    grid.appendChild(btn);
+  });
+
+  function later(fn, ms) { var t = setTimeout(fn, ms); seqTimers.push(t); return t; }
+  function clearSeq() { seqTimers.forEach(clearTimeout); seqTimers = []; }
+
+  function pokeIdle() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { if (!busy) resetAll(); }, IDLE_RESET_MS);
+  }
+  ['pointerdown', 'touchstart', 'keydown'].forEach(function (evt) {
+    document.addEventListener(evt, pokeIdle, { passive: true });
+  });
+
+  function resetAll() {
+    clearSeq();
+    clearTimeout(doneTimer);
+    clearInterval(previewInterval);
+    // Camera intentionally kept running so consent is only asked once per page load
+    busy = false;
+    team = null;
+    groupN = 1;
+    banner.style.display = 'none';
+    countdown.style.display = 'none';
+    show(attract);
+  }
+
+  // ================== Camera ==================
+  function startCamera(onReady) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showError('This browser does not support camera access. Use a recent Chrome, Edge, or Safari.');
+      return;
+    }
+    if (stream && stream.getTracks().some(function (t) { return t.readyState === 'live'; })) {
+      video.srcObject = stream;
+      onReady();
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1920, min: 1280 }, height: { ideal: 1080, min: 720 }, frameRate: { ideal: 30 } },
+      audio: false
+    }).then(function (s) {
+      stream = s;
+      video.srcObject = s;
+      var track = s.getVideoTracks()[0];
+      var st = track.getSettings();
+      if (track.applyConstraints && (st.width < 1920 || st.height < 1080)) {
+        track.applyConstraints({ width: 1920, height: 1080 }).catch(function () {});
+      }
+      onReady();
+    }).catch(function () {
+      navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false
+      }).then(function (s) {
+        stream = s;
+        video.srcObject = s;
+        onReady();
+      }).catch(function (err2) {
+        showError(cameraErrorText(err2));
+      });
+    });
+  }
+
+  function cameraErrorText(err) {
+    if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'))
+      return 'Camera permission was denied. Allow camera access for this page in browser settings, then tap Try Again.';
+    if (err && err.name === 'NotFoundError')
+      return 'No camera found. Check the webcam, then tap Try Again.';
+    if (err && err.name === 'NotReadableError')
+      return 'The camera is in use by another app. Close it, then tap Try Again.';
+    return 'Could not start the camera (' + (err && err.name ? err.name : 'unknown error') + '). Tap Try Again.';
+  }
+
+  function showError(msg) {
+    busy = false;
+    errorMsg.textContent = msg;
+    show(errorScreen);
+  }
+
+  // ================== Flow ==================
+  attract.addEventListener('click', function () {
+    if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(function () {});
+    }
+    show(teamSelect);
+    pokeIdle();
+  });
+
+  function pickTeam(key) {
+    if (busy) return;
+    team = key;
+    show(countSelect);
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.count-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      if (busy) return;
+      busy = true;
+      groupN = parseInt(btn.textContent, 10) || 1;
+      startCamera(runBoothSequence);
+    });
+  });
+
+  retryBtn.addEventListener('click', function () {
+    if (!team) { resetAll(); return; }
+    busy = true;
+    startCamera(runBoothSequence);
+  });
+
+  function layoutOvals(n) {
+    var stage = $('stage');
+    var sw = stage.clientWidth, sh = stage.clientHeight;
+    var gap = sw * 0.02;
+    var OH = Math.min(sh * 0.66, ((sw * 0.94 - (n - 1) * gap) / n) / 0.78);
+    var OW = OH * 0.78;
+    var total = n * OW + (n - 1) * gap;
+    var x0 = (sw - total) / 2, cy = sh * 0.46;
+    var box = $('ovals');
+    box.innerHTML = '';
+    ovalRects = [];
+    for (var i = 0; i < n; i++) {
+      var x = x0 + i * (OW + gap);
+      var d = document.createElement('div');
+      d.className = 'face-oval';
+      d.style.left = x + 'px';
+      d.style.top = (cy - OH / 2) + 'px';
+      d.style.width = OW + 'px';
+      d.style.height = OH + 'px';
+      box.appendChild(d);
+      ovalRects.push({ cx: x + OW / 2, cy: cy, w: OW, h: OH });
+    }
+  }
+
+  function runBoothSequence() {
+    show(booth);
+    layoutOvals(groupN);
+    banner.textContent = groupN > 1 ? 'Put your faces in the ovals' : 'Put your face in the oval';
+    banner.style.display = 'block';
+    later(function () {
+      banner.style.display = 'none';
+      runCountdown(3, snap);
+    }, groupN > 1 ? POSITION_MS + 2500 : POSITION_MS);
+  }
+
+  function runCountdown(from, cb) {
+    countdown.style.display = 'flex';
+    var n = from;
+    (function tick() {
+      if (n <= 0) { countdown.style.display = 'none'; cb(); return; }
+      countNum.textContent = n;
+      countNum.style.animation = 'none';
+      void countNum.offsetWidth;
+      countNum.style.animation = '';
+      n--;
+      later(tick, 1000);
+    })();
+  }
+
+  function snap() {
+    flash.classList.remove('go');
+    void flash.offsetWidth;
+    flash.classList.add('go');
+
+    var stage = $('stage');
+    var sw = stage.clientWidth, sh = stage.clientHeight;
+    var K = 2;
+    frameCanvas.width = sw * K; frameCanvas.height = sh * K;
+    var fctx = frameCanvas.getContext('2d');
+    var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
+    var cs = Math.max(sw * K / vw, sh * K / vh);
+    var dw = vw * cs, dh = vh * cs;
+    var dx = (sw * K - dw) / 2, dy = (sh * K - dh) / 2;
+    fctx.save();
+    fctx.translate(sw * K, 0); fctx.scale(-1, 1);
+    fctx.drawImage(video, dx, dy, dw, dh);
+    fctx.restore();
+
+    var mW = groupN > 1 ? 1.35 : 1.9;
+    var mH = groupN > 1 ? 1.45 : 1.6;
+    var faces = ovalRects.map(function (o) {
+      var cw2 = Math.min(o.w * mW * K, frameCanvas.width);
+      var ch2 = Math.min(o.h * mH * K, frameCanvas.height);
+      var cx2 = Math.max(0, Math.min(o.cx * K - cw2 / 2, frameCanvas.width - cw2));
+      var cy2 = Math.max(0, Math.min((o.cy + o.h * 0.06) * K - ch2 / 2, frameCanvas.height - ch2));
+      var c = document.createElement('canvas');
+      var scale = Math.min(1, 900 / ch2);
+      c.width = Math.round(cw2 * scale);
+      c.height = Math.round(ch2 * scale);
+      c.getContext('2d').drawImage(frameCanvas, cx2, cy2, cw2, ch2, 0, 0, c.width, c.height);
+      return c.toDataURL('image/jpeg', 0.9).split(',')[1];
+    });
+
+    later(function () {
+      show(working);
+      if (!CAN_GENERATE) {
+        showError('This offline copy cannot create movie photos. Use the hosted version at promptshop.ai/film.');
+        return;
+      }
+      generate(faces, 0);
+    }, 550);
+  }
+
+  function generate(faces, attempt) {
+    var ctrl = new AbortController();
+    var to = setTimeout(function () { ctrl.abort(); }, GEN_TIMEOUT_MS);
+    fetch(GEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: ctrl.signal,
+      body: JSON.stringify({ imagesB64: faces, movie: team })
+    }).then(function (r) {
+      clearTimeout(to);
+      return r.json().then(function (j) {
+        if (r.ok && j && j.image) { onGenerated(j.image); return; }
+        throw new Error((j && j.error) || ('HTTP ' + r.status));
+      });
+    }).catch(function (e) {
+      clearTimeout(to);
+      if (attempt < 1) { generate(faces, attempt + 1); return; }
+      console.warn('Movie generation failed:', e && e.message);
+      showError('Could not create the sports photo. Tap Try Again.');
+    });
+  }
+
+  function onGenerated(pngB64) {
+    var bytes = atob(pngB64);
+    var arr = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    var blob = new Blob([arr], { type: 'image/png' });
+    if (lastUrl) URL.revokeObjectURL(lastUrl);
+    lastUrl = URL.createObjectURL(blob);
+    autoDownload(lastUrl);
+    previewImg.src = lastUrl;
+    startPreview();
+  }
+
+  function autoDownload(url) {
+    var a = document.createElement('a');
+    var ts = new Date();
+    var pad = function (x) { return String(x).padStart(2, '0'); };
+    a.download = 'film_' + (team || 'movie') + '_' + ts.getFullYear() + pad(ts.getMonth() + 1) + pad(ts.getDate()) +
+      '_' + pad(ts.getHours()) + pad(ts.getMinutes()) + pad(ts.getSeconds()) + '.png';
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function startPreview() {
+    show(preview);
+    var n = PREVIEW_S;
+    previewTimer.textContent = n;
+    clearInterval(previewInterval);
+    previewInterval = setInterval(function () {
+      n--;
+      if (n <= 0) {
+        clearInterval(previewInterval);
+        finishToDone();
+        return;
+      }
+      previewTimer.textContent = n;
+    }, 1000);
+  }
+
+  function finishToDone() {
+    busy = false;
+    show(done);
+    clearTimeout(doneTimer);
+    doneTimer = setTimeout(resetAll, DONE_RESET_MS);
+  }
+  done.addEventListener('click', resetAll);
+
+})();
+</script>
+</body>
+</html>

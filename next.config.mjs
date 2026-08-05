@@ -9,6 +9,7 @@ const nextConfig = {
       { source: '/anime', destination: '/anime/index.html' },
       { source: '/cyberpunk', destination: '/cyberpunk/index.html' },
       { source: '/sports', destination: '/sports/index.html' },
+      { source: '/film', destination: '/film/index.html' },
     ];
   },
 };
