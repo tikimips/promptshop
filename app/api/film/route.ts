@@ -21,7 +21,7 @@ const MOVIES: Record<string, { render: string; scene: string }> = {
     render:
       "rendered as 3D-animated family-movie characters, keeping each person's real facial features and hair recognizable in cartoon form",
     scene:
-      'on a chaotic Hollywood movie-studio backlot surrounded by a horde of small cylindrical yellow goggle-wearing henchmen scrambling to wrangle the goofy, wildly assorted cartoon monsters they accidentally unleashed — toppled film sets, cameras and studio lights everywhere, gleeful comedy mayhem',
+      'on a chaotic Hollywood movie-studio backlot surrounded by a swarm of original little yellow capsule-shaped cartoon helpers in goggles and blue overalls scrambling to wrangle the silly original cartoon monsters they accidentally unleashed — toppled film sets, cameras and studio lights everywhere, gleeful comedy mayhem',
   },
   odyssey: {
     render:
@@ -93,6 +93,7 @@ export async function POST(req: Request) {
   const prompt =
     `A movie still of ${subject} ${m.scene}. ` +
     "Each character must preserve the corresponding person's real facial features, expression, skin tone, apparent age, gender and hair. " +
+    'All background creatures and side characters are original designs merely inspired by the described aesthetic, not copies of any existing copyrighted characters. ' +
     'The result must look like one cohesive frame from the film, not a collage or paste. ' +
     'Landscape orientation. No text, no watermark, no logo.';
 
