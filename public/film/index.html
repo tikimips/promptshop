@@ -32,15 +32,18 @@
   #teamSelect { background: radial-gradient(ellipse at 50% 20%, #471019 0%, #140508 75%); z-index: 26; padding: 2rem; }
   #teamSelect h2 { font-size: clamp(1.6rem, 4.5vw, 3rem); font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
     color: #ffd23f; text-shadow: 3px 3px 0 #8a1522; margin-bottom: 1.8rem; animation: pulse 1.8s ease-in-out infinite; }
-  #teamGrid { display: grid; grid-template-columns: repeat(3, minmax(160px, 1fr)); gap: clamp(.8rem, 2vw, 1.4rem);
-    width: min(94vw, 1000px); }
+  #teamGrid { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: clamp(.7rem, 1.6vw, 1.2rem);
+    width: min(96vw, 1250px); }
+  @media (max-width: 900px) { #teamGrid { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 900px) { #teamGrid { grid-template-columns: repeat(3, 1fr); } }
   .team-tile { background: #26101a; border: 3px solid #ffffff22; border-radius: 18px; cursor: pointer; padding: 1rem .6rem;
     display: flex; flex-direction: column; align-items: center; gap: .7rem; transition: transform .12s, border-color .15s; font-family: inherit; }
   .team-tile:active { transform: scale(.94); }
   .team-tile:hover { border-color: #ffd23f; }
-  .film-logo { width: 100%; aspect-ratio: 16 / 10; border-radius: 12px; display: flex; flex-direction: column;
+  .film-logo { width: 100%; aspect-ratio: 2 / 3; border-radius: 12px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: .4rem; padding: .5rem; }
+  .team-tile img.poster { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 12px; display: block; }
+  .team-tile .p-name { font-size: clamp(.75rem, 1.5vw, .95rem); font-weight: 700; color: #fff; text-align: center; margin-top: .45rem; }
   .fl-emoji { font-size: clamp(1.6rem, 4vw, 2.8rem); }
   .fl-name { font-weight: 900; font-size: clamp(.9rem, 1.9vw, 1.25rem); text-transform: uppercase;
     letter-spacing: .04em; text-align: center; line-height: 1.15; }
@@ -192,15 +195,15 @@
   // Movie tiles: styled text "logos" per film (attach official logo images
   // any time and they can be swapped in like the NBC tile).
   var TEAMS = [
-    { key: 'mario',      name: 'Super Mario Galaxy', emoji: '\u2B50', bg: '#1a1e5e', fg: '#ff4d4d', sh: '#ffd23f' },
-    { key: 'disclosure', name: 'Disclosure Day',     emoji: '\uD83D\uDEF8', bg: '#0a1a2e', fg: '#9fd8ff', sh: '#274b78' },
-    { key: 'minions',    name: 'Minions & Monsters', emoji: '\uD83D\uDC7E', bg: '#ffd23f', fg: '#1a1a2e', sh: '#ffffff' },
-    { key: 'odyssey',    name: 'The Odyssey',        emoji: '\u2694\uFE0F', bg: '#10151d', fg: '#d8c9a3', sh: '#5a4a2a' },
-    { key: 'werwulf',    name: 'Werwulf',            emoji: '\uD83D\uDC3A', bg: '#0d0d0d', fg: '#e8e8e8', sh: '#444444' },
-    { key: 'httyd',      name: 'How to Train Your Dragon 2', emoji: '\uD83D\uDC09', bg: '#123244', fg: '#7fd4c1', sh: '#0a1a26' },
-    { key: 'shrek',      name: 'Shrek',              emoji: '\uD83E\uDDC5', bg: '#2d4a1e', fg: '#b7e26a', sh: '#16260e' },
-    { key: 'wicked',     name: 'Wicked',             emoji: '\uD83E\uDDF9', bg: '#0d2b18', fg: '#58e08a', sh: '#ff9ecf' },
-    { key: 'sing',       name: 'Sing 2',             emoji: '\uD83C\uDFA4', bg: '#2a0f3d', fg: '#ffd23f', sh: '#7b2cbf' }
+    { key: 'mario',      name: 'Super Mario Galaxy', emoji: '\u2B50', bg: '#1a1e5e', fg: '#ff4d4d', sh: '#ffd23f', wiki: ['The Super Mario Galaxy Movie', 'The Super Mario Bros. Movie 2'] },
+    { key: 'disclosure', name: 'Disclosure Day',     emoji: '\uD83D\uDEF8', bg: '#0a1a2e', fg: '#9fd8ff', sh: '#274b78', wiki: ['Disclosure Day', 'Disclosure Day (film)'] },
+    { key: 'minions',    name: 'Minions & Monsters', emoji: '\uD83D\uDC7E', bg: '#ffd23f', fg: '#1a1a2e', sh: '#ffffff', wiki: ['Minions & Monsters', 'Minions 3'] },
+    { key: 'odyssey',    name: 'The Odyssey',        emoji: '\u2694\uFE0F', bg: '#10151d', fg: '#d8c9a3', sh: '#5a4a2a', wiki: ['The Odyssey (2026 film)', 'The Odyssey (film)'] },
+    { key: 'werwulf',    name: 'Werwulf',            emoji: '\uD83D\uDC3A', bg: '#0d0d0d', fg: '#e8e8e8', sh: '#444444', wiki: ['Werwulf', 'Werwulf (film)'] },
+    { key: 'httyd',      name: 'How to Train Your Dragon 2', emoji: '\uD83D\uDC09', bg: '#123244', fg: '#7fd4c1', sh: '#0a1a26', wiki: ['How to Train Your Dragon 2'] },
+    { key: 'shrek',      name: 'Shrek',              emoji: '\uD83E\uDDC5', bg: '#2d4a1e', fg: '#b7e26a', sh: '#16260e', wiki: ['Shrek'] },
+    { key: 'wicked',     name: 'Wicked',             emoji: '\uD83E\uDDF9', bg: '#0d2b18', fg: '#58e08a', sh: '#ff9ecf', wiki: ['Wicked (2024 film)'] },
+    { key: 'sing',       name: 'Sing 2',             emoji: '\uD83C\uDFA4', bg: '#2a0f3d', fg: '#ffd23f', sh: '#7b2cbf', wiki: ['Sing 2'] }
   ];
 
   var team = null, groupN = 1, ovalRects = [], stream = null, busy = false;
@@ -225,6 +228,8 @@
   if (!CAN_GENERATE) $('keyWarn').style.display = 'block';
 
   // ===== Movie grid =====
+  // Tiles start as styled title cards, then upgrade to the film's actual
+  // poster art fetched from Wikipedia's public API in the visitor's browser.
   var grid = $('teamGrid');
   TEAMS.forEach(function (t) {
     var btn = document.createElement('button');
@@ -236,7 +241,32 @@
       '</div>';
     btn.addEventListener('click', function () { pickTeam(t.key); });
     grid.appendChild(btn);
+    loadPoster(btn, t, 0);
   });
+
+  function loadPoster(btn, t, i) {
+    if (!t.wiki || i >= t.wiki.length) return; // styled card stays
+    fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(t.wiki[i].replace(/ /g, '_')))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var src = j && ((j.originalimage && j.originalimage.source) || (j.thumbnail && j.thumbnail.source));
+        if (!src) { loadPoster(btn, t, i + 1); return; }
+        var img = document.createElement('img');
+        img.className = 'poster';
+        img.alt = t.name + ' poster';
+        img.onload = function () {
+          btn.innerHTML = '';
+          btn.appendChild(img);
+          var cap = document.createElement('div');
+          cap.className = 'p-name';
+          cap.textContent = t.name;
+          btn.appendChild(cap);
+        };
+        img.onerror = function () { loadPoster(btn, t, i + 1); };
+        img.src = src;
+      })
+      .catch(function () { loadPoster(btn, t, i + 1); });
+  }
 
   function later(fn, ms) { var t = setTimeout(fn, ms); seqTimers.push(t); return t; }
   function clearSeq() { seqTimers.forEach(clearTimeout); seqTimers = []; }

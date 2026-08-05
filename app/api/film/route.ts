@@ -21,7 +21,7 @@ const MOVIES: Record<string, { render: string; scene: string }> = {
     render:
       "rendered as 3D-animated family-movie characters, keeping each person's real facial features and hair recognizable in cartoon form",
     scene:
-      'in a bright, chaotic comedy scene surrounded by a horde of small cylindrical yellow goggle-wearing henchmen and big friendly colorful furry monsters, confetti flying, gleeful mayhem everywhere',
+      'on a chaotic Hollywood movie-studio backlot surrounded by a horde of small cylindrical yellow goggle-wearing henchmen scrambling to wrangle the goofy, wildly assorted cartoon monsters they accidentally unleashed — toppled film sets, cameras and studio lights everywhere, gleeful comedy mayhem',
   },
   odyssey: {
     render:
