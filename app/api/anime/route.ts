@@ -8,19 +8,42 @@ const STYLE =
   'high-quality, professional anime illustration with sharp line work, vibrant cel-shading with clear highlights on the hair, and detailed, large, expressive glossy eyes. ' +
   "Retain the subject's real gender, apparent age, facial features, expression, skin tone, pose, hair color and clothing style, but simplify them into clean anime geometry.";
 
+// Character-design inspirations, one picked at random per photo
+const CHARACTER_STYLES = [
+  'Character design inspired by One Piece (Eiichiro Oda): bold dynamic line work, expressive exaggerated features, adventurous swashbuckling energy and outfit styling.',
+  'Character design inspired by Fullmetal Alchemist (Hiromu Arakawa): clean confident lines, determined expression, sturdy proportions and early-2000s shonen palette.',
+  'Character design inspired by Thorfinn from Vinland Saga: grounded realistic proportions, weathered detail, muted historical tones and a quiet intense gaze.',
+  'Character design inspired by Kurisu Makise from Steins;Gate: slender elegant proportions, sharp intelligent gaze, understated modern clothing with subtle red accents.',
+  'Character design inspired by Rem from Re:Zero: soft rounded facial features, large finely detailed eyes and clean modern shading.',
+];
+
+// Atmosphere / environment inspirations, one picked at random per photo
 const SCENES = [
-  // Scene 1: Nighttime magic and fireflies
+  // Original three scenes
   'The character stands in a dense bioluminescent golden grass field glowing intense yellow, looking upward in wonder. ' +
     'Swirling yellow and blue magic firefly particle effects drift in the dark navy night sky above. ' +
     'A tiny red daruma-doll figure sits on their shoulder.',
-  // Scene 2: High-altitude euphoria
   'The character is captured mid-air, flying above a deep sea of cumulus clouds against a vast, bright blue sky, ' +
     'in a dynamic pose with arms spread wide and a look of joyful wonder and freedom. ' +
     'Defined cel-shading on the skin and clothing with bright natural sky lighting.',
-  // Scene 3: Sunset silhouette and power structure
   'Viewed from a low-angle perspective through tall, dark, silhouetted grass blades, the character stands looking down toward the camera. ' +
     'Behind them is a dramatic, fiery orange, red and purple sunset and the intricate metal grid framework of a power transmission tower. ' +
     'The scene is illuminated by intense, warm golden-hour backlighting.',
+  // Atmosphere inspirations
+  'Atmosphere inspired by Aria: the character stands on a gondola gliding through the serene canals of a Venetian water city, ' +
+    'gentle rippling reflections, soft pastel sky, warm terracotta buildings and a peaceful, healing calm.',
+  'Atmosphere inspired by Mushishi: the character stands in a misty ancient forest in rural Japan, soft green light filtering through tall trees, ' +
+    'faint glowing white spirit-like mushi drifting in the air, quiet and contemplative mood.',
+  'Atmosphere inspired by Mononoke (2007): a vivid ukiyo-e styled world of flat saturated colors, ornate washi-paper textures and patterned sliding doors, ' +
+    'theatrical composition with layered decorative motifs surrounding the character.',
+  'Atmosphere inspired by Call of the Night: the character stands on an empty city street late at night under a deep indigo sky, ' +
+    'glowing vending machines and neon signs, cool blue tones with warm pools of light, moody nocturnal freedom.',
+  'Atmosphere inspired by The Tatami Galaxy: flat graphic colors, bold stylized composition, a whimsical collage-like room of tatami mats ' +
+    'stretching in impossible directions, saturated pop-art palette and playful surrealism.',
+  'Atmosphere inspired by Sonny Boy: a dreamlike surreal void with a minimalist sky, floating school buildings and drifting debris, ' +
+    'flat muted colors, no outlines on the background, quiet existential wonder.',
+  "Atmosphere inspired by Girls' Last Tour: the character stands small against vast, quiet post-apocalyptic ruins under soft falling snow, " +
+    'muted grays and pale light, giant industrial structures fading into fog, melancholy but peaceful.',
 ];
 
 // Optional style/scene reference images. Drop PNGs into public/anime-refs/
@@ -55,21 +78,16 @@ export async function POST(req: Request) {
   }
 
   const scene = Math.floor(Math.random() * SCENES.length);
+  const charStyle = Math.floor(Math.random() * CHARACTER_STYLES.length);
   const origin = new URL(req.url).origin;
-  const [styleRef, sceneRef] = await Promise.all([
-    loadRef(origin, 'style.png'),
-    loadRef(origin, `scene${scene}.png`),
-  ]);
+  const styleRef = await loadRef(origin, 'style.png');
 
   let prompt =
-    'The person in the first attached photo is converted into a ' + STYLE + ' ' + SCENES[scene];
+    'The person in the first attached photo is converted into a ' + STYLE + ' ' +
+    CHARACTER_STYLES[charStyle] + ' ' + SCENES[scene];
   if (styleRef) {
     prompt +=
       ' Replicate the exact art style of the attached style reference image (line work, shading, eye rendering).';
-  }
-  if (sceneRef) {
-    prompt +=
-      ' Match the background, palette and lighting of the attached scene reference image.';
   }
   prompt +=
     ' The final result must be one cohesive anime illustration, landscape orientation. No text, no watermark, no logo.';
@@ -79,7 +97,6 @@ export async function POST(req: Request) {
     { inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } },
   ];
   if (styleRef) parts.push({ inline_data: { mime_type: 'image/png', data: styleRef } });
-  if (sceneRef) parts.push({ inline_data: { mime_type: 'image/png', data: sceneRef } });
 
   let lastError = 'all models failed';
   for (const model of MODELS) {
