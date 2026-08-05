@@ -10,8 +10,7 @@ const LOOKS = [
   'a classic bright blue superhero suit with a flowing red cape, yellow belt and red boots',
   'a black armored tactical superhero suit with a long dark cape and silver utility belt (no mask, face fully visible)',
   'a red and gold high-tech armored superhero suit with softly glowing chest core (no helmet, face fully visible)',
-  'an emerald green superhero suit with glowing green energy accents and a dark green cape',
-  'a scarlet speedster superhero suit with golden lightning motifs and streamlined lines (no cowl, face fully visible)',
+  'a scarlet speedster superhero suit with golden lightning-styled trim and streamlined lines (no cowl, face fully visible)',
   'a sleek silver and white futuristic superhero suit with a pale glowing cape',
   'a deep purple and black vigilante superhero suit with a hooded cape worn down and silver accents',
   'a gold and white cosmic superhero suit with a shimmering star-flecked cape',
@@ -92,6 +91,7 @@ export async function POST(req: Request) {
       `The image must contain exactly ${n} heroes, one per attached photo, each preserving that person's real facial features, expression, skin tone, apparent age, gender and hair exactly, faces fully visible (no masks). `;
   }
   prompt +=
+    'IMPORTANT: the costumes must be completely plain — absolutely no logos, emblems, chest symbols, insignia or lettering anywhere on any uniform, cape or belt. ' +
     'Match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
     'Landscape orientation. No text, no watermark, no logo.';
 
