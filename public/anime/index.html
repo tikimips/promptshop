@@ -17,6 +17,8 @@
     color: #ff9ecf; text-shadow: 4px 4px 0 #7b2cbf, 8px 8px 0 rgba(0,0,0,.45); text-transform: uppercase; }
   .cam-wrap { position: relative; margin-bottom: 1.5rem; animation: bounce 2.2s ease-in-out infinite; }
   .cam-wrap .cam { font-size: clamp(5rem, 12vw, 9rem); display: block; line-height: 1; }
+  .cam-wrap svg.cam-svg { width: clamp(7rem, 16vw, 12rem); height: auto; display: block;
+    filter: drop-shadow(0 8px 18px rgba(123,44,191,.6)); }
   .cam-wrap .spark { position: absolute; font-size: clamp(1.6rem, 4vw, 3rem); animation: twinkle 1.6s ease-in-out infinite; }
   .cam-wrap .s1 { top: -8%; right: -14%; }
   .cam-wrap .s2 { bottom: -4%; left: -16%; animation-delay: .8s; }
@@ -83,7 +85,40 @@
   <!-- Screen 1: Attract -->
   <div id="attract" class="screen active">
     <div class="cam-wrap">
-      <span class="cam">📸</span>
+      <svg class="cam-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ff9ecf"/><stop offset="1" stop-color="#ff5fa2"/>
+          </linearGradient>
+          <radialGradient id="irisG" cx=".4" cy=".35" r=".9">
+            <stop offset="0" stop-color="#b07aff"/><stop offset=".6" stop-color="#7b2cbf"/><stop offset="1" stop-color="#3a1a5e"/>
+          </radialGradient>
+        </defs>
+        <!-- top bump + shutter -->
+        <rect x="68" y="24" width="64" height="26" rx="11" fill="url(#bodyG)" stroke="#7b2cbf" stroke-width="5"/>
+        <rect x="148" y="27" width="22" height="13" rx="6.5" fill="#ffd23f" stroke="#7b2cbf" stroke-width="4"/>
+        <!-- body -->
+        <rect x="14" y="42" width="172" height="94" rx="22" fill="url(#bodyG)" stroke="#7b2cbf" stroke-width="5"/>
+        <!-- flash star -->
+        <path d="M170 52 L175 63 L186 68 L175 73 L170 84 L165 73 L154 68 L165 63 Z" fill="#ffd23f" stroke="#7b2cbf" stroke-width="3" stroke-linejoin="round"/>
+        <!-- lens as anime eye -->
+        <circle cx="100" cy="88" r="37" fill="#ffffff" stroke="#7b2cbf" stroke-width="5"/>
+        <circle cx="100" cy="88" r="27" fill="url(#irisG)"/>
+        <circle cx="100" cy="90" r="12" fill="#1a0b2e"/>
+        <circle cx="90" cy="78" r="9" fill="#ffffff"/>
+        <circle cx="110" cy="99" r="4.5" fill="#ffffff" opacity=".9"/>
+        <!-- lashes -->
+        <g stroke="#7b2cbf" stroke-width="5" stroke-linecap="round" fill="none">
+          <path d="M74 62 Q 70 54 63 51"/>
+          <path d="M100 56 Q 100 47 100 44"/>
+          <path d="M126 62 Q 130 54 137 51"/>
+        </g>
+        <!-- blush -->
+        <ellipse cx="42" cy="108" rx="11" ry="6.5" fill="#ff2e88" opacity=".45"/>
+        <ellipse cx="158" cy="108" rx="11" ry="6.5" fill="#ff2e88" opacity=".45"/>
+        <!-- cat smile -->
+        <path d="M88 124 Q 94 130 100 124 Q 106 130 112 124" fill="none" stroke="#7b2cbf" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
       <span class="spark s1">✨</span>
       <span class="spark s2">✨</span>
     </div>
