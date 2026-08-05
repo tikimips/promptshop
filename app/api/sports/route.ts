@@ -25,6 +25,16 @@ const TEAMS: Record<string, string> = {
     'a Los Angeles Lakers basketball player in the authentic purple and gold Lakers jersey rising for a dunk in the Lakers home arena in Los Angeles, packed crowd, championship banners visible in the rafters, dramatic arena lighting',
   warriors:
     'a Golden State Warriors basketball player in the authentic blue and gold Warriors jersey shooting a three-pointer at Chase Center in San Francisco, packed crowd, dramatic arena lighting',
+  sparks:
+    'a Los Angeles Sparks WNBA basketball player in the authentic purple and gold Sparks jersey driving hard to the basket at Crypto.com Arena in Los Angeles, packed crowd, dramatic arena lighting',
+  liberty:
+    'a New York Liberty WNBA basketball player in the authentic seafoam green and black Liberty jersey rising for a layup at Barclays Center in Brooklyn, packed crowd, dramatic arena lighting',
+  sun:
+    'a Connecticut Sun WNBA basketball player in the authentic red-orange and navy Sun jersey shooting a jump shot at Mohegan Sun Arena in Uncasville, Connecticut, packed crowd, dramatic arena lighting',
+  sky:
+    'a Chicago Sky WNBA basketball player in the authentic sky blue and yellow Sky jersey driving fast to the basket at Wintrust Arena in Chicago, packed crowd, dramatic arena lighting',
+  valkyries:
+    'a Golden State Valkyries WNBA basketball player in the authentic violet and black Valkyries jersey shooting a three-pointer at Chase Center in San Francisco, packed crowd, dramatic arena lighting',
 };
 
 export async function POST(req: Request) {
