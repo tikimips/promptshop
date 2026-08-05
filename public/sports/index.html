@@ -29,17 +29,17 @@
     color: #ffd7dc; padding: .6rem 1.4rem; border-radius: 999px; font-size: .95rem; display: none; white-space: nowrap; }
 
   /* ===== Screen 2: Team select ===== */
-  #teamSelect { background: radial-gradient(ellipse at 50% 20%, #0e3d20 0%, #06120a 75%); z-index: 26; padding: 2rem; }
+  #teamSelect { background: radial-gradient(ellipse at 50% 20%, #0e3d20 0%, #06120a 75%); z-index: 26; padding: 1.5rem; overflow-y: auto; }
   #teamSelect h2 { font-size: clamp(1.6rem, 4.5vw, 3rem); font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
     color: #ffd23f; text-shadow: 3px 3px 0 #1b6b3a; margin-bottom: 1.8rem; animation: pulse 1.8s ease-in-out infinite; }
-  #teamGrid { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: clamp(.8rem, 2vw, 1.6rem);
-    width: min(96vw, 1300px); }
+  #teamGrid { display: grid; grid-template-columns: repeat(6, minmax(105px, 1fr)); gap: clamp(.6rem, 1.4vw, 1.1rem);
+    width: min(97vw, 1350px); }
   @media (max-width: 900px) { #teamGrid { grid-template-columns: repeat(3, 1fr); } }
-  .team-tile { background: #0d1f14; border: 3px solid #ffffff22; border-radius: 18px; cursor: pointer; padding: 1rem .6rem;
+  .team-tile { background: #0d1f14; border: 3px solid #ffffff22; border-radius: 18px; cursor: pointer; padding: .7rem .4rem;
     display: flex; flex-direction: column; align-items: center; gap: .7rem; transition: transform .12s, border-color .15s; font-family: inherit; }
   .team-tile:active { transform: scale(.94); }
   .team-tile:hover { border-color: #ffd23f; }
-  .team-tile .logo { width: clamp(64px, 9vw, 110px); height: clamp(64px, 9vw, 110px); display: flex; align-items: center; justify-content: center; }
+  .team-tile .logo { width: clamp(52px, 7vw, 92px); height: clamp(52px, 7vw, 92px); display: flex; align-items: center; justify-content: center; }
   .team-tile .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
   .team-tile .logo.chip { background: #fff; border-radius: 14px; padding: 8px; }
   .team-tile .mono { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -236,6 +236,12 @@
     { key: 'sun',       name: 'Sun',       mono: 'CT', c1: '#0A2240', c2: '#DC4405', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/conn.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/con.png'] },
     { key: 'sky',       name: 'Sky',       mono: 'CHI', c1: '#418FDE', c2: '#FFCD00', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/chi.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/chs.png'] },
     { key: 'valkyries', name: 'Valkyries', mono: 'GSV', c1: '#2E1A47', c2: '#B18CFF', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/gs.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/gsv.png'] },
+    { key: 'nygiants',  name: 'NY Giants',  mono: 'NYG', c1: '#0B2265', c2: '#A71930', logos: ['https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyg.png', 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png'] },
+    { key: 'nyjets',    name: 'NY Jets',    mono: 'NYJ', c1: '#125740', c2: '#ffffff', logos: ['https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png'] },
+    { key: 'rams',      name: 'Rams',       mono: 'LAR', c1: '#003594', c2: '#FFA300', logos: ['https://a.espncdn.com/i/teamlogos/nfl/500/lar.png'] },
+    { key: 'chargers',  name: 'Chargers',   mono: 'LAC', c1: '#0080C6', c2: '#FFC20E', logos: ['https://a.espncdn.com/i/teamlogos/nfl/500/lac.png'] },
+    { key: 'niners',    name: '49ers',      mono: 'SF', c1: '#AA0000', c2: '#B3995D', logos: ['https://a.espncdn.com/i/teamlogos/nfl/500/sf.png', 'https://a.espncdn.com/i/teamlogos/nfl/500/sfo.png'] },
+    { key: 'bears',     name: 'Bears',      mono: 'CHI', c1: '#0B162A', c2: '#C83803', logos: ['https://a.espncdn.com/i/teamlogos/nfl/500-dark/chi.png', 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png'] },
     { key: 'nbc',       name: 'NBC Sports', mono: 'NBC', c1: '#ffffff', c2: '#111111', chip: true, logos: ['/sports-refs/nbc-sports-logo-v2.png'] },
     { key: 'olympics',  name: 'Olympics',   mono: '🏅', c1: '#ffffff', c2: '#111111', chip: true, logos: ['/sports-refs/olympics-logo.png'] }
   ];

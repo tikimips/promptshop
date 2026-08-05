@@ -35,6 +35,18 @@ const TEAMS: Record<string, string> = {
     'a Chicago Sky WNBA basketball player in the authentic sky blue and yellow Sky jersey driving fast to the basket at Wintrust Arena in Chicago, packed crowd, dramatic arena lighting',
   valkyries:
     'a Golden State Valkyries WNBA basketball player in the authentic violet and black Valkyries jersey shooting a three-pointer at Chase Center in San Francisco, packed crowd, dramatic arena lighting',
+  nygiants:
+    'a New York Giants NFL football player in the authentic royal blue jersey, gray pants and red trim, charging forward with the football at MetLife Stadium, helmet tucked under one arm so the face is fully visible, packed crowd, dramatic stadium lighting',
+  nyjets:
+    'a New York Jets NFL football player in the authentic gotham green and white uniform, striking a power pose with the football at MetLife Stadium, helmet tucked under one arm so the face is fully visible, packed crowd, dramatic stadium lighting',
+  rams:
+    'a Los Angeles Rams NFL football player in the authentic royal blue and sol-yellow uniform, mid-stride with the football at SoFi Stadium, helmet tucked under one arm so the face is fully visible, packed crowd, the massive Infinity Screen visible above, dramatic lighting',
+  chargers:
+    'a Los Angeles Chargers NFL football player in the authentic powder blue and gold-bolt uniform, throwing a pass at SoFi Stadium, helmet tucked under one arm in the other hand so the face is fully visible, packed crowd, dramatic lighting',
+  niners:
+    "a San Francisco 49ers NFL football player in the authentic scarlet red and gold uniform, sprinting with the football at Levi's Stadium, helmet tucked under one arm so the face is fully visible, packed crowd, golden California light",
+  bears:
+    'a Chicago Bears NFL football player in the authentic navy and orange uniform, in a fierce lineman stance with the football at Soldier Field, helmet tucked under one arm so the face is fully visible, packed crowd, overcast Chicago sky, dramatic lighting',
   olympics:
     'a Team USA Olympic athlete in an official Team USA warm-up jacket standing proudly on the top step of the Olympic medal podium at the Paris 2024 Summer Olympics, a gold medal around their neck, one hand raised in celebration, Paris 2024 podium branding, photographers and a cheering crowd in the background, confetti in the air, the Eiffel Tower visible in the distance at dusk',
   nbc: 'broadcast booth scene', // handled by the dedicated branch below
