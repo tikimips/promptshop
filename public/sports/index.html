@@ -102,6 +102,15 @@
   #retryBtn { border: none; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: 999px;
     padding: 1.1rem 2.6rem; font-size: 1.25rem; background: linear-gradient(90deg, #1b6b3a, #ffd23f); color: #06120a; }
 
+
+  /* ===== Screen fill flash (low-light) ===== */
+  #fillFlash { position: fixed; inset: 0; background: #FFF6E8; opacity: 0; pointer-events: none; z-index: 60; }
+  #fillFlash.fade { transition: opacity .25s ease-out; }
+  #flashToggle { position: absolute; top: 4%; right: 2%; z-index: 6; background: rgba(0,0,0,.55); color: #fff;
+    border: 2px solid #ffffff55; border-radius: 999px; padding: .55rem 1.1rem; font-family: inherit;
+    font-weight: 700; font-size: 1rem; cursor: pointer; }
+  #flashToggle.on { background: #FFF6E8; color: #1a1a1a; border-color: #FFF6E8; }
+
   canvas.work { display: none; }
 </style>
 </head>
@@ -145,6 +154,7 @@
       <div id="banner">Put your face in the oval</div>
       <div id="countdown"><span id="countNum">3</span></div>
       <div id="flash"></div>
+      <button id="flashToggle">⚡ Flash Off</button>
     </div>
   </div>
 
@@ -175,6 +185,7 @@
     <button id="retryBtn">Try Again</button>
   </div>
 
+<div id="fillFlash"></div>
 <canvas id="frameCanvas" class="work"></canvas>
 
 <script>
@@ -225,6 +236,36 @@
   var previewImg = $('previewImg'), previewTimer = $('previewTimer');
   var errorMsg = $('errorMsg'), retryBtn = $('retryBtn');
   var frameCanvas = $('frameCanvas');
+
+  // ===== Screen fill flash (low-light), default off =====
+  var flashOn = false;
+  var fillFlash = $('fillFlash'), flashToggle = $('flashToggle');
+  flashToggle.addEventListener('click', function () {
+    flashOn = !flashOn;
+    flashToggle.textContent = flashOn ? '\u26A1 Flash On' : '\u26A1 Flash Off';
+    flashToggle.classList.toggle('on', flashOn);
+  });
+  function clearFillFlash() {
+    fillFlash.classList.remove('fade');
+    fillFlash.style.opacity = '0';
+  }
+  function fireWithFlash() {
+    if (!flashOn) { snap(); return; }
+    // Ramp to full warm white and hold ~300ms so auto-exposure adapts
+    fillFlash.classList.remove('fade');
+    fillFlash.style.opacity = '1';
+    void fillFlash.offsetWidth;
+    // Capture DURING the hold, at peak brightness. Plain timeouts (not the
+    // cancellable sequence timers) so the overlay always cleans itself up.
+    setTimeout(function () {
+      try { snap(); } catch (e) { console.warn('capture failed:', e); }
+    }, 200);
+    setTimeout(function () {
+      fillFlash.classList.add('fade');
+      fillFlash.style.opacity = '0';
+    }, 320);
+  }
+
 
   function show(screen) {
     [attract, teamSelect, countSelect, booth, working, preview, done, errorScreen].forEach(function (s) { s.classList.remove('active'); });
@@ -284,6 +325,7 @@
     groupN = 1;
     banner.style.display = 'none';
     countdown.style.display = 'none';
+    clearFillFlash();
     show(attract);
   }
 
@@ -401,7 +443,7 @@
     banner.style.display = 'block';
     later(function () {
       banner.style.display = 'none';
-      runCountdown(3, snap);
+      runCountdown(3, fireWithFlash);
     }, groupN > 1 ? POSITION_MS + 2500 : POSITION_MS);
   }
 
