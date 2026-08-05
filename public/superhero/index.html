@@ -19,40 +19,34 @@
   .cam-wrap .cam { font-size: clamp(5rem, 12vw, 9rem); display: block; line-height: 1; }
   .cam-wrap svg.domino { position: absolute; top: 18%; left: 8%; width: 84%; height: auto; pointer-events: none;
     filter: drop-shadow(0 3px 4px rgba(0,0,0,.5)); }
+  .cam-wrap .spark { position: absolute; font-size: clamp(1.6rem, 4vw, 3rem); animation: twinkle 1.6s ease-in-out infinite; }
+  .cam-wrap .s1 { top: -8%; right: -14%; }
+  .cam-wrap .s2 { bottom: -4%; left: -16%; animation-delay: .8s; }
+  @keyframes twinkle { 0%,100% { opacity: .3; transform: scale(.8) rotate(-10deg); } 50% { opacity: 1; transform: scale(1.15) rotate(10deg); } }
   @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
   #goText { margin-top: 1.6rem; font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 900; letter-spacing: .15em;
     color: #2eea6d; text-shadow: 0 0 24px rgba(46, 234, 109, .6); animation: pulse 1.8s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+  #keyWarn { position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: #7a1020;
+    color: #ffd7dc; padding: .6rem 1.4rem; border-radius: 999px; font-size: .95rem; display: none; white-space: nowrap; }
 
-  /* ===== Screen 2: Hero select ===== */
-  #select { background: radial-gradient(ellipse at 50% 20%, #23134e 0%, #0b0b1a 75%); z-index: 25; }
-  #heroRow { display: flex; gap: clamp(2rem, 8vw, 7rem); align-items: center; justify-content: center; }
-  .hero-card { background: none; border: none; cursor: pointer; padding: 1rem; border-radius: 24px; transition: transform .15s; }
-  .hero-card:active { transform: scale(.95); }
-  .hero-card img { width: clamp(160px, 26vw, 300px); aspect-ratio: 2 / 3; object-fit: cover; display: block;
-    border-radius: 20px; border: 5px solid #ffd23f; box-shadow: 0 14px 44px rgba(0,0,0,.55); }
-  .card-ph { width: clamp(160px, 26vw, 300px); aspect-ratio: 2 / 3; border-radius: 20px; border: 5px solid #ffd23f;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem;
-    background: linear-gradient(110deg, #181832 40%, #262658 50%, #181832 60%); background-size: 200% 100%;
-    animation: shimmerCard 1.4s linear infinite; box-shadow: 0 14px 44px rgba(0,0,0,.55); }
-  .card-ph .q { font-size: 3.6rem; }
-  .card-ph b { font-size: 1.5rem; font-weight: 900; letter-spacing: .12em; color: #ffd23f; }
-  @keyframes shimmerCard { to { background-position: -200% 0; } }
-  .hero-card.boy   { animation: floatA 3.4s ease-in-out infinite; }
-  .hero-card.girl  { animation: floatB 3.8s ease-in-out infinite; }
-  @keyframes floatA { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-22px) rotate(2deg); } }
-  @keyframes floatB { 0%,100% { transform: translateY(-14px) rotate(2deg); } 50% { transform: translateY(6px) rotate(-2deg); } }
-  #chooseOne { margin-top: 2.2rem; font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 900; text-transform: uppercase;
-    letter-spacing: .12em; color: #ffd23f; text-shadow: 3px 3px 0 #e63946; animation: pulse 1.8s ease-in-out infinite; }
-
-  /* ===== Screen 3: Booth ===== */
+  /* ===== Screen 2: Booth ===== */
   #booth { z-index: 10; background: #000; }
   #stage { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
   #video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-  #faceOval { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); height: 66%; aspect-ratio: 78 / 100;
-    border: 6px dashed #2eea6d; border-radius: 50%; z-index: 3; pointer-events: none;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,.25); }
-  #banner { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); z-index: 5; background: rgba(11,11,26,.75);
+  .face-oval { position: absolute; border: 6px dashed #2eea6d; border-radius: 50%; z-index: 3; pointer-events: none; }
+
+  /* ===== Count select ===== */
+  #countSelect { background: radial-gradient(ellipse at 50% 20%, #1a2a5e 0%, #0b0b1a 75%); z-index: 25; }
+  #countSelect h2 { font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
+    color: #ffd23f; text-shadow: 3px 3px 0 #e63946; margin-bottom: 2.5rem; animation: pulse 1.8s ease-in-out infinite; }
+  #countRow { display: flex; gap: clamp(1rem, 3.5vw, 2.5rem); }
+  .count-btn { width: clamp(80px, 13vw, 140px); height: clamp(80px, 13vw, 140px); border-radius: 50%;
+    border: 5px solid #2eea6d; background: #14142e; color: #ffd23f; font-family: inherit; cursor: pointer;
+    font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 900; transition: transform .12s, background .15s; }
+  .count-btn:active { transform: scale(.9); }
+  .count-btn:hover { background: #1e1e40; }
+  #banner { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); z-index: 5; background: rgba(18,8,32,.75);
     border: 3px solid #ffd23f; border-radius: 999px; padding: .8rem 2rem; font-size: clamp(1.2rem, 3.5vw, 2.2rem);
     font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #ffd23f; white-space: nowrap; display: none; }
   #countdown { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 6; pointer-events: none; }
@@ -63,26 +57,22 @@
   @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
 
   /* ===== Working screen ===== */
-  #working { background: radial-gradient(ellipse at 50% 40%, #23134e 0%, #0b0b1a 75%); z-index: 15; }
-  #working .burst { width: 140px; height: 140px; border-radius: 50%; border: 10px dashed #ffd23f;
+  #working { background: radial-gradient(ellipse at 50% 40%, #1a2a5e 0%, #0b0b1a 75%); z-index: 15; }
+  #working .burst { width: 140px; height: 140px; border-radius: 50%; border: 10px dashed #2eea6d;
     animation: spin 1.6s linear infinite; margin-bottom: 2.5rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #working h2 { font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 900; text-transform: uppercase; text-align: center;
     color: #ffd23f; text-shadow: 4px 4px 0 #e63946; animation: pulse 1.4s ease-in-out infinite; }
   #working p { margin-top: 1.2rem; color: #ffffffaa; font-size: clamp(1rem, 2.5vw, 1.5rem); }
 
-  /* API key warning on attract */
-  #keyWarn { position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: #7a1020;
-    color: #ffd7dc; padding: .6rem 1.4rem; border-radius: 999px; font-size: .95rem; display: none; white-space: nowrap; }
-
-  /* ===== Screen 4: Preview ===== */
+  /* ===== Screen 3: Preview ===== */
   #preview { background: #05050d; z-index: 18; }
   #previewImg { max-width: 96vw; max-height: 92vh; border-radius: 10px; box-shadow: 0 16px 64px rgba(0,0,0,.7); }
   #previewTimer { position: absolute; right: 2rem; bottom: 2rem; width: 96px; height: 96px; border-radius: 50%;
-    background: rgba(11,11,26,.8); border: 5px solid #ffd23f; display: flex; align-items: center; justify-content: center;
+    background: rgba(18,8,32,.8); border: 5px solid #ffd23f; display: flex; align-items: center; justify-content: center;
     font-size: 2.6rem; font-weight: 900; color: #ffd23f; z-index: 5; }
 
-  /* ===== Screen 5: Done ===== */
+  /* ===== Screen 4: Done ===== */
   #done { background: radial-gradient(ellipse at 50% 25%, #1a2a5e 0%, #0b0b1a 75%); z-index: 20; cursor: pointer; padding: 2rem; }
   #done h2 { font-size: clamp(2.2rem, 7vw, 5.5rem); font-weight: 900; text-transform: uppercase; text-align: center; line-height: 1.1;
     color: #ffd23f; text-shadow: 4px 4px 0 #e63946, 8px 8px 0 rgba(0,0,0,.45); }
@@ -110,26 +100,31 @@
         <ellipse cx="52" cy="30" rx="17" ry="10" fill="#fff"/>
         <ellipse cx="148" cy="30" rx="17" ry="10" fill="#fff"/>
       </svg>
+      <span class="spark s1">⚡</span>
+      <span class="spark s2">⭐</span>
     </div>
     <h1>Super Hero<br>Photo Booth</h1>
     <div id="goText">GO</div>
-    <div id="keyWarn">Offline copy: AI photos need the hosted version at promptshop.ai/superhero. Cartoon mode only here.</div>
+    <div id="keyWarn">Offline copy: AI photos need the hosted version at promptshop.ai/superhero.</div>
   </div>
 
-  <!-- Screen 2: Hero select -->
-  <div id="select" class="screen">
-    <div id="heroRow">
-      <button class="hero-card boy" id="pickBoy" aria-label="Boy superhero"></button>
-      <button class="hero-card girl" id="pickGirl" aria-label="Girl superhero"></button>
+  <!-- Count select -->
+  <div id="countSelect" class="screen">
+    <h2>How Many People?</h2>
+    <div id="countRow">
+      <button class="count-btn">1</button>
+      <button class="count-btn">2</button>
+      <button class="count-btn">3</button>
+      <button class="count-btn">4</button>
+      <button class="count-btn">5</button>
     </div>
-    <div id="chooseOne">Choose One</div>
   </div>
 
-  <!-- Screen 3: Booth -->
+  <!-- Screen 2: Booth -->
   <div id="booth" class="screen">
     <div id="stage">
       <video id="video" autoplay playsinline muted></video>
-      <div id="faceOval"></div>
+      <div id="ovals"></div>
       <div id="banner">Put your face in the oval</div>
       <div id="countdown"><span id="countNum">3</span></div>
       <div id="flash"></div>
@@ -139,335 +134,61 @@
   <!-- Working screen -->
   <div id="working" class="screen">
     <div class="burst"></div>
-    <h2>Making You Super&hellip;</h2>
-    <p>Your hero photo is being created</p>
+    <h2>Powering Up&hellip;</h2>
+    <p>Your superhero photo is being created</p>
   </div>
 
-  <!-- Screen 4: Preview -->
+  <!-- Screen 3: Preview -->
   <div id="preview" class="screen">
     <img id="previewImg" alt="Your superhero photo">
     <div id="previewTimer">10</div>
   </div>
 
-  <!-- Screen 5: Done -->
+  <!-- Screen 4: Done -->
   <div id="done" class="screen">
     <h2>Your Photo<br>Is Ready</h2>
     <div class="sub">at the printing station</div>
-    <div class="again">Tap anywhere for the next hero</div>
+    <div class="again">Tap anywhere to go again</div>
   </div>
 
   <!-- Error -->
   <div id="error" class="screen">
-    <h2>Camera not available</h2>
+    <h2>Something went wrong</h2>
     <p id="errorMsg"></p>
-    <button id="retryBtn">Retry</button>
+    <button id="retryBtn">Try Again</button>
   </div>
 
 <canvas id="frameCanvas" class="work"></canvas>
-<canvas id="finalCanvas" class="work"></canvas>
 
 <script>
 (function () {
   'use strict';
 
-  // ================================================================
-  // CONFIG — AI generation goes through the site's own API route,
-  // which holds the Gemini key server-side (Vercel env GEMINI_API_KEY).
-  // ================================================================
+  // AI generation goes through the site's API route (key stays server-side).
   var GEN_ENDPOINT = '/api/superhero';
-  var GEMINI_TIMEOUT_MS = 60000;
+  var GEN_TIMEOUT_MS = 60000;
   var CAN_GENERATE = location.protocol !== 'file:';
 
-  // ================================================================
-  // Scene artwork, viewBox 0 0 1800 1200. Head goes at scene.head.
-  // ================================================================
-  var PAL = {
-    boy:  { suit: '#1d4ed8', suitDark: '#173db0', cape: '#c1121f', boot: '#c1121f', belt: '#ffd23f', accent: '#e63946', skin: '#f2c49b', skirt: false },
-    girl: { suit: '#e63946', suitDark: '#c1121f', cape: '#5a189a', boot: '#ffd23f', belt: '#ffd23f', accent: '#5a189a', skin: '#f2c49b', skirt: true }
-  };
-
-  function emblem(cx, cy, C) {
-    return '<circle cx="' + cx + '" cy="' + cy + '" r="34" fill="#ffd23f" stroke="' + C.accent + '" stroke-width="6"/>' +
-      '<path d="M' + cx + ' ' + (cy - 20) + ' L' + (cx + 6) + ' ' + (cy - 6) + ' L' + (cx + 21) + ' ' + (cy - 6) + ' L' + (cx + 9) + ' ' + (cy + 3) + ' L' + (cx + 14) + ' ' + (cy + 18) + ' L' + cx + ' ' + (cy + 9) + ' L' + (cx - 14) + ' ' + (cy + 18) + ' L' + (cx - 9) + ' ' + (cy + 3) + ' L' + (cx - 21) + ' ' + (cy - 6) + ' L' + (cx - 6) + ' ' + (cy - 6) + ' Z" fill="' + C.accent + '"/>';
-  }
-
-  // ---- Pose: flying up (fist raised), centered at x=900, head at (900,385)
-  function heroFly(C) {
-    var s = '';
-    // cape flowing down-left
-    s += '<path d="M 845 490 C 680 545, 590 800, 655 970 C 760 905, 830 760, 875 655 L 950 515 Z" fill="' + C.cape + '"/>';
-    // neck
-    s += '<rect x="878" y="450" width="44" height="45" fill="' + C.skin + '"/>';
-    // raised right arm
-    s += '<path d="M 955 505 L 1000 472 L 1030 335 L 988 320 L 948 465 Z" fill="' + C.suit + '"/>';
-    s += '<circle cx="1011" cy="312" r="27" fill="' + C.skin + '"/>';
-    // left arm down
-    s += '<path d="M 845 505 L 798 548 L 764 642 L 803 662 L 843 578 Z" fill="' + C.suit + '"/>';
-    s += '<circle cx="782" cy="658" r="23" fill="' + C.skin + '"/>';
-    // torso
-    s += '<path d="M 838 492 C 860 466 940 466 962 492 L 984 632 L 816 632 Z" fill="' + C.suit + '"/>';
-    // skirt or trunks
-    if (C.skirt) s += '<path d="M 816 630 L 984 630 L 1012 706 L 788 706 Z" fill="' + C.suitDark + '"/>';
-    // belt
-    s += '<rect x="822" y="626" width="156" height="30" rx="9" fill="' + C.belt + '"/>';
-    s += '<circle cx="900" cy="641" r="13" fill="' + C.accent + '"/>';
-    // legs (right straight, left bent back)
-    s += '<path d="M 906 656 L 962 656 L 948 842 L 900 842 Z" fill="' + C.suit + '"/>';
-    s += '<path d="M 894 656 L 838 656 L 798 802 L 846 820 Z" fill="' + C.suit + '"/>';
-    // boots
-    s += '<path d="M 899 842 L 949 842 L 955 924 L 886 924 Z" fill="' + C.boot + '"/>';
-    s += '<path d="M 799 801 L 846 819 L 822 894 L 768 866 Z" fill="' + C.boot + '"/>';
-    // emblem
-    s += emblem(900, 548, C);
-    // speed lines
-    s += '<g stroke="#ffffff" stroke-width="10" stroke-linecap="round" opacity=".55">' +
-      '<line x1="700" y1="1000" x2="770" y2="880"/><line x1="810" y1="1050" x2="860" y2="950"/><line x1="990" y1="1030" x2="1040" y2="920"/></g>';
-    return s;
-  }
-
-  // ---- Pose: lifting bus (arms up), centered at x=900, head at (900,545)
-  function heroLift(C) {
-    var s = '';
-    // cape
-    s += '<path d="M 850 665 C 740 730, 700 930, 760 1080 C 840 1010, 880 880, 900 790 C 920 880, 960 1010, 1040 1080 C 1100 930, 1060 730, 950 665 Z" fill="' + C.cape + '"/>';
-    // neck
-    s += '<rect x="878" y="615" width="44" height="48" fill="' + C.skin + '"/>';
-    // arms up gripping bus
-    s += '<path d="M 950 668 L 1026 640 L 1072 486 L 1028 470 L 958 612 Z" fill="' + C.suit + '"/>';
-    s += '<path d="M 850 668 L 774 640 L 728 486 L 772 470 L 842 612 Z" fill="' + C.suit + '"/>';
-    s += '<circle cx="1050" cy="462" r="26" fill="' + C.skin + '"/>';
-    s += '<circle cx="750" cy="462" r="26" fill="' + C.skin + '"/>';
-    // torso
-    s += '<path d="M 840 660 C 862 636 938 636 960 660 L 980 838 L 820 838 Z" fill="' + C.suit + '"/>';
-    if (C.skirt) s += '<path d="M 818 858 L 982 858 L 1012 944 L 788 944 Z" fill="' + C.suitDark + '"/>';
-    // belt
-    s += '<rect x="822" y="832" width="156" height="30" rx="9" fill="' + C.belt + '"/>';
-    s += '<circle cx="900" cy="847" r="13" fill="' + C.accent + '"/>';
-    // legs
-    s += '<path d="M 848 862 L 896 862 L 892 1044 L 846 1044 Z" fill="' + (C.skirt ? C.skin : C.suit) + '"/>';
-    s += '<path d="M 904 862 L 952 862 L 954 1044 L 908 1044 Z" fill="' + (C.skirt ? C.skin : C.suit) + '"/>';
-    // boots
-    s += '<path d="M 842 1044 L 894 1044 L 896 1102 L 912 1116 L 836 1116 Z" fill="' + C.boot + '"/>';
-    s += '<path d="M 906 1044 L 958 1044 L 966 1116 L 888 1116 L 904 1102 Z" fill="' + C.boot + '"/>';
-    // emblem
-    s += emblem(900, 736, C);
-    return s;
-  }
-
-  // ---- Pose: floating hands-on-hips, centered at x=1150, head at (1150,340)
-  function heroFloat(C) {
-    var s = '';
-    // cape billowing left
-    s += '<path d="M 1092 462 C 970 520, 930 730, 990 900 C 1075 820, 1120 700, 1150 625 L 1210 470 Z" fill="' + C.cape + '"/>';
-    // neck
-    s += '<rect x="1128" y="408" width="44" height="46" fill="' + C.skin + '"/>';
-    // arms akimbo
-    s += '<path d="M 1206 458 L 1266 502 L 1248 592 L 1198 574 L 1230 516 Z" fill="' + C.suit + '"/>';
-    s += '<path d="M 1094 458 L 1034 502 L 1052 592 L 1102 574 L 1070 516 Z" fill="' + C.suit + '"/>';
-    s += '<circle cx="1216" cy="596" r="19" fill="' + C.skin + '"/>';
-    s += '<circle cx="1084" cy="596" r="19" fill="' + C.skin + '"/>';
-    // torso
-    s += '<path d="M 1092 452 C 1112 428 1188 428 1208 452 L 1226 618 L 1074 618 Z" fill="' + C.suit + '"/>';
-    if (C.skirt) s += '<path d="M 1072 644 L 1228 644 L 1256 722 L 1044 722 Z" fill="' + C.suitDark + '"/>';
-    // belt
-    s += '<rect x="1076" y="614" width="148" height="28" rx="9" fill="' + C.belt + '"/>';
-    s += '<circle cx="1150" cy="628" r="12" fill="' + C.accent + '"/>';
-    // legs together
-    s += '<path d="M 1104 642 L 1148 642 L 1144 838 L 1104 838 Z" fill="' + (C.skirt ? C.skin : C.suit) + '"/>';
-    s += '<path d="M 1152 642 L 1196 642 L 1194 838 L 1154 838 Z" fill="' + (C.skirt ? C.skin : C.suit) + '"/>';
-    // boots pointed
-    s += '<path d="M 1100 838 L 1146 838 L 1148 916 L 1124 934 L 1094 912 Z" fill="' + C.boot + '"/>';
-    s += '<path d="M 1152 838 L 1198 838 L 1204 912 L 1174 934 L 1150 916 Z" fill="' + C.boot + '"/>';
-    // emblem
-    s += emblem(1150, 520, C);
-    return s;
-  }
-
-  // ---- Scene A: flying over the city
-  function sceneCity(C) {
-    var s = '<defs><linearGradient id="skyA" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#141b4d"/><stop offset=".55" stop-color="#3f5dc4"/><stop offset="1" stop-color="#f2994a"/></linearGradient></defs>';
-    s += '<rect width="1800" height="1200" fill="url(#skyA)"/>';
-    // moon + clouds
-    s += '<circle cx="1560" cy="180" r="70" fill="#fff7d6" opacity=".9"/>';
-    s += cloud(240, 220, 1) + cloud(1250, 420, .8) + cloud(420, 560, .7);
-    // skyline
-    var b = [[0,180,320],[190,140,230],[340,170,400],[520,120,210],[650,180,300],[840,150,460],[1000,170,260],[1180,150,360],[1340,180,280],[1530,270,380]];
-    for (var i = 0; i < b.length; i++) {
-      var x = b[i][0], w = b[i][1], h = b[i][2], y = 1200 - h;
-      s += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="#101830"/>';
-      for (var r = 0; r < Math.floor((h - 40) / 52); r++)
-        for (var c = 0; c < Math.floor((w - 24) / 46); c++)
-          if ((i * 7 + r * 5 + c * 3) % 4 < 2)
-            s += '<rect x="' + (x + 20 + c * 46) + '" y="' + (y + 24 + r * 52) + '" width="20" height="28" fill="#ffd97a" opacity=".85"/>';
-    }
-    s += heroFly(C);
-    return s;
-  }
-
-  // ---- Scene B: lifting a bus off a cat
-  function sceneBus(C) {
-    var s = '<defs><linearGradient id="skyB" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#4aa3df"/><stop offset="1" stop-color="#bfe3f7"/></linearGradient></defs>';
-    s += '<rect width="1800" height="1200" fill="url(#skyB)"/>';
-    s += '<circle cx="240" cy="170" r="80" fill="#ffd23f"/>';
-    s += cloud(700, 160, .9) + cloud(1450, 240, 1);
-    // background buildings
-    var b = [[40,220,330],[290,180,240],[1290,200,290],[1520,240,360]];
-    for (var i = 0; i < b.length; i++) {
-      var x = b[i][0], w = b[i][1], h = b[i][2], y = 1080 - h;
-      s += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="#8d99ae"/>';
-      for (var r = 0; r < Math.floor((h - 40) / 60); r++)
-        for (var c = 0; c < Math.floor((w - 30) / 56); c++)
-          s += '<rect x="' + (x + 24 + c * 56) + '" y="' + (y + 26 + r * 60) + '" width="26" height="32" fill="#5b6b8c"/>';
-    }
-    // road
-    s += '<rect x="0" y="1080" width="1800" height="120" fill="#3a3a45"/>';
-    s += '<g fill="#f4f4f4">';
-    for (var k = 0; k < 9; k++) s += '<rect x="' + (60 + k * 200) + '" y="1130" width="100" height="16" rx="8"/>';
-    s += '</g>';
-    // shadow under bus
-    s += '<ellipse cx="900" cy="1112" rx="400" ry="22" fill="#000" opacity=".22"/>';
-    // hero (behind bus arms overlap correctly: draw hero first, bus after arms? arms grip under bus, draw bus then arms would cover; draw hero fully, then bus, then re-draw fists)
-    s += heroLift(C);
-    // bus
-    s += '<g>' +
-      '<rect x="560" y="300" width="680" height="132" rx="26" fill="#f4b400"/>' +
-      '<rect x="560" y="300" width="680" height="30" rx="15" fill="#ffcf40"/>' +
-      '<rect x="588" y="330" width="90" height="52" rx="8" fill="#bfe3f7"/>' +
-      '<rect x="694" y="330" width="90" height="52" rx="8" fill="#bfe3f7"/>' +
-      '<rect x="800" y="330" width="90" height="52" rx="8" fill="#bfe3f7"/>' +
-      '<rect x="906" y="330" width="90" height="52" rx="8" fill="#bfe3f7"/>' +
-      '<rect x="1012" y="330" width="90" height="52" rx="8" fill="#bfe3f7"/>' +
-      '<rect x="1118" y="330" width="90" height="52" rx="8" fill="#bfe3f7"/>' +
-      '<rect x="560" y="398" width="680" height="12" fill="#d99a00"/>' +
-      '<circle cx="668" cy="440" r="34" fill="#23232b"/><circle cx="668" cy="440" r="14" fill="#8d99ae"/>' +
-      '<circle cx="1132" cy="440" r="34" fill="#23232b"/><circle cx="1132" cy="440" r="14" fill="#8d99ae"/>' +
-      '</g>';
-    // fists re-drawn over bus edge
-    s += '<circle cx="1050" cy="462" r="26" fill="' + C.skin + '"/>';
-    s += '<circle cx="750" cy="462" r="26" fill="' + C.skin + '"/>';
-    // cat
-    s += '<g>' +
-      '<path d="M 1245 1075 C 1300 1030, 1330 1050, 1318 1090" fill="none" stroke="#e07a2f" stroke-width="16" stroke-linecap="round"/>' +
-      '<ellipse cx="1190" cy="1078" rx="62" ry="40" fill="#f4a259"/>' +
-      '<circle cx="1136" cy="1040" r="32" fill="#f4a259"/>' +
-      '<path d="M 1114 1018 L 1108 988 L 1134 1006 Z" fill="#f4a259"/>' +
-      '<path d="M 1158 1018 L 1164 988 L 1138 1006 Z" fill="#f4a259"/>' +
-      '<circle cx="1126" cy="1036" r="4.5" fill="#23232b"/><circle cx="1148" cy="1036" r="4.5" fill="#23232b"/>' +
-      '<path d="M 1130 1050 Q 1137 1056 1144 1050" fill="none" stroke="#23232b" stroke-width="3.5" stroke-linecap="round"/>' +
-      '<g stroke="#23232b" stroke-width="2.5"><line x1="1100" y1="1044" x2="1074" y2="1040"/><line x1="1100" y1="1052" x2="1076" y2="1056"/><line x1="1174" y1="1044" x2="1200" y2="1040"/></g>' +
-      '</g>';
-    return s;
-  }
-
-  // ---- Scene C: floating above the Empire State Building
-  function sceneEmpire(C) {
-    var s = '<defs><linearGradient id="skyC" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#1d3f8f"/><stop offset=".6" stop-color="#6fa8dc"/><stop offset="1" stop-color="#cfe6f7"/></linearGradient></defs>';
-    s += '<rect width="1800" height="1200" fill="url(#skyC)"/>';
-    s += '<circle cx="290" cy="200" r="76" fill="#fff2b3" opacity=".95"/>';
-    // birds
-    s += '<g stroke="#1a1a2e" stroke-width="6" fill="none" stroke-linecap="round">' +
-      '<path d="M 460 320 q 20 -18 40 0 q 20 -18 40 0"/><path d="M 1560 420 q 16 -14 32 0 q 16 -14 32 0"/></g>';
-    // low skyline
-    var b = [[0,260,220],[280,200,160],[960,220,190],[1200,260,150],[1480,320,230]];
-    for (var i = 0; i < b.length; i++) {
-      s += '<rect x="' + b[i][0] + '" y="' + (1200 - b[i][2]) + '" width="' + b[i][1] + '" height="' + b[i][2] + '" fill="#3a4a6b" opacity=".8"/>';
-    }
-    // Empire State Building
-    s += '<g>' +
-      '<rect x="480" y="700" width="340" height="500" fill="#7d8aa5"/>' +
-      '<rect x="480" y="700" width="60" height="500" fill="#67748f"/>' +
-      '<rect x="530" y="480" width="240" height="240" fill="#8d99b4"/>' +
-      '<rect x="530" y="480" width="46" height="240" fill="#74809b"/>' +
-      '<rect x="580" y="336" width="140" height="160" fill="#9aa5bf"/>' +
-      '<rect x="580" y="336" width="30" height="160" fill="#828ea9"/>' +
-      '<rect x="622" y="266" width="56" height="80" fill="#a5b0c9"/>' +
-      '<rect x="646" y="160" width="10" height="116" fill="#b9c2d6"/>' +
-      '<circle cx="651" cy="156" r="7" fill="#e63946"/>';
-    // window stripes
-    for (var w = 0; w < 7; w++) s += '<rect x="' + (556 + w * 40) + '" y="710" width="14" height="480" fill="#5b6884"/>';
-    for (var w2 = 0; w2 < 5; w2++) s += '<rect x="' + (588 + w2 * 38) + '" y="492" width="12" height="220" fill="#6a7690"/>';
-    s += '</g>';
-    // clouds in front
-    s += cloud(420, 660, 1.1) + cloud(1500, 760, .9) + cloud(950, 980, 1.3);
-    s += heroFloat(C);
-    return s;
-  }
-
-  function cloud(x, y, k) {
-    return '<g fill="#ffffff" opacity=".92" transform="translate(' + x + ',' + y + ') scale(' + k + ')">' +
-      '<ellipse cx="0" cy="0" rx="90" ry="38"/><ellipse cx="70" cy="-18" rx="70" ry="34"/><ellipse cx="-80" cy="-10" rx="60" ry="28"/></g>';
-  }
-
-  var SCENES = [
-    { build: sceneCity,   head: { x: 900,  y: 385 } },
-    { build: sceneBus,    head: { x: 900,  y: 545 } },
-    { build: sceneEmpire, head: { x: 1150, y: 340 } }
-  ];
-  var HEAD_RX = 72, HEAD_RY = 92;
-  var SCENE_W = 1800, SCENE_H = 1200;
-
-  function sceneSVG(idx, heroKey) {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1200">' +
-      SCENES[idx].build(PAL[heroKey]) + '</svg>';
-  }
-
-  // ================================================================
-  // State / elements
-  // ================================================================
   var IDLE_RESET_MS = 90000;
   var PREVIEW_S = 10;
   var DONE_RESET_MS = 12000;
   var POSITION_MS = 4000;
 
-  var hero = null, stream = null, busy = false;
+  var stream = null, busy = false, groupN = 1, ovalRects = [];
   var idleTimer = null, doneTimer = null, previewInterval = null;
   var seqTimers = [];
   var lastUrl = null;
-  var sceneIdx = 0;
 
   var $ = function (id) { return document.getElementById(id); };
-  var attract = $('attract'), select = $('select'), booth = $('booth'), working = $('working'), preview = $('preview'), done = $('done'), errorScreen = $('error');
-  var video = $('video'), faceOval = $('faceOval'), banner = $('banner');
+  var attract = $('attract'), countSelect = $('countSelect'), booth = $('booth'), working = $('working'), preview = $('preview'), done = $('done'), errorScreen = $('error');
+  var video = $('video'), banner = $('banner');
   var countdown = $('countdown'), countNum = $('countNum'), flash = $('flash');
   var previewImg = $('previewImg'), previewTimer = $('previewTimer');
   var errorMsg = $('errorMsg'), retryBtn = $('retryBtn');
-  var frameCanvas = $('frameCanvas'), finalCanvas = $('finalCanvas');
-
-  function cardPlaceholder(label) {
-    return '<div class="card-ph"><span class="q">\u2728</span><b>' + label + '</b></div>';
-  }
-  $('pickBoy').innerHTML = cardPlaceholder('MAN');
-  $('pickGirl').innerHTML = cardPlaceholder('WOMAN');
-
-  // Load the photorealistic hero cards from the server (cached CDN-side,
-  // so this is instant except the very first hit after a deploy).
-  function setCard(btnId, b64, alt) {
-    var img = document.createElement('img');
-    img.alt = alt;
-    img.src = 'data:image/png;base64,' + b64;
-    var btn = $(btnId);
-    btn.innerHTML = '';
-    btn.appendChild(img);
-  }
-  function loadHeroCards(attempt) {
-    if (!CAN_GENERATE) return; // offline copy keeps the placeholder cards
-    fetch('/api/superhero/cards').then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.boy && j.girl) {
-        setCard('pickBoy', j.boy, 'Man superhero');
-        setCard('pickGirl', j.girl, 'Woman superhero');
-      } else { throw new Error((j && j.error) || 'bad response'); }
-    }).catch(function (e) {
-      console.warn('Hero cards not ready:', e && e.message);
-      if ((attempt || 0) < 5) setTimeout(function () { loadHeroCards((attempt || 0) + 1); }, 6000);
-    });
-  }
-  loadHeroCards();
+  var frameCanvas = $('frameCanvas');
 
   function show(screen) {
-    [attract, select, booth, working, preview, done, errorScreen].forEach(function (s) { s.classList.remove('active'); });
+    [attract, countSelect, booth, working, preview, done, errorScreen].forEach(function (s) { s.classList.remove('active'); });
     screen.classList.add('active');
   }
 
@@ -490,7 +211,7 @@
     clearInterval(previewInterval);
     // Camera intentionally kept running so consent is only asked once per page load
     busy = false;
-    hero = null;
+    groupN = 1;
     banner.style.display = 'none';
     countdown.style.display = 'none';
     show(attract);
@@ -503,7 +224,6 @@
       return;
     }
     // Reuse the stream so the browser only asks for camera consent once
-    // for the life of the page.
     if (stream && stream.getTracks().some(function (t) { return t.readyState === 'live'; })) {
       video.srcObject = stream;
       onReady();
@@ -515,15 +235,13 @@
     }).then(function (s) {
       stream = s;
       video.srcObject = s;
-      // Push the camera to full HD if it granted less
       var track = s.getVideoTracks()[0];
       var st = track.getSettings();
       if (track.applyConstraints && (st.width < 1920 || st.height < 1080)) {
         track.applyConstraints({ width: 1920, height: 1080 }).catch(function () {});
       }
       onReady();
-    }).catch(function (err) {
-      // Retry without minimums so older webcams still work
+    }).catch(function () {
       navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
         audio: false
@@ -537,19 +255,14 @@
     });
   }
 
-  function stopCamera() {
-    if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
-    video.srcObject = null;
-  }
-
   function cameraErrorText(err) {
     if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'))
-      return 'Camera permission was denied. Allow camera access for this page in browser settings, then tap retry.';
+      return 'Camera permission was denied. Allow camera access for this page in browser settings, then tap Try Again.';
     if (err && err.name === 'NotFoundError')
-      return 'No camera found. Check the webcam, then tap retry.';
+      return 'No camera found. Check the webcam, then tap Try Again.';
     if (err && err.name === 'NotReadableError')
-      return 'The camera is in use by another app. Close it, then tap retry.';
-    return 'Could not start the camera (' + (err && err.name ? err.name : 'unknown error') + '). Tap retry.';
+      return 'The camera is in use by another app. Close it, then tap Try Again.';
+    return 'Could not start the camera (' + (err && err.name ? err.name : 'unknown error') + '). Tap Try Again.';
   }
 
   function showError(msg) {
@@ -560,35 +273,61 @@
 
   // ================== Flow ==================
   attract.addEventListener('click', function () {
+    if (busy) return;
     if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(function () {});
     }
-    show(select);
+    show(countSelect);
     pokeIdle();
   });
 
-  function pickHero(h) {
-    if (busy) return;
-    busy = true;
-    hero = h;
-    sceneIdx = Math.floor(Math.random() * SCENES.length);
-    startCamera(runBoothSequence);
-  }
-  $('pickBoy').addEventListener('click', function () { pickHero('boy'); });
-  $('pickGirl').addEventListener('click', function () { pickHero('girl'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.count-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      if (busy) return;
+      busy = true;
+      groupN = parseInt(btn.textContent, 10) || 1;
+      startCamera(runBoothSequence);
+    });
+  });
+
   retryBtn.addEventListener('click', function () {
-    if (!hero) { resetAll(); return; }
     busy = true;
     startCamera(runBoothSequence);
   });
 
+  function layoutOvals(n) {
+    var stage = $('stage');
+    var sw = stage.clientWidth, sh = stage.clientHeight;
+    var gap = sw * 0.02;
+    var OH = Math.min(sh * 0.66, ((sw * 0.94 - (n - 1) * gap) / n) / 0.78);
+    var OW = OH * 0.78;
+    var total = n * OW + (n - 1) * gap;
+    var x0 = (sw - total) / 2, cy = sh * 0.46;
+    var box = $('ovals');
+    box.innerHTML = '';
+    ovalRects = [];
+    for (var i = 0; i < n; i++) {
+      var x = x0 + i * (OW + gap);
+      var d = document.createElement('div');
+      d.className = 'face-oval';
+      d.style.left = x + 'px';
+      d.style.top = (cy - OH / 2) + 'px';
+      d.style.width = OW + 'px';
+      d.style.height = OH + 'px';
+      box.appendChild(d);
+      ovalRects.push({ cx: x + OW / 2, cy: cy, w: OW, h: OH });
+    }
+  }
+
   function runBoothSequence() {
     show(booth);
+    layoutOvals(groupN);
+    banner.textContent = groupN > 1 ? 'Put your faces in the ovals' : 'Put your face in the oval';
     banner.style.display = 'block';
     later(function () {
       banner.style.display = 'none';
       runCountdown(3, snap);
-    }, POSITION_MS);
+    }, groupN > 1 ? POSITION_MS + 2500 : POSITION_MS);
   }
 
   function runCountdown(from, cb) {
@@ -610,7 +349,7 @@
     void flash.offsetWidth;
     flash.classList.add('go');
 
-    // 1. Grab the mirrored frame at stage resolution
+    // Grab the mirrored frame at stage resolution
     var stage = $('stage');
     var sw = stage.clientWidth, sh = stage.clientHeight;
     var K = 2;
@@ -625,116 +364,79 @@
     fctx.drawImage(video, dx, dy, dw, dh);
     fctx.restore();
 
-    // Face oval position in stage coords (matches #faceOval CSS)
-    var OH = sh * 0.66, OW = OH * 0.78;
-    var ocx = sw / 2, ocy = sh * 0.46;
-    var src = { x: (ocx - OW / 2) * K, y: (ocy - OH / 2) * K, w: OW * K, h: OH * K };
-
-    // 2. Export a head-and-shoulders crop (oval + margin) for Gemini
-    var cw2 = OW * 1.9 * K, ch2 = OH * 1.6 * K;
-    var cx2 = ocx * K - cw2 / 2, cy2 = (ocy - OH * 0.5 * 0.15) * K - ch2 / 2 + OH * 0.15 * K;
-    cx2 = Math.max(0, Math.min(cx2, frameCanvas.width - cw2));
-    cy2 = Math.max(0, Math.min(cy2, frameCanvas.height - ch2));
-    var cropCanvas = document.createElement('canvas');
-    cropCanvas.width = Math.round(cw2); cropCanvas.height = Math.round(ch2);
-    cropCanvas.getContext('2d').drawImage(frameCanvas, cx2, cy2, cw2, ch2, 0, 0, cropCanvas.width, cropCanvas.height);
-    var faceB64 = cropCanvas.toDataURL('image/jpeg', 0.92).split(',')[1];
+    // Head-and-shoulders crop around the face oval (matches #faceOval CSS)
+    // Crop each oval (with margin) into its own face image
+    var mW = groupN > 1 ? 1.35 : 1.9;
+    var mH = groupN > 1 ? 1.45 : 1.6;
+    var faces = ovalRects.map(function (o) {
+      var cw2 = Math.min(o.w * mW * K, frameCanvas.width);
+      var ch2 = Math.min(o.h * mH * K, frameCanvas.height);
+      var cx2 = Math.max(0, Math.min(o.cx * K - cw2 / 2, frameCanvas.width - cw2));
+      var cy2 = Math.max(0, Math.min((o.cy + o.h * 0.06) * K - ch2 / 2, frameCanvas.height - ch2));
+      var c = document.createElement('canvas');
+      var scale = Math.min(1, 900 / ch2);
+      c.width = Math.round(cw2 * scale);
+      c.height = Math.round(ch2 * scale);
+      c.getContext('2d').drawImage(frameCanvas, cx2, cy2, cw2, ch2, 0, 0, c.width, c.height);
+      return c.toDataURL('image/jpeg', 0.9).split(',')[1];
+    });
 
     later(function () {
       show(working);
-      if (!CAN_GENERATE) { fallbackCartoon(src); return; }
-      callGemini(scenePrompt(sceneIdx, hero), faceB64, '3:2', function (pngB64) {
-        var bytes = atob(pngB64);
-        var arr = new Uint8Array(bytes.length);
-        for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-        deliver(new Blob([arr], { type: 'image/png' }), '.png');
-      }, function (why) {
-        console.warn('Gemini failed, using cartoon fallback:', why);
-        fallbackCartoon(src);
-      });
-    }, 550); // let the flash play out
+      if (!CAN_GENERATE) {
+        showError('This offline copy cannot create superhero photos. Use the hosted version at promptshop.ai/superhero.');
+        return;
+      }
+      generate(faces, 0);
+    }, 550);
   }
 
-  function deliver(blob, ext) {
-    if (lastUrl) URL.revokeObjectURL(lastUrl);
-    lastUrl = URL.createObjectURL(blob);
-    autoDownload(lastUrl, ext);
-    previewImg.src = lastUrl;
-    startPreview();
-  }
-
-  // ---- Gemini image generation ----
-  function scenePrompt(idx, heroKey) {
-    var who = heroKey === 'boy'
-      ? 'a man superhero wearing a bright blue suit with a flowing red cape, yellow belt and red boots'
-      : 'a woman superhero wearing a bright red suit with a flowing purple cape, yellow belt and yellow boots';
-    var scenes = [
-      'flying heroically high above a city skyline at dusk, one fist raised forward, cape billowing, glowing city lights far below, dramatic clouds',
-      'standing on a city street in daylight, lifting a full-size yellow bus high overhead with both hands to save a small orange cat sitting safely on the road beside them',
-      'floating in the open sky high above the Empire State Building in New York City, clouds drifting past, golden morning light'
-    ];
-    return 'A photorealistic, cinematic, movie-still photograph of ' + who + ', ' + scenes[idx] +
-      '. Take the face of the person in the attached photo and blend it seamlessly and realistically onto the superhero: preserve their real facial features, expression, skin tone, apparent age and hair exactly, match the body build to the person, and match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. Landscape orientation. No text, no watermark, no logo.';
-  }
-
-  function callGemini(prompt, imageB64, aspect, ok, fail) {
+  function generate(faces, attempt) {
     var ctrl = new AbortController();
-    var to = setTimeout(function () { ctrl.abort(); }, GEMINI_TIMEOUT_MS);
+    var to = setTimeout(function () { ctrl.abort(); }, GEN_TIMEOUT_MS);
     fetch(GEN_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: ctrl.signal,
-      body: JSON.stringify({ prompt: prompt, imageB64: imageB64 || null, aspect: aspect })
+      body: JSON.stringify({ imagesB64: faces })
     }).then(function (r) {
       clearTimeout(to);
       return r.json().then(function (j) {
-        if (r.ok && j && j.image) { ok(j.image); return; }
-        fail((j && j.error) || ('HTTP ' + r.status));
+        if (r.ok && j && j.image) { onGenerated(j.image); return; }
+        throw new Error((j && j.error) || ('HTTP ' + r.status));
       });
     }).catch(function (e) {
       clearTimeout(to);
-      fail(e && e.message || 'network error');
+      if (attempt < 1) { generate(faces, attempt + 1); return; } // one silent retry
+      console.warn('Superhero generation failed:', e && e.message);
+      showError('Could not create the anime photo. Tap Try Again.');
     });
   }
 
-  // ---- Cartoon fallback (offline / API failure) ----
-  function fallbackCartoon(src) {
-    var svg = sceneSVG(sceneIdx, hero);
-    var blob = new Blob([svg], { type: 'image/svg+xml' });
-    var url = URL.createObjectURL(blob);
-    var img = new Image();
-    img.onload = function () {
-      URL.revokeObjectURL(url);
-      finalCanvas.width = SCENE_W; finalCanvas.height = SCENE_H;
-      var ctx = finalCanvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, SCENE_W, SCENE_H);
-      var head = SCENES[sceneIdx].head;
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(head.x, head.y, HEAD_RX, HEAD_RY, 0, 0, Math.PI * 2);
-      ctx.clip();
-      ctx.drawImage(frameCanvas, src.x, src.y, src.w, src.h,
-        head.x - HEAD_RX, head.y - HEAD_RY, HEAD_RX * 2, HEAD_RY * 2);
-      ctx.restore();
-      finalCanvas.toBlob(function (b) { deliver(b, '.jpg'); }, 'image/jpeg', 0.92);
-    };
-    img.onerror = function () { showError('Could not build the superhero image. Tap retry.'); };
-    img.src = url;
+  function onGenerated(pngB64) {
+    var bytes = atob(pngB64);
+    var arr = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    var blob = new Blob([arr], { type: 'image/png' });
+    if (lastUrl) URL.revokeObjectURL(lastUrl);
+    lastUrl = URL.createObjectURL(blob);
+    autoDownload(lastUrl);
+    previewImg.src = lastUrl;
+    startPreview();
   }
 
-  function autoDownload(url, ext) {
+  function autoDownload(url) {
     var a = document.createElement('a');
     var ts = new Date();
     var pad = function (x) { return String(x).padStart(2, '0'); };
     a.download = 'superhero_' + ts.getFullYear() + pad(ts.getMonth() + 1) + pad(ts.getDate()) +
-      '_' + pad(ts.getHours()) + pad(ts.getMinutes()) + pad(ts.getSeconds()) + (ext || '.jpg');
+      '_' + pad(ts.getHours()) + pad(ts.getMinutes()) + pad(ts.getSeconds()) + '.png';
     a.href = url;
     document.body.appendChild(a);
     a.click();
     a.remove();
   }
 
-  // Screen 4: preview with 10s timer
   function startPreview() {
     show(preview);
     var n = PREVIEW_S;
@@ -751,7 +453,6 @@
     }, 1000);
   }
 
-  // Screen 5
   function finishToDone() {
     busy = false;
     show(done);
