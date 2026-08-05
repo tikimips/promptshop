@@ -35,6 +35,9 @@ const TEAMS: Record<string, string> = {
     'a Chicago Sky WNBA basketball player in the authentic sky blue and yellow Sky jersey driving fast to the basket at Wintrust Arena in Chicago, packed crowd, dramatic arena lighting',
   valkyries:
     'a Golden State Valkyries WNBA basketball player in the authentic violet and black Valkyries jersey shooting a three-pointer at Chase Center in San Francisco, packed crowd, dramatic arena lighting',
+  olympics:
+    'a Team USA Olympic athlete in an official Team USA warm-up jacket standing proudly on the top step of the Olympic medal podium at the Paris 2024 Summer Olympics, a gold medal around their neck, one hand raised in celebration, Paris 2024 podium branding, photographers and a cheering crowd in the background, confetti in the air, the Eiffel Tower visible in the distance at dusk',
+  nbc: 'broadcast booth scene', // handled by the dedicated branch below
 };
 
 export async function POST(req: Request) {
@@ -52,19 +55,41 @@ export async function POST(req: Request) {
   if (!body?.imageB64) {
     return NextResponse.json({ error: 'imageB64 required' }, { status: 400 });
   }
+  const isNbc = body.team === 'nbc';
   const team = TEAMS[String(body.team)] ? String(body.team) : 'yankees';
   const gender = body.gender === 'woman' ? 'woman' : 'man';
 
-  const prompt =
-    `A photorealistic, cinematic professional sports photograph of the person in the attached photo (a ${gender}) as ${TEAMS[team]}. ` +
-    "Preserve the person's real facial features, expression, skin tone, apparent age and hair exactly, match the body build to the person, " +
-    'and match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
-    'Landscape orientation. No text overlays, no watermark.';
+  let prompt: string;
+  const parts: object[] = [];
 
-  const parts = [
-    { text: prompt },
-    { inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } },
-  ];
+  if (isNbc) {
+    prompt =
+      'A photorealistic broadcast-television photo recreating the second attached reference image: two sports commentators side by side at night in a broadcast booth high above a packed stadium. ' +
+      'Keep the commentator on the LEFT side of the reference photo exactly as he appears there — same face, glasses, gray suit, pose and microphone. ' +
+      `Replace the person on the RIGHT with a ${gender} wearing a sharp professional suit, whose face is taken from the first attached photo — preserve that person's real facial features, expression, skin tone, apparent age and hair exactly. ` +
+      'They hold the same black broadcast microphone and smile at the camera. Same framing, lighting, color grading and stadium crowd background as the reference so it looks like one seamless professional broadcast photo, not a collage. ' +
+      'Landscape orientation. No added text overlays, no watermark.';
+    parts.push({ text: prompt });
+    parts.push({ inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } });
+    try {
+      const origin = new URL(req.url).origin;
+      const r = await fetch(`${origin}/sports-refs/nbc-booth.jpg`, { cache: 'force-cache' });
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer());
+        parts.push({ inline_data: { mime_type: 'image/jpeg', data: buf.toString('base64') } });
+      }
+    } catch {
+      // reference unavailable; prompt alone still describes the scene
+    }
+  } else {
+    prompt =
+      `A photorealistic, cinematic professional sports photograph of the person in the attached photo (a ${gender}) as ${TEAMS[team]}. ` +
+      "Preserve the person's real facial features, expression, skin tone, apparent age and hair exactly, match the body build to the person, " +
+      'and match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
+      'Landscape orientation. No text overlays, no watermark.';
+    parts.push({ text: prompt });
+    parts.push({ inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } });
+  }
 
   let lastError = 'all models failed';
   for (const model of MODELS) {

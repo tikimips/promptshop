@@ -41,6 +41,7 @@
   .team-tile:hover { border-color: #ffd23f; }
   .team-tile .logo { width: clamp(64px, 9vw, 110px); height: clamp(64px, 9vw, 110px); display: flex; align-items: center; justify-content: center; }
   .team-tile .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .team-tile .logo.chip { background: #fff; border-radius: 14px; padding: 8px; }
   .team-tile .mono { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;
     font-weight: 900; font-size: clamp(1.2rem, 2.6vw, 2rem); color: #fff; }
   .team-tile .name { font-size: clamp(.85rem, 1.8vw, 1.1rem); font-weight: 700; color: #fff; text-align: center; }
@@ -206,7 +207,9 @@
     { key: 'liberty',   name: 'Liberty',   mono: 'NYL', c1: '#000000', c2: '#6ECEB2', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/ny.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/nyl.png'] },
     { key: 'sun',       name: 'Sun',       mono: 'CT', c1: '#0A2240', c2: '#DC4405', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/conn.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/con.png'] },
     { key: 'sky',       name: 'Sky',       mono: 'CHI', c1: '#418FDE', c2: '#FFCD00', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/chi.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/chs.png'] },
-    { key: 'valkyries', name: 'Valkyries', mono: 'GSV', c1: '#2E1A47', c2: '#B18CFF', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/gs.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/gsv.png'] }
+    { key: 'valkyries', name: 'Valkyries', mono: 'GSV', c1: '#2E1A47', c2: '#B18CFF', logos: ['https://a.espncdn.com/i/teamlogos/wnba/500/gs.png', 'https://a.espncdn.com/i/teamlogos/wnba/500/gsv.png'] },
+    { key: 'nbc',       name: 'NBC Sports', mono: 'NBC', c1: '#ffffff', c2: '#111111', chip: true, logos: ['/sports-refs/nbc-logo.png'] },
+    { key: 'olympics',  name: 'Olympics',   mono: '🏅', c1: '#ffffff', c2: '#111111', chip: true, logos: ['/sports-refs/olympics-logo.png'] }
   ];
 
   var team = null, gender = null, stream = null, busy = false;
@@ -236,7 +239,7 @@
     var btn = document.createElement('button');
     btn.className = 'team-tile';
     var logo = document.createElement('div');
-    logo.className = 'logo';
+    logo.className = 'logo' + (t.chip ? ' chip' : '');
     setLogo(logo, t, 0);
     var name = document.createElement('div');
     name.className = 'name';
