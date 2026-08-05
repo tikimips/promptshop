@@ -46,31 +46,45 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imageB64?: string; team?: string; gender?: string };
+  let body: { imageB64?: string; imagesB64?: string[]; team?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'invalid JSON' }, { status: 400 });
   }
-  if (!body?.imageB64) {
-    return NextResponse.json({ error: 'imageB64 required' }, { status: 400 });
+  const faces: string[] = Array.isArray(body?.imagesB64)
+    ? body.imagesB64.filter((f) => typeof f === 'string' && f.length > 0).slice(0, 5)
+    : body?.imageB64
+      ? [String(body.imageB64)]
+      : [];
+  if (!faces.length) {
+    return NextResponse.json({ error: 'imagesB64 required' }, { status: 400 });
   }
+  const n = faces.length;
   const isNbc = body.team === 'nbc';
   const team = TEAMS[String(body.team)] ? String(body.team) : 'yankees';
-  const gender = body.gender === 'woman' ? 'woman' : 'man';
+
+  const preserve =
+    n === 1
+      ? "Preserve the person's real facial features, expression, skin tone, apparent age, gender and hair exactly, match the body build to the person"
+      : `The image must contain exactly ${n} people, one per attached face photo, each preserving that person's real facial features, expression, skin tone, apparent age, gender and hair exactly`;
 
   let prompt: string;
   const parts: object[] = [];
 
   if (isNbc) {
+    const guests =
+      n === 1
+        ? 'Replace the person on the RIGHT with one person wearing a sharp professional suit, whose face is taken from the first attached photo'
+        : `Replace the person on the RIGHT with the ${n} people from the first ${n} attached photos, all wearing sharp professional suits, arranged naturally next to him in the booth`;
     prompt =
-      'A photorealistic broadcast-television photo recreating the second attached reference image: two sports commentators side by side at night in a broadcast booth high above a packed stadium. ' +
+      'A photorealistic broadcast-television photo recreating the last attached reference image: sports commentators side by side at night in a broadcast booth high above a packed stadium. ' +
       'Keep the commentator on the LEFT side of the reference photo exactly as he appears there — same face, glasses, gray suit, pose and microphone. ' +
-      `Replace the person on the RIGHT with a ${gender} wearing a sharp professional suit, whose face is taken from the first attached photo — preserve that person's real facial features, expression, skin tone, apparent age and hair exactly. ` +
-      'They hold the same black broadcast microphone and smile at the camera. Same framing, lighting, color grading and stadium crowd background as the reference so it looks like one seamless professional broadcast photo, not a collage. ' +
+      guests + `. ${preserve}. ` +
+      'They hold black broadcast microphones and smile at the camera. Same framing, lighting, color grading and stadium crowd background as the reference so it looks like one seamless professional broadcast photo, not a collage. ' +
       'Landscape orientation. No added text overlays, no watermark.';
     parts.push({ text: prompt });
-    parts.push({ inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } });
+    for (const f of faces) parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
     try {
       const origin = new URL(req.url).origin;
       const r = await fetch(`${origin}/sports-refs/nbc-booth.jpg`, { cache: 'force-cache' });
@@ -82,13 +96,16 @@ export async function POST(req: Request) {
       // reference unavailable; prompt alone still describes the scene
     }
   } else {
+    const subject =
+      n === 1
+        ? `the person in the attached photo as ${TEAMS[team]}`
+        : `the ${n} people in the ${n} attached photos together as teammates — each of them is ${TEAMS[team]} — posed together naturally in one scene like a team photo or mid-game celebration`;
     prompt =
-      `A photorealistic, cinematic professional sports photograph of the person in the attached photo (a ${gender}) as ${TEAMS[team]}. ` +
-      "Preserve the person's real facial features, expression, skin tone, apparent age and hair exactly, match the body build to the person, " +
+      `A photorealistic, cinematic professional sports photograph of ${subject}. ${preserve}, ` +
       'and match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
       'Landscape orientation. No text overlays, no watermark.';
     parts.push({ text: prompt });
-    parts.push({ inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } });
+    for (const f of faces) parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
   }
 
   let lastError = 'all models failed';
