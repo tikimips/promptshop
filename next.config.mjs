@@ -8,6 +8,7 @@ const nextConfig = {
       { source: '/superhero', destination: '/superhero/index.html' },
       { source: '/anime', destination: '/anime/index.html' },
       { source: '/cyberpunk', destination: '/cyberpunk/index.html' },
+      { source: '/sports', destination: '/sports/index.html' },
     ];
   },
 };
