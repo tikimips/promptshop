@@ -34,9 +34,18 @@
   #booth { z-index: 10; background: #000; }
   #stage { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
   #video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-  #faceOval { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); height: 66%; aspect-ratio: 78 / 100;
-    border: 6px dashed #ff5fa2; border-radius: 50%; z-index: 3; pointer-events: none;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,.25); }
+  .face-oval { position: absolute; border: 6px dashed #ff5fa2; border-radius: 50%; z-index: 3; pointer-events: none; }
+
+  /* ===== Count select ===== */
+  #countSelect { background: radial-gradient(ellipse at 50% 20%, #3a1a5e 0%, #120820 75%); z-index: 25; }
+  #countSelect h2 { font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
+    color: #ff9ecf; text-shadow: 3px 3px 0 #7b2cbf; margin-bottom: 2.5rem; animation: pulse 1.8s ease-in-out infinite; }
+  #countRow { display: flex; gap: clamp(1rem, 3.5vw, 2.5rem); }
+  .count-btn { width: clamp(80px, 13vw, 140px); height: clamp(80px, 13vw, 140px); border-radius: 50%;
+    border: 5px solid #ff5fa2; background: #1d0f33; color: #ff9ecf; font-family: inherit; cursor: pointer;
+    font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 900; transition: transform .12s, background .15s; }
+  .count-btn:active { transform: scale(.9); }
+  .count-btn:hover { background: #2c1550; }
   #banner { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); z-index: 5; background: rgba(18,8,32,.75);
     border: 3px solid #ff9ecf; border-radius: 999px; padding: .8rem 2rem; font-size: clamp(1.2rem, 3.5vw, 2.2rem);
     font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #ff9ecf; white-space: nowrap; display: none; }
@@ -127,11 +136,23 @@
     <div id="keyWarn">Offline copy: AI photos need the hosted version at promptshop.ai/anime.</div>
   </div>
 
+  <!-- Count select -->
+  <div id="countSelect" class="screen">
+    <h2>How Many People?</h2>
+    <div id="countRow">
+      <button class="count-btn">1</button>
+      <button class="count-btn">2</button>
+      <button class="count-btn">3</button>
+      <button class="count-btn">4</button>
+      <button class="count-btn">5</button>
+    </div>
+  </div>
+
   <!-- Screen 2: Booth -->
   <div id="booth" class="screen">
     <div id="stage">
       <video id="video" autoplay playsinline muted></video>
-      <div id="faceOval"></div>
+      <div id="ovals"></div>
       <div id="banner">Put your face in the oval</div>
       <div id="countdown"><span id="countNum">3</span></div>
       <div id="flash"></div>
@@ -181,13 +202,13 @@
   var DONE_RESET_MS = 12000;
   var POSITION_MS = 4000;
 
-  var stream = null, busy = false;
+  var stream = null, busy = false, groupN = 1, ovalRects = [];
   var idleTimer = null, doneTimer = null, previewInterval = null;
   var seqTimers = [];
   var lastUrl = null;
 
   var $ = function (id) { return document.getElementById(id); };
-  var attract = $('attract'), booth = $('booth'), working = $('working'), preview = $('preview'), done = $('done'), errorScreen = $('error');
+  var attract = $('attract'), countSelect = $('countSelect'), booth = $('booth'), working = $('working'), preview = $('preview'), done = $('done'), errorScreen = $('error');
   var video = $('video'), banner = $('banner');
   var countdown = $('countdown'), countNum = $('countNum'), flash = $('flash');
   var previewImg = $('previewImg'), previewTimer = $('previewTimer');
@@ -195,7 +216,7 @@
   var frameCanvas = $('frameCanvas');
 
   function show(screen) {
-    [attract, booth, working, preview, done, errorScreen].forEach(function (s) { s.classList.remove('active'); });
+    [attract, countSelect, booth, working, preview, done, errorScreen].forEach(function (s) { s.classList.remove('active'); });
     screen.classList.add('active');
   }
 
@@ -218,6 +239,7 @@
     clearInterval(previewInterval);
     // Camera intentionally kept running so consent is only asked once per page load
     busy = false;
+    groupN = 1;
     banner.style.display = 'none';
     countdown.style.display = 'none';
     show(attract);
@@ -280,12 +302,20 @@
   // ================== Flow ==================
   attract.addEventListener('click', function () {
     if (busy) return;
-    busy = true;
     if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(function () {});
     }
-    startCamera(runBoothSequence);
+    show(countSelect);
     pokeIdle();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.count-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      if (busy) return;
+      busy = true;
+      groupN = parseInt(btn.textContent, 10) || 1;
+      startCamera(runBoothSequence);
+    });
   });
 
   retryBtn.addEventListener('click', function () {
@@ -293,13 +323,39 @@
     startCamera(runBoothSequence);
   });
 
+  function layoutOvals(n) {
+    var stage = $('stage');
+    var sw = stage.clientWidth, sh = stage.clientHeight;
+    var gap = sw * 0.02;
+    var OH = Math.min(sh * 0.66, ((sw * 0.94 - (n - 1) * gap) / n) / 0.78);
+    var OW = OH * 0.78;
+    var total = n * OW + (n - 1) * gap;
+    var x0 = (sw - total) / 2, cy = sh * 0.46;
+    var box = $('ovals');
+    box.innerHTML = '';
+    ovalRects = [];
+    for (var i = 0; i < n; i++) {
+      var x = x0 + i * (OW + gap);
+      var d = document.createElement('div');
+      d.className = 'face-oval';
+      d.style.left = x + 'px';
+      d.style.top = (cy - OH / 2) + 'px';
+      d.style.width = OW + 'px';
+      d.style.height = OH + 'px';
+      box.appendChild(d);
+      ovalRects.push({ cx: x + OW / 2, cy: cy, w: OW, h: OH });
+    }
+  }
+
   function runBoothSequence() {
     show(booth);
+    layoutOvals(groupN);
+    banner.textContent = groupN > 1 ? 'Put your faces in the ovals' : 'Put your face in the oval';
     banner.style.display = 'block';
     later(function () {
       banner.style.display = 'none';
       runCountdown(3, snap);
-    }, POSITION_MS);
+    }, groupN > 1 ? POSITION_MS + 2500 : POSITION_MS);
   }
 
   function runCountdown(from, cb) {
@@ -337,17 +393,21 @@
     fctx.restore();
 
     // Head-and-shoulders crop around the face oval (matches #faceOval CSS)
-    var OH = sh * 0.66, OW = OH * 0.78;
-    var ocx = sw / 2, ocy = sh * 0.46;
-    var cw2 = OW * 1.9 * K, ch2 = OH * 1.6 * K;
-    var cx2 = ocx * K - cw2 / 2, cy2 = (ocy - OH * 0.5 * 0.15) * K - ch2 / 2 + OH * 0.15 * K;
-    cx2 = Math.max(0, Math.min(cx2, frameCanvas.width - cw2));
-    cy2 = Math.max(0, Math.min(cy2, frameCanvas.height - ch2));
-    var cropCanvas = document.createElement('canvas');
-    cropCanvas.width = Math.round(Math.min(cw2, frameCanvas.width));
-    cropCanvas.height = Math.round(Math.min(ch2, frameCanvas.height));
-    cropCanvas.getContext('2d').drawImage(frameCanvas, cx2, cy2, cropCanvas.width, cropCanvas.height, 0, 0, cropCanvas.width, cropCanvas.height);
-    var faceB64 = cropCanvas.toDataURL('image/jpeg', 0.92).split(',')[1];
+    // Crop each oval (with margin) into its own face image
+    var mW = groupN > 1 ? 1.35 : 1.9;
+    var mH = groupN > 1 ? 1.45 : 1.6;
+    var faces = ovalRects.map(function (o) {
+      var cw2 = Math.min(o.w * mW * K, frameCanvas.width);
+      var ch2 = Math.min(o.h * mH * K, frameCanvas.height);
+      var cx2 = Math.max(0, Math.min(o.cx * K - cw2 / 2, frameCanvas.width - cw2));
+      var cy2 = Math.max(0, Math.min((o.cy + o.h * 0.06) * K - ch2 / 2, frameCanvas.height - ch2));
+      var c = document.createElement('canvas');
+      var scale = Math.min(1, 900 / ch2);
+      c.width = Math.round(cw2 * scale);
+      c.height = Math.round(ch2 * scale);
+      c.getContext('2d').drawImage(frameCanvas, cx2, cy2, cw2, ch2, 0, 0, c.width, c.height);
+      return c.toDataURL('image/jpeg', 0.9).split(',')[1];
+    });
 
     later(function () {
       show(working);
@@ -355,18 +415,18 @@
         showError('This offline copy cannot create anime photos. Use the hosted version at promptshop.ai/anime.');
         return;
       }
-      generate(faceB64, 0);
+      generate(faces, 0);
     }, 550);
   }
 
-  function generate(faceB64, attempt) {
+  function generate(faces, attempt) {
     var ctrl = new AbortController();
     var to = setTimeout(function () { ctrl.abort(); }, GEN_TIMEOUT_MS);
     fetch(GEN_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: ctrl.signal,
-      body: JSON.stringify({ imageB64: faceB64 })
+      body: JSON.stringify({ imagesB64: faces })
     }).then(function (r) {
       clearTimeout(to);
       return r.json().then(function (j) {
@@ -375,7 +435,7 @@
       });
     }).catch(function (e) {
       clearTimeout(to);
-      if (attempt < 1) { generate(faceB64, attempt + 1); return; } // one silent retry
+      if (attempt < 1) { generate(faces, attempt + 1); return; } // one silent retry
       console.warn('Anime generation failed:', e && e.message);
       showError('Could not create the anime photo. Tap Try Again.');
     });

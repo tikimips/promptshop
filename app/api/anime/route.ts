@@ -67,24 +67,39 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imageB64?: string };
+  let body: { imageB64?: string; imagesB64?: string[] };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'invalid JSON' }, { status: 400 });
   }
-  if (!body?.imageB64) {
-    return NextResponse.json({ error: 'imageB64 required' }, { status: 400 });
+  const faces: string[] = Array.isArray(body?.imagesB64)
+    ? body.imagesB64.filter((f) => typeof f === 'string' && f.length > 0).slice(0, 5)
+    : body?.imageB64
+      ? [String(body.imageB64)]
+      : [];
+  if (!faces.length) {
+    return NextResponse.json({ error: 'imagesB64 required' }, { status: 400 });
   }
+  const n = faces.length;
 
   const scene = Math.floor(Math.random() * SCENES.length);
   const charStyle = Math.floor(Math.random() * CHARACTER_STYLES.length);
   const origin = new URL(req.url).origin;
   const styleRef = await loadRef(origin, 'style.png');
 
-  let prompt =
-    'The person in the first attached photo is converted into a ' + STYLE + ' ' +
-    CHARACTER_STYLES[charStyle] + ' ' + SCENES[scene];
+  let prompt: string;
+  if (n === 1) {
+    prompt =
+      'The person in the first attached photo is converted into a ' + STYLE + ' ' +
+      CHARACTER_STYLES[charStyle] + ' ' + SCENES[scene];
+  } else {
+    prompt =
+      `The ${n} different people in the first ${n} attached photos are all converted into anime characters in ONE single group illustration together — a ` +
+      STYLE + ' ' + CHARACTER_STYLES[charStyle] + ' ' + SCENES[scene] +
+      ` The illustration must contain exactly ${n} characters, one per attached photo, each preserving that person's real facial features, hair, gender and apparent age. ` +
+      'Pose them together naturally as a group in fun, dynamic anime poses — like a group photo of friends in an anime key visual.';
+  }
   if (styleRef) {
     prompt +=
       ' Replicate the exact art style of the attached style reference image (line work, shading, eye rendering).';
@@ -92,10 +107,10 @@ export async function POST(req: Request) {
   prompt +=
     ' The final result must be one cohesive anime illustration, landscape orientation. No text, no watermark, no logo.';
 
-  const parts: object[] = [
-    { text: prompt },
-    { inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } },
-  ];
+  const parts: object[] = [{ text: prompt }];
+  for (const f of faces) {
+    parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
+  }
   if (styleRef) parts.push({ inline_data: { mime_type: 'image/png', data: styleRef } });
 
   let lastError = 'all models failed';
