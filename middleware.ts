@@ -8,14 +8,14 @@ const loginPage = (bad: boolean) => `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TVE GGO Photobooth Gallery</title>
+<title>TVE + Growth GTM Ops Gallery</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html,body { height:100%; background:#000; color:#fff;
     font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','San Francisco','Helvetica Neue',Arial,sans-serif;
     font-weight:500; }
   body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.8rem; padding:2rem; }
-  h1 { font-size:clamp(1.5rem,4.5vw,2.3rem); font-weight:500; text-align:center; letter-spacing:.01em; }
+  h1 { font-size:clamp(1.05rem,3.15vw,1.61rem); font-weight:500; text-align:center; letter-spacing:.01em; }
   form { display:flex; gap:.7rem; flex-wrap:wrap; justify-content:center; }
   input { font-size:1.15rem; font-weight:500; padding:.85rem 1.1rem; border-radius:10px; border:1px solid #ffffff45;
     background:#000; color:#fff; text-align:center; letter-spacing:.18em; width:220px; outline:none;
@@ -30,7 +30,7 @@ const loginPage = (bad: boolean) => `<!DOCTYPE html>
 </style>
 </head>
 <body>
-  <h1>TVE GGO Photobooth Gallery</h1>
+  <h1>TVE + Growth GTM Ops Gallery</h1>
   <p class="bad">Wrong password, try again.</p>
   <form method="GET">
     <input name="pw" type="password" placeholder="Password" autofocus autocomplete="off">
