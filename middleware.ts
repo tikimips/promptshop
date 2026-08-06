@@ -11,22 +11,26 @@ const loginPage = (bad: boolean) => `<!DOCTYPE html>
 <title>TVE GGO Photobooth Gallery</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  html,body { height:100%; background:#0b0b12; font-family:'Segoe UI',system-ui,sans-serif; color:#fff; }
-  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.6rem; padding:2rem; }
-  h1 { font-size:clamp(1.6rem,5vw,2.6rem); font-weight:800; text-align:center; }
-  h1 span { color:#ffd23f; }
+  html,body { height:100%; background:#000; color:#fff;
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','San Francisco','Helvetica Neue',Arial,sans-serif;
+    font-weight:500; }
+  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.8rem; padding:2rem; }
+  h1 { font-size:clamp(1.5rem,4.5vw,2.3rem); font-weight:500; text-align:center; letter-spacing:.01em; }
   form { display:flex; gap:.7rem; flex-wrap:wrap; justify-content:center; }
-  input { font-size:1.3rem; padding:.85rem 1.1rem; border-radius:12px; border:1px solid #ffffff2e;
-    background:#15151f; color:#fff; text-align:center; letter-spacing:.2em; width:220px; outline:none; }
-  input:focus { border-color:#ffd23f; }
-  button { font-size:1.15rem; font-weight:700; padding:.85rem 1.8rem; border-radius:12px; border:none;
-    cursor:pointer; background:#ffd23f; color:#1a1a1a; }
-  .bad { color:#ff8fa0; font-weight:600; ${bad ? '' : 'display:none;'} }
-  footer { position:fixed; bottom:1.4rem; left:0; right:0; text-align:center; color:#8b8b9e; font-size:.95rem; padding:0 1rem; }
+  input { font-size:1.15rem; font-weight:500; padding:.85rem 1.1rem; border-radius:10px; border:1px solid #ffffff45;
+    background:#000; color:#fff; text-align:center; letter-spacing:.18em; width:220px; outline:none;
+    font-family:inherit; }
+  input::placeholder { color:#ffffff80; letter-spacing:normal; }
+  input:focus { border-color:#fff; }
+  button { font-size:1.05rem; font-weight:500; padding:.85rem 1.9rem; border-radius:10px; border:none;
+    cursor:pointer; background:#fff; color:#000; font-family:inherit; }
+  .bad { color:#fff; font-weight:500; ${bad ? '' : 'display:none;'} }
+  footer { position:fixed; bottom:1.6rem; left:0; right:0; text-align:center; color:#ffffffa8;
+    font-size:.95rem; font-weight:500; padding:0 1rem; }
 </style>
 </head>
 <body>
-  <h1>TVE GGO <span>Photobooth Gallery</span></h1>
+  <h1>TVE GGO Photobooth Gallery</h1>
   <p class="bad">Wrong password, try again.</p>
   <form method="GET">
     <input name="pw" type="password" placeholder="Password" autofocus autocomplete="off">
