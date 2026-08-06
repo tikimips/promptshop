@@ -15,6 +15,9 @@ export default function Nav() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
 
+  // Homepage is a bare landing page with no site chrome
+  if (path === '/') return null;
+
   return (
     <>
       <nav style={{
