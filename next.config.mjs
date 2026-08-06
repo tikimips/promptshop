@@ -12,6 +12,7 @@ const nextConfig = {
       { source: '/film', destination: '/film/index.html' },
       { source: '/architecture', destination: '/architecture/index.html' },
       { source: '/tveggo-gallery-26', destination: '/tveggo-gallery-26/index.html' },
+      { source: '/tveggo-gallery-26/upload', destination: '/tveggo-gallery-26/upload/index.html' },
     ];
   },
 };

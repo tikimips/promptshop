@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVE · GGO 2026 — Add Photos</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #0b0b12; color: #fff; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; min-height: 100%; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+  h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: .4rem; }
+  h1 span { color: #ffd23f; }
+  p.sub { color: #8b8b9e; margin-bottom: 1.6rem; }
+  #drop { border: 3px dashed #ffffff33; border-radius: 18px; padding: 3rem 1.5rem; text-align: center;
+    cursor: pointer; transition: border-color .15s, background .15s; }
+  #drop.hover { border-color: #ffd23f; background: #ffd23f0d; }
+  #drop .big { font-size: 2.6rem; margin-bottom: .8rem; }
+  #drop b { color: #ffd23f; }
+  #list { margin-top: 1.6rem; display: flex; flex-direction: column; gap: .45rem; }
+  .row { display: flex; justify-content: space-between; align-items: center; background: #16161f;
+    border-radius: 10px; padding: .6rem .9rem; font-size: .92rem; gap: 1rem; }
+  .row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c9c9d6; }
+  .row .st { flex: 0 0 auto; font-weight: 700; }
+  .st.wait { color: #8b8b9e; } .st.up { color: #ffd23f; } .st.ok { color: #2eea6d; } .st.err { color: #ff6b7a; }
+  #summary { margin-top: 1.4rem; font-size: 1.05rem; font-weight: 700; }
+  a.gal { display: inline-block; margin-top: 1rem; background: #2eea6d; color: #06240f; font-weight: 800;
+    padding: .8rem 1.8rem; border-radius: 999px; text-decoration: none; }
+  input[type=file] { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TVE · GGO 2026 <span>— ADD PHOTOS</span></h1>
+  <p class="sub">Drop booth photos here (or tap to pick). They're resized, uploaded, and slotted into the gallery by the time they were taken.</p>
+  <div id="drop">
+    <div class="big">📸</div>
+    <div><b>Drop photos here</b> or click to choose</div>
+  </div>
+  <input type="file" id="picker" accept="image/*" multiple>
+  <div id="list"></div>
+  <div id="summary"></div>
+  <a class="gal" href="/tveggo-gallery-26" style="display:none" id="galLink">Open the gallery →</a>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var drop = document.getElementById('drop');
+  var picker = document.getElementById('picker');
+  var list = document.getElementById('list');
+  var summary = document.getElementById('summary');
+  var galLink = document.getElementById('galLink');
+  var done = 0, failed = 0, total = 0;
+
+  drop.addEventListener('click', function () { picker.click(); });
+  picker.addEventListener('change', function () { handle(picker.files); picker.value = ''; });
+  ['dragover', 'dragenter'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('hover'); });
+  });
+  ['dragleave', 'drop'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('hover'); });
+  });
+  drop.addEventListener('drop', function (e) { handle(e.dataTransfer.files); });
+
+  function handle(files) {
+    Array.prototype.forEach.call(files, function (f) {
+      if (!/^image\//.test(f.type)) return;
+      total++;
+      var row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<span class="name">' + f.name.replace(/[<>&]/g, '') + '</span><span class="st wait">queued</span>';
+      list.appendChild(row);
+      queue.push({ file: f, st: row.querySelector('.st') });
+      pump();
+    });
+    updateSummary();
+  }
+
+  // Re-encode to a print-friendly JPEG that always fits the upload limit
+  function reencode(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var k = Math.min(1, 2048 / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * k);
+        c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(function (b) { b ? resolve(b) : reject(new Error('encode failed')); }, 'image/jpeg', 0.92);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('unreadable image')); };
+      img.src = url;
+    });
+  }
+
+  var queue = [], busy = 0;
+  function pump() {
+    if (busy >= 3 || !queue.length) return; // 3 parallel uploads
+    var job = queue.shift();
+    busy++;
+    job.st.textContent = 'uploading…'; job.st.className = 'st up';
+    reencode(job.file).then(function (blob) {
+      return fetch('/api/gallery/upload?ts=' + (job.file.lastModified || Date.now()), {
+        method: 'POST',
+        headers: { 'Content-Type': 'image/jpeg' },
+        body: blob
+      });
+    }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+      .then(function (x) {
+        if (x.r.ok && x.j && x.j.ok) { job.st.textContent = 'added ✓'; job.st.className = 'st ok'; done++; }
+        else { job.st.textContent = (x.j && x.j.error) || 'failed'; job.st.className = 'st err'; failed++; }
+      })
+      .catch(function () { job.st.textContent = 'failed'; job.st.className = 'st err'; failed++; })
+      .then(function () { busy--; updateSummary(); pump(); });
+    pump();
+  }
+
+  function updateSummary() {
+    if (!total) return;
+    summary.textContent = done + ' / ' + total + ' added' + (failed ? ' · ' + failed + ' failed' : '');
+    galLink.style.display = done ? 'inline-block' : 'none';
+  }
+})();
+</script>
+</body>
+</html>
