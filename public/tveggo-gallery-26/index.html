@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TVE · GGO 2026 — Gallery</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { background: #0b0b12; color: #fff; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+  header { position: sticky; top: 0; z-index: 10; background: rgba(11,11,18,.85); backdrop-filter: blur(10px);
+    padding: max(.9rem, env(safe-area-inset-top)) 1rem .9rem; text-align: center; border-bottom: 1px solid #ffffff14; }
+  header h1 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: .04em; }
+  header h1 span { color: #ffd23f; }
+
+  #grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 4px; max-width: 1400px; margin: 0 auto; }
+  .cell { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 4px; cursor: pointer; background: #16161f; }
+  .cell img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .15s; }
+  @media (hover: hover) { .cell:hover img { transform: scale(1.05); } }
+
+  #status { text-align: center; color: #8b8b9e; padding: 2.5rem 1rem; font-size: 1rem; }
+  #sentinel { height: 10px; }
+
+  /* ===== Lightbox ===== */
+  #lightbox { position: fixed; inset: 0; background: rgba(5,5,10,.97); z-index: 50; display: none; flex-direction: column; }
+  #lightbox.open { display: flex; }
+  #lbTop { display: flex; justify-content: space-between; align-items: center; padding: max(.7rem, env(safe-area-inset-top)) 1rem .7rem; }
+  #lbCount { color: #8b8b9e; font-size: .95rem; }
+  #lbActions { display: flex; gap: .6rem; }
+  .lb-btn { background: #ffffff18; border: none; color: #fff; border-radius: 999px; padding: .6rem 1.1rem;
+    font-family: inherit; font-size: .95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: .4rem; }
+  .lb-btn:active { background: #ffffff30; }
+  #lbStage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  #lbImg { max-width: 96%; max-height: 96%; object-fit: contain; border-radius: 6px; user-select: none; -webkit-user-select: none; }
+  .nav { position: absolute; top: 0; bottom: 0; width: 34%; display: flex; align-items: center; border: none;
+    background: none; cursor: pointer; color: #ffffffcc; font-size: 2.6rem; font-weight: 300; }
+  #navPrev { left: 0; justify-content: flex-start; padding-left: .6rem; }
+  #navNext { right: 0; justify-content: flex-end; padding-right: .6rem; }
+  .nav span { background: rgba(0,0,0,.45); border-radius: 50%; width: 52px; height: 52px; display: flex;
+    align-items: center; justify-content: center; line-height: 1; padding-bottom: 6px; }
+  @media (max-width: 640px) { .nav span { display: none; } } /* swipe instead */
+
+  #filmstrip { display: flex; gap: 5px; overflow-x: auto; padding: .7rem .7rem max(.8rem, env(safe-area-inset-bottom));
+    scrollbar-width: none; }
+  #filmstrip::-webkit-scrollbar { display: none; }
+  #filmstrip img { width: 56px; height: 56px; object-fit: cover; border-radius: 5px; flex: 0 0 auto;
+    cursor: pointer; opacity: .5; border: 2px solid transparent; }
+  #filmstrip img.active { opacity: 1; border-color: #ffd23f; }
+
+  #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(200%); background: #2eea6d;
+    color: #06240f; font-weight: 700; padding: .7rem 1.5rem; border-radius: 999px; transition: transform .3s; z-index: 60; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header><h1>TVE · GGO 2026 <span>PHOTO GALLERY</span></h1></header>
+
+<div id="grid"></div>
+<div id="status">Loading photos…</div>
+<div id="sentinel"></div>
+
+<div id="lightbox">
+  <div id="lbTop">
+    <button class="lb-btn" id="lbClose">✕ Close</button>
+    <span id="lbCount"></span>
+    <div id="lbActions">
+      <button class="lb-btn" id="lbDownload">⬇ Save</button>
+      <button class="lb-btn" id="lbShare">⤴ Share</button>
+    </div>
+  </div>
+  <div id="lbStage">
+    <img id="lbImg" alt="Event photo">
+    <button class="nav" id="navPrev" aria-label="Previous"><span>‹</span></button>
+    <button class="nav" id="navNext" aria-label="Next"><span>›</span></button>
+  </div>
+  <div id="filmstrip"></div>
+</div>
+
+<div id="toast">Saved</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var photos = [];        // { url, name }
+  var cursor = null;
+  var loading = false;
+  var exhausted = false;
+  var current = -1;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var grid = $('grid'), status = $('status'), sentinel = $('sentinel');
+  var lightbox = $('lightbox'), lbImg = $('lbImg'), lbCount = $('lbCount'), filmstrip = $('filmstrip');
+  var toast = $('toast');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function () { toast.classList.remove('show'); }, 1800);
+  }
+
+  // ===== Infinite scroll loading =====
+  function loadPage() {
+    if (loading || exhausted) return;
+    loading = true;
+    fetch('/api/gallery' + (cursor ? '?cursor=' + encodeURIComponent(cursor) : ''))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var list = (j && j.photos) || [];
+        list.forEach(addPhoto);
+        cursor = j && j.cursor;
+        if (!cursor) exhausted = true;
+        status.textContent = photos.length ? '' : 'No photos yet — go take some at the booths!';
+        status.style.display = photos.length ? 'none' : 'block';
+        loading = false;
+        // Keep loading while the sentinel is still on screen or the page hasn't filled
+        if (!exhausted && (sentinelInView || document.body.scrollHeight <= window.innerHeight)) loadPage();
+      })
+      .catch(function () {
+        loading = false;
+        if (!photos.length) status.textContent = 'Could not load the gallery. Pull to refresh.';
+      });
+  }
+
+  function addPhoto(p) {
+    var i = photos.length;
+    photos.push(p);
+    var cell = document.createElement('div');
+    cell.className = 'cell';
+    var img = document.createElement('img');
+    img.loading = 'lazy';
+    img.src = p.url;
+    img.alt = 'Event photo ' + (i + 1);
+    cell.appendChild(img);
+    cell.addEventListener('click', function () { openLightbox(i); });
+    grid.appendChild(cell);
+
+    var thumb = document.createElement('img');
+    thumb.src = p.url;
+    thumb.loading = 'lazy';
+    thumb.alt = 'thumbnail ' + (i + 1);
+    thumb.addEventListener('click', function (e) { e.stopPropagation(); show(i); });
+    filmstrip.appendChild(thumb);
+  }
+
+  var sentinelInView = false;
+  new IntersectionObserver(function (entries) {
+    sentinelInView = entries[0].isIntersecting;
+    if (sentinelInView) loadPage();
+  }, { rootMargin: '800px' }).observe(sentinel);
+  loadPage();
+
+  // ===== Lightbox =====
+  function openLightbox(i) {
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    show(i);
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+    current = -1;
+  }
+  function show(i) {
+    if (i < 0 || i >= photos.length) return;
+    current = i;
+    lbImg.src = photos[i].url;
+    lbCount.textContent = (i + 1) + ' / ' + photos.length;
+    var thumbs = filmstrip.children;
+    for (var k = 0; k < thumbs.length; k++) thumbs[k].classList.toggle('active', k === i);
+    if (thumbs[i]) thumbs[i].scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    // Nearing the end? pull the next page so navigation never dead-ends
+    if (i > photos.length - 10) loadPage();
+  }
+  function prev() { show(current > 0 ? current - 1 : current); }
+  function next() { show(current < photos.length - 1 ? current + 1 : current); }
+
+  $('lbClose').addEventListener('click', closeLightbox);
+  $('navPrev').addEventListener('click', prev);
+  $('navNext').addEventListener('click', next);
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'ArrowRight') next();
+  });
+
+  // Swipe navigation on touch devices
+  var touchX = null, touchY = null;
+  $('lbStage').addEventListener('touchstart', function (e) {
+    touchX = e.touches[0].clientX; touchY = e.touches[0].clientY;
+  }, { passive: true });
+  $('lbStage').addEventListener('touchend', function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { if (dx < 0) next(); else prev(); }
+    touchX = null;
+  }, { passive: true });
+
+  // ===== Download & native share =====
+  function currentFile() {
+    var p = photos[current];
+    return fetch(p.url).then(function (r) { return r.blob(); }).then(function (blob) {
+      var name = (p.name || 'photo_' + (current + 1) + '.png').replace(/[^\w.-]/g, '_');
+      return new File([blob], name, { type: blob.type || 'image/png' });
+    });
+  }
+
+  $('lbDownload').addEventListener('click', function () {
+    if (current < 0) return;
+    currentFile().then(function (file) {
+      var u = URL.createObjectURL(file);
+      var a = document.createElement('a');
+      a.href = u; a.download = file.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(u); }, 5000);
+      showToast('Saved');
+    }).catch(function () { showToast('Could not save'); });
+  });
+
+  $('lbShare').addEventListener('click', function () {
+    if (current < 0) return;
+    var pageUrl = photos[current].url;
+    currentFile().then(function (file) {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file] }); // iOS share sheet / Android share sheet
+      }
+      if (navigator.share) return navigator.share({ url: pageUrl });
+      return navigator.clipboard.writeText(pageUrl).then(function () { showToast('Link copied'); });
+    }).catch(function (e) {
+      if (e && e.name === 'AbortError') return; // user closed the sheet
+      navigator.clipboard && navigator.clipboard.writeText(pageUrl).then(function () { showToast('Link copied'); });
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

@@ -8,17 +8,18 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18",
+    "@vercel/blob": "^2.7.0",
     "lucide-react": "^0.400.0",
-    "nodemailer": "^6.9.14"
+    "next": "14.2.5",
+    "nodemailer": "^6.9.14",
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@types/nodemailer": "^6.4.15",
     "typescript": "^5"
   }
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { saveToGallery } from '../_lib/gallery';
 
 const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
@@ -128,7 +129,10 @@ export async function POST(req: Request) {
       const ps = j?.candidates?.[0]?.content?.parts || [];
       for (const p of ps) {
         const d = p?.inlineData?.data || p?.inline_data?.data;
-        if (d) return NextResponse.json({ image: d });
+        if (d) {
+          await saveToGallery(d, 'film').catch(() => {});
+          return NextResponse.json({ image: d });
+        }
       }
       lastError = 'no image in gemini response';
     } catch (e) {

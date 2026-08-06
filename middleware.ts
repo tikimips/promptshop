@@ -87,5 +87,6 @@ export const config = {
     '/sports', '/sports/:path*', '/api/sports', '/api/sports/:path*',
     '/film', '/film/:path*', '/api/film', '/api/film/:path*',
     '/architecture', '/architecture/:path*',
+    '/tveggo-gallery-26', '/tveggo-gallery-26/:path*', '/api/gallery', '/api/gallery/:path*',
   ],
 };
