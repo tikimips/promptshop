@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { list } from '@vercel/blob';
 
+// Always list live from Blob storage — never prerender this response
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
