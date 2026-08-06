@@ -12,7 +12,7 @@ export default function Home() {
         position: 'fixed',
         inset: 0,
         zIndex: 1000,
-        background: '#ffffff',
+        background: '#000000',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -21,13 +21,14 @@ export default function Home() {
       <p
         style={{
           fontSize: '11pt',
-          color: '#000000',
+          fontWeight: 500,
+          color: '#ffffff',
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'San Francisco', 'Helvetica Neue', Arial, sans-serif",
         }}
       >
         a cozy place to make things.{' '}
-        <a href="mailto:macadaan@gmail.com" style={{ color: '#000000' }}>
+        <a href="mailto:macadaan@gmail.com" style={{ color: '#ffffff' }}>
           contact
         </a>
       </p>
