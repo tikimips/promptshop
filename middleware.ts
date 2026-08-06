@@ -3,42 +3,36 @@ import { NextResponse, NextRequest } from 'next/server';
 const PASSWORD = process.env.SUPERHERO_PASSWORD || 'LA28';
 const COOKIE = 'superhero_auth';
 
-const THEMES = {
-  hero:  { title: 'Super Hero', bg: '#1a2a5e 0%, #0b0b1a', fg: '#ffd23f', shadow: '#e63946', grad: '#e63946,#ffd23f', btnFg: '#1a1a2e' },
-  anime: { title: 'Anime', bg: '#3a1a5e 0%, #120820', fg: '#ff9ecf', shadow: '#7b2cbf', grad: '#7b2cbf,#ff5fa2', btnFg: '#fff' },
-  cyber: { title: 'Cyberpunk', bg: '#240f4a 0%, #050510', fg: '#00e5ff', shadow: '#ff2ec4', grad: '#ff2ec4,#00e5ff', btnFg: '#050510' },
-  sports: { title: 'Sports', bg: '#0e3d20 0%, #06120a', fg: '#ffd23f', shadow: '#1b6b3a', grad: '#1b6b3a,#ffd23f', btnFg: '#06120a' },
-  film: { title: 'Movie', bg: '#471019 0%, #140508', fg: '#ffd23f', shadow: '#8a1522', grad: '#8a1522,#ffd23f', btnFg: '#140508' },
-};
-
-const loginPage = (bad: boolean, t: (typeof THEMES)[keyof typeof THEMES]) => `<!DOCTYPE html>
+const loginPage = (bad: boolean) => `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${t.title} Photo Booth</title>
+<title>TVE GGO Photobooth Gallery</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  html,body { height:100%; background:radial-gradient(ellipse at 50% 30%, ${t.bg} 70%);
-    font-family:'Segoe UI',system-ui,sans-serif; color:#fff; }
-  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.4rem; padding:2rem; }
-  h1 { font-size:clamp(1.8rem,6vw,3.5rem); font-weight:900; text-transform:uppercase; text-align:center;
-    color:${t.fg}; text-shadow:3px 3px 0 ${t.shadow}; }
-  form { display:flex; gap:.8rem; flex-wrap:wrap; justify-content:center; }
-  input { font-size:1.4rem; padding:.9rem 1.2rem; border-radius:14px; border:3px solid ${t.fg};
-    background:#14142a; color:#fff; text-align:center; letter-spacing:.2em; width:220px; outline:none; }
-  button { font-size:1.3rem; font-weight:800; padding:.9rem 2rem; border-radius:14px; border:none;
-    cursor:pointer; background:linear-gradient(90deg,${t.grad}); color:${t.btnFg}; }
-  .bad { color:#ff8fa0; font-weight:700; ${bad ? '' : 'display:none;'} }
+  html,body { height:100%; background:#0b0b12; font-family:'Segoe UI',system-ui,sans-serif; color:#fff; }
+  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.6rem; padding:2rem; }
+  h1 { font-size:clamp(1.6rem,5vw,2.6rem); font-weight:800; text-align:center; }
+  h1 span { color:#ffd23f; }
+  form { display:flex; gap:.7rem; flex-wrap:wrap; justify-content:center; }
+  input { font-size:1.3rem; padding:.85rem 1.1rem; border-radius:12px; border:1px solid #ffffff2e;
+    background:#15151f; color:#fff; text-align:center; letter-spacing:.2em; width:220px; outline:none; }
+  input:focus { border-color:#ffd23f; }
+  button { font-size:1.15rem; font-weight:700; padding:.85rem 1.8rem; border-radius:12px; border:none;
+    cursor:pointer; background:#ffd23f; color:#1a1a1a; }
+  .bad { color:#ff8fa0; font-weight:600; ${bad ? '' : 'display:none;'} }
+  footer { position:fixed; bottom:1.4rem; left:0; right:0; text-align:center; color:#8b8b9e; font-size:.95rem; padding:0 1rem; }
 </style>
 </head>
 <body>
-  <h1>${t.title}<br>Photo Booth</h1>
+  <h1>TVE GGO <span>Photobooth Gallery</span></h1>
   <p class="bad">Wrong password, try again.</p>
   <form method="GET">
     <input name="pw" type="password" placeholder="Password" autofocus autocomplete="off">
     <button type="submit">Enter</button>
   </form>
+  <footer>Slack Mike Macadaan if anything breaks here</footer>
 </body>
 </html>`;
 
@@ -68,12 +62,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  const theme = pathname.startsWith('/anime') ? THEMES.anime
-    : pathname.startsWith('/cyberpunk') ? THEMES.cyber
-    : pathname.startsWith('/sports') ? THEMES.sports
-    : pathname.startsWith('/film') ? THEMES.film
-    : THEMES.hero;
-  return new NextResponse(loginPage(pw !== null, theme), {
+  return new NextResponse(loginPage(pw !== null), {
     status: 401,
     headers: { 'Content-Type': 'text/html; charset=utf-8' },
   });
