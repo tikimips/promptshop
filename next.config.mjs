@@ -10,6 +10,7 @@ const nextConfig = {
       { source: '/cyberpunk', destination: '/cyberpunk/index.html' },
       { source: '/sports', destination: '/sports/index.html' },
       { source: '/film', destination: '/film/index.html' },
+      { source: '/architecture', destination: '/architecture/index.html' },
     ];
   },
 };

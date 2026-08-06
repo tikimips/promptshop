@@ -86,5 +86,6 @@ export const config = {
     '/cyberpunk', '/cyberpunk/:path*', '/api/cyberpunk', '/api/cyberpunk/:path*',
     '/sports', '/sports/:path*', '/api/sports', '/api/sports/:path*',
     '/film', '/film/:path*', '/api/film', '/api/film/:path*',
+    '/architecture', '/architecture/:path*',
   ],
 };
