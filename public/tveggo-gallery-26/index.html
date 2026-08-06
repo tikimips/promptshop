@@ -6,12 +6,12 @@
 <title>TVE · GGO 2026 — Gallery</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { background: #0b0b12; color: #fff; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  html, body { background: #0b0b12; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'San Francisco', 'Helvetica Neue', Arial, sans-serif; font-weight: 500; }
 
   header { position: sticky; top: 0; z-index: 10; background: rgba(11,11,18,.85); backdrop-filter: blur(10px);
     padding: max(.9rem, env(safe-area-inset-top)) 1rem .9rem; text-align: center; border-bottom: 1px solid #ffffff14; }
-  header h1 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); font-weight: 800; letter-spacing: .04em; }
-  header h1 span { color: #ffd23f; }
+  header h1 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); font-weight: 500; letter-spacing: .04em; }
+  header h1 span { color: #ffffff; }
 
   #grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 4px; max-width: 1400px; margin: 0 auto; }
   .cell { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 4px; cursor: pointer; background: #16161f; }
@@ -28,7 +28,7 @@
   #lbCount { color: #8b8b9e; font-size: .95rem; }
   #lbActions { display: flex; gap: .6rem; }
   .lb-btn { background: #ffffff18; border: none; color: #fff; border-radius: 999px; padding: .6rem 1.1rem;
-    font-family: inherit; font-size: .95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: .4rem; }
+    font-family: inherit; font-size: .95rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: .4rem; }
   .lb-btn:active { background: #ffffff30; }
   #lbStage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; min-height: 0; }
   #lbImg { max-width: 96%; max-height: 96%; object-fit: contain; border-radius: 6px; user-select: none; -webkit-user-select: none; }
@@ -45,10 +45,10 @@
   #filmstrip::-webkit-scrollbar { display: none; }
   #filmstrip img { width: 56px; height: 56px; object-fit: cover; border-radius: 5px; flex: 0 0 auto;
     cursor: pointer; opacity: .5; border: 2px solid transparent; }
-  #filmstrip img.active { opacity: 1; border-color: #ffd23f; }
+  #filmstrip img.active { opacity: 1; border-color: #ffffff; }
 
-  #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(200%); background: #2eea6d;
-    color: #06240f; font-weight: 700; padding: .7rem 1.5rem; border-radius: 999px; transition: transform .3s; z-index: 60; }
+  #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(200%); background: #ffffff;
+    color: #000000; font-weight: 500; padding: .7rem 1.5rem; border-radius: 999px; transition: transform .3s; z-index: 60; }
   #toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
@@ -56,7 +56,7 @@
 
 <header style="display:flex;align-items:center;justify-content:center;gap:1rem;">
   <h1>TVE · GGO 2026 <span>PHOTO GALLERY</span></h1>
-  <a href="/tveggo-gallery-26/upload" style="color:#ffd23f;text-decoration:none;font-weight:800;font-size:1.3rem;" title="Add photos">＋</a>
+  <a href="/tveggo-gallery-26/upload" style="color:#ffffff;text-decoration:none;font-weight:500;font-size:1.3rem;" title="Add photos">＋</a>
 </header>
 
 <div id="grid"></div>
