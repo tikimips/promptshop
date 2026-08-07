@@ -11,7 +11,9 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
     font-weight: 500; line-height: 1.6; }
   .wrap { max-width: 760px; margin: 0 auto; padding: 4rem 1.4rem 3rem; }
-  .hero h1 { font-size: clamp(1.55rem, 4.3vw, 2.2rem); font-weight: 600; line-height: 1.15; }
+  .hero h1, .dtitle { font-size: clamp(1.55rem, 4.3vw, 2.2rem); font-weight: 600; line-height: 1.15; }
+  .dtitle { text-align: center; }
+  .dsub { text-align: center; color: #ffffffb0; font-size: .95rem; letter-spacing: .12em; margin-top: .5rem; margin-bottom: 2.6rem; }
   .hero p { margin-top: 1rem; color: #ffffffb0; font-size: 1.1rem; }
   h2 { font-size: 1.35rem; font-weight: 600; margin: 3.2rem 0 .8rem; }
   p, li { color: #d6d6de; font-size: 1rem; }
@@ -56,7 +58,9 @@
 <nav class="topnav"><a href="#how-to">How to build your own ↓</a></nav>
 
 <div class="diagram diagram-top">
-<svg viewBox="0 0 1240 920" xmlns="http://www.w3.org/2000/svg">
+  <h1 class="dtitle">AI Photobooth — System Architecture</h1>
+  <p class="dsub">TVE + GROWTH GTM OPS · 2026 OFFSITE</p>
+<svg viewBox="0 70 1240 850" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="#8b949e"/>
@@ -66,8 +70,6 @@
     </marker>
   </defs>
 
-  <text x="620" y="32" text-anchor="middle" fill="#ffffff" font-size="26" font-weight="600">AI Photobooth — System Architecture</text>
-  <text x="620" y="60" text-anchor="middle" fill="#ffffffb0" font-size="15" font-weight="500" letter-spacing="1.5">TVE + GROWTH GTM OPS · 2026 OFFSITE</text>
 
   <!-- Guest -->
   <rect x="30" y="120" width="170" height="110" rx="14" fill="#1a2a5e" stroke="#4a6bd4" stroke-width="2"/>
