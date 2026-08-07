@@ -158,21 +158,6 @@
     else { grid.appendChild(cell); filmstrip.appendChild(thumb); }
   }
 
-  // ===== Live updates: newest photos land at the top =====
-  setInterval(function () {
-    if (document.hidden) return;
-    fetch('/api/gallery')
-      .then(function (r) { return r.json(); })
-      .then(function (j) {
-        var list = (j && j.photos) || [];
-        var fresh = list.filter(function (p) { return !seen[p.url]; });
-        if (!fresh.length || !photos.length) return;
-        fresh.reverse().forEach(function (p) { addPhoto(p, true); });
-        showToast(fresh.length === 1 ? 'Photo just added \u2191' : fresh.length + ' photos just added \u2191', 6000);
-      })
-      .catch(function () {});
-  }, 20000);
-
   var sentinelInView = false;
   new IntersectionObserver(function (entries) {
     sentinelInView = entries[0].isIntersecting;
