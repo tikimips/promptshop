@@ -2,13 +2,172 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>TVE · GGO 2026 Offsite — Photobooth Architecture</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Own AI Photobooth</title>
 <style>
-  body { margin: 0; background: #0d1117; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'San Francisco', 'Helvetica Neue', Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-  svg { max-width: 100%; height: auto; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #0b0b12; color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 500; line-height: 1.6; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 4rem 1.4rem 3rem; }
+  .hero h1 { font-size: clamp(1.9rem, 5.5vw, 2.9rem); font-weight: 600; line-height: 1.15; }
+  .hero p { margin-top: 1rem; color: #ffffffb0; font-size: 1.1rem; }
+  h2 { font-size: 1.35rem; font-weight: 600; margin: 3.2rem 0 .8rem; }
+  p, li { color: #d6d6de; font-size: 1rem; }
+  p + p { margin-top: .8rem; }
+  a { color: #fff; }
+  .promptbox { position: relative; margin-top: 1.2rem; background: #14141c; border: 1px solid #ffffff22;
+    border-radius: 14px; }
+  .promptbox pre { padding: 1.2rem 1.2rem 1.4rem; overflow-x: auto; font-size: 13px; line-height: 1.55;
+    font-family: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace; color: #e8e8ee; white-space: pre-wrap; }
+  .copy { background: #fff; color: #000; border: none; border-radius: 8px; padding: .45rem 1rem;
+    font-family: inherit; font-weight: 500; font-size: .9rem; cursor: pointer; }
+  .promptbox > .copy { position: absolute; top: .8rem; right: .8rem; }
+  .blanks { margin-top: 1rem; color: #ffffffb0; font-size: .98rem; }
+  .blanks code { background: #ffffff14; border-radius: 6px; padding: .1rem .45rem;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: .9em; color: #fff; }
+  .warn { margin-top: 1rem; background: #14141c; border: 1px solid #ffffff22; border-left: 4px solid #fff;
+    border-radius: 10px; padding: .9rem 1.1rem; color: #e8e8ee; font-size: .98rem; }
+  .theme { margin-top: 1.4rem; background: #14141c; border: 1px solid #ffffff22; border-radius: 14px; }
+  .theme-head { display: flex; justify-content: space-between; align-items: center; padding: .9rem 1.2rem 0; }
+  .theme h3 { font-size: 1.05rem; font-weight: 600; }
+  .theme pre { padding: .7rem 1.2rem 1.2rem; font-size: 12.5px; line-height: 1.55; white-space: pre-wrap;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace; color: #c9c9d4; }
+  .diagram { margin: 4.5rem auto 2rem; max-width: 950px; padding: 0 1rem; }
+  .diagram h2 { text-align: center; margin-bottom: .2rem; }
+  .diagram .sub { text-align: center; color: #8b8b9e; font-size: .95rem; margin-bottom: 1.4rem; }
+  .diagram svg { width: 100%; height: auto; }
+  #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(200%);
+    background: #fff; color: #000; font-weight: 500; padding: .7rem 1.5rem; border-radius: 999px;
+    transition: transform .3s; z-index: 60; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  footer { text-align: center; color: #8b8b9e; font-size: .9rem; padding: 2rem 1rem 3rem; }
 </style>
 </head>
 <body>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Build your own AI photobooth</h1>
+    <p>One copy-paste prompt. About an hour. No coding experience needed. Guests step up, pick how many people, the camera counts down, and an AI turns them into a themed photo ready to print.</p>
+  </div>
+
+  <h2>1 · Copy the master prompt</h2>
+  <p class="blanks">Fill in the three blanks at the top — <code>[YOUR EVENT NAME]</code>, <code>[YOUR THEME]</code>, <code>[PICK A SIMPLE PASSWORD]</code> — then paste the whole thing into an AI coding assistant (Claude, ChatGPT, Cursor, whatever you use) and follow its lead.</p>
+  <div class="promptbox">
+    <button class="copy" data-copy>Copy</button>
+    <pre>EVENT NAME: [YOUR EVENT NAME]
+THEME: [YOUR THEME — e.g. "superheroes in a city", "80s sci-fi", "pirates at sea"]
+PASSWORD: [PICK A SIMPLE PASSWORD]
+
+You are going to build me a complete AI photobooth web app and walk me through
+deploying it. I am a beginner — give me one step at a time and never assume I
+know developer tools.
+
+WHAT TO BUILD
+A Next.js app deployed on Vercel with one photobooth page and one API route.
+
+The booth page, full screen and touch friendly:
+1. Attract screen showing the EVENT NAME and a big pulsing GO — tap anywhere
+   to start.
+2. A "How many people?" screen with big buttons 1 through 5.
+3. Live webcam view (front camera, mirrored) with one dashed face oval per
+   person, side by side. A banner says "Put your face in the oval." After
+   about 4 seconds (6.5 for groups), a big 3-2-1 countdown, then a white
+   flash and capture.
+4. Crop each oval (plus generous margin) out of the frame as its own JPEG.
+5. Show a "creating your photo…" screen while the crops are sent to the
+   API route.
+6. The API route keeps my Gemini API key in an environment variable named
+   GEMINI_API_KEY — never in the page code — and calls Google's model
+   "gemini-3.1-flash-image" (fall back to "gemini-2.5-flash-image") via the
+   REST generateContent endpoint with: one text prompt, plus each face crop
+   as inline_data, generationConfig responseModalities ["TEXT","IMAGE"] and
+   imageConfig aspectRatio "3:2". Return the generated image as base64 JSON.
+7. The text prompt must say: a photorealistic, cinematic photo of the
+   person/people in the attached photo(s) placed in THEME; the image must
+   contain exactly N people, one per attached photo, each preserving that
+   person's real facial features, expression, skin tone, age, gender and
+   hair exactly; blended seamlessly like one professionally shot photograph,
+   not a collage; every face at least 5% away from every edge; no text or
+   watermarks; faces never covered by masks or helmets.
+8. Preview screen: show the photo for 20 seconds with a countdown circle,
+   Portrait / Landscape toggle buttons (portrait = face-centered crop to
+   2:3), and a big Print button. Print (or the timer ending) downloads the
+   photo and shows "Your photo is ready at the printing station," then
+   auto-returns to the start screen.
+9. Details that matter: request the camera once and keep the stream for the
+   whole session so the browser asks permission only once; ask for
+   1920x1080; if generation fails, silently retry once, then show a friendly
+   try-again screen; auto-reset to the start screen after 90 seconds idle;
+   add a password gate using PASSWORD (middleware + a simple cookie) so
+   only my event can use it.
+
+DEPLOYMENT
+Create a GitHub repo, connect it to a free Vercel account, and show me
+exactly where in Vercel to paste my own Gemini API key as the
+GEMINI_API_KEY environment variable (Settings → Environment Variables →
+Production → then Redeploy). I will get my own key from
+aistudio.google.com — remind me it bills my account about 7 cents per
+photo and to set a monthly spend cap.
+
+Build everything first, then give me the deploy steps one at a time.</pre>
+  </div>
+
+  <h2>2 · What you need</h2>
+  <p>A computer with Chrome and a webcam, a free GitHub account, a free Vercel account (that's where your booth will live on the internet), and your own Google Gemini API key. Budget about an hour end to end, and about 7 cents per photo once you're live.</p>
+
+  <h2>3 · Your own Gemini API key</h2>
+  <p>The AI photos are generated by Google's Gemini image model, and it needs <b>your own</b> API key — get one at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a>. The image models have no free tier, so the key must belong to an account with billing enabled, and every photo bills roughly $0.07 to your card.</p>
+  <div class="warn">Your key is a secret. Never paste it into a web page, a prompt, or anything public — anyone who has it can spend your money. The master prompt above deliberately makes your AI assistant store it as a private environment variable on Vercel and shows you exactly where to paste it. While you're in AI Studio, set a monthly spend cap so a runaway booth hits a wall instead of your wallet.</div>
+
+  <h2>4 · Theme it</h2>
+  <p>Once your booth works, paste any of these follow-up prompts to reskin it — or write your own in the same shape.</p>
+    <div class="theme">
+      <div class="theme-head"><h3>Sports teams</h3><button class="copy" data-copy>Copy</button></div>
+      <pre>Update my photobooth: before the "How many people?" screen, add a team
+picker grid. Each team's generation prompt places the people in that
+team's authentic uniform inside their home stadium, photorealistic, packed
+crowd, dramatic lighting — and helmets always off or under an arm so faces
+stay fully visible. My teams: [LIST YOUR TEAMS].</pre>
+    </div>
+    <div class="theme">
+      <div class="theme-head"><h3>Movies</h3><button class="copy" data-copy>Copy</button></div>
+      <pre>Update my photobooth: add a movie picker grid before the "How many
+people?" screen. Each movie renders the people inside that film's world
+and art style — animated films become stylized cartoon versions that keep
+each real face recognizable; live-action films are photorealistic movie
+stills with that film's lighting and grain. My movies: [LIST YOUR MOVIES].</pre>
+    </div>
+    <div class="theme">
+      <div class="theme-head"><h3>Anime</h3><button class="copy" data-copy>Copy</button></div>
+      <pre>Update my photobooth: skip pickers. Each photo randomly combines one
+character-design inspiration and one atmosphere from lists I give you,
+converting everyone into anime characters with sharp line work, vibrant
+cel-shading and large expressive eyes while preserving real faces, hair
+and ages. Inspirations: [LIST SHOWS/CHARACTERS]. Atmospheres: [LIST
+SETTINGS].</pre>
+    </div>
+    <div class="theme">
+      <div class="theme-head"><h3>Superheroes</h3><button class="copy" data-copy>Copy</button></div>
+      <pre>Update my photobooth: skip pickers. Each photo randomly picks a plain,
+completely unbranded superhero costume (absolutely no logos or emblems), a
+city atmosphere ranging from dark rainy noir to bright sunny morning, and
+a heroic action pose. In group shots every person gets a different
+costume. Faces are never masked.</pre>
+    </div>
+    <div class="theme">
+      <div class="theme-head"><h3>Cyberpunk</h3><button class="copy" data-copy>Copy</button></div>
+      <pre>Update my photobooth: one fixed scene for every photo — the people doing
+[ACTIVITY, e.g. playing tennis] on a glowing neon court/street at night,
+magenta and cyan rim lighting, reflective dark surfaces, modern tech-wear
+outfits, synthwave vibe, glowing stadium lights in the dark background.</pre>
+    </div>
+</div>
+
+<div class="diagram">
+  <h2>How it all fits together</h2>
+  <p class="sub">The nerdy bit. Entirely optional.</p>
 <svg viewBox="0 0 1240 920" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
@@ -115,5 +274,24 @@
   <line x1="1050" y1="680" x2="900" y2="775" stroke="#79b8ff" stroke-width="2.5" marker-end="url(#arr)"/>
   <text x="1010" y="740" text-anchor="middle" fill="#79b8ff" font-size="11">newest first</text>
 </svg>
+</div>
+
+<footer>Slack Mike Macadaan if anything breaks here</footer>
+<div id="toast">Copied</div>
+
+<script>
+(function () {
+  var toast = document.getElementById('toast');
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.promptbox, .theme').querySelector('pre');
+      navigator.clipboard.writeText(pre.textContent).then(function () {
+        toast.classList.add('show');
+        setTimeout(function () { toast.classList.remove('show'); }, 1600);
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
