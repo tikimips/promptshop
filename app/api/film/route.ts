@@ -110,45 +110,61 @@ export async function POST(req: Request) {
 
   if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
     prompt += noteSuffix(body.notes);
-  const parts: object[] = [{ text: prompt }];
-  for (const f of faces) {
-    parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
+  // Progressive fallback: try the full-fidelity prompt first; if the model
+  // returns no image (a quiet refusal), retry with progressively softer
+  // creature descriptions so the run always produces a photo.
+  const TRADE_DRESS = 'original little yellow capsule-shaped cartoon helpers in goggles and blue overalls';
+  const promptVariants: string[] = [prompt];
+  if (movie === 'minions' && prompt.includes(TRADE_DRESS)) {
+    promptVariants.push(
+      prompt.replace(
+        TRADE_DRESS,
+        'small cheerful original yellow cartoon helper creatures with big goggled eyes, wearing little blue work clothes'
+      ),
+      prompt.replace(TRADE_DRESS, 'small cheerful original yellow cartoon helper creatures')
+    );
   }
 
   let lastError = 'all models failed';
-  for (const model of MODELS) {
-    try {
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-          body: JSON.stringify({
-            contents: [{ parts }],
-            generationConfig: {
-              responseModalities: ['TEXT', 'IMAGE'],
-              imageConfig: { aspectRatio: '3:2' },
-            },
-          }),
+  for (const variant of promptVariants) {
+    const parts: object[] = [{ text: variant }];
+    for (const f of faces) {
+      parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
+    }
+    for (const model of MODELS) {
+      try {
+        const r = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+            body: JSON.stringify({
+              contents: [{ parts }],
+              generationConfig: {
+                responseModalities: ['TEXT', 'IMAGE'],
+                imageConfig: { aspectRatio: '3:2' },
+              },
+            }),
+          }
+        );
+        if (!r.ok) {
+          lastError = `gemini http ${r.status}: ${(await r.text()).slice(0, 300)}`;
+          if (r.status === 404 || r.status === 400) continue;
+          return NextResponse.json({ error: lastError }, { status: 502 });
         }
-      );
-      if (!r.ok) {
-        lastError = `gemini http ${r.status}: ${(await r.text()).slice(0, 300)}`;
-        if (r.status === 404 || r.status === 400) continue;
-        return NextResponse.json({ error: lastError }, { status: 502 });
-      }
-      const j = await r.json();
-      const ps = j?.candidates?.[0]?.content?.parts || [];
-      for (const p of ps) {
-        const d = p?.inlineData?.data || p?.inline_data?.data;
-        if (d) {
-          await saveToGallery(d, 'film', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
-          return NextResponse.json({ image: d });
+        const j = await r.json();
+        const ps = j?.candidates?.[0]?.content?.parts || [];
+        for (const p of ps) {
+          const d = p?.inlineData?.data || p?.inline_data?.data;
+          if (d) {
+            await saveToGallery(d, 'film', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
+            return NextResponse.json({ image: d });
+          }
         }
+        lastError = 'no image in gemini response';
+      } catch (e) {
+        lastError = e instanceof Error ? e.message : 'fetch failed';
       }
-      lastError = 'no image in gemini response';
-    } catch (e) {
-      lastError = e instanceof Error ? e.message : 'fetch failed';
     }
   }
   return NextResponse.json({ error: lastError }, { status: 502 });
