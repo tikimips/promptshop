@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imagesB64?: string[]; imageB64?: string; movie?: string };
+  let body: { imagesB64?: string[]; imageB64?: string; movie?: string; gallery?: string };
   try {
     body = await req.json();
   } catch {
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
       for (const p of ps) {
         const d = p?.inlineData?.data || p?.inline_data?.data;
         if (d) {
-          await saveToGallery(d, 'film').catch(() => {});
+          await saveToGallery(d, 'film', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
           return NextResponse.json({ image: d });
         }
       }

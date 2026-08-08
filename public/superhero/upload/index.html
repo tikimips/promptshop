@@ -78,7 +78,7 @@
 
   <div class="screen active" id="home">
     <h1>Superhero Photo Booth</h1>
-    <p class="sub">Upload a photo instead of using the camera. Same magic, same themes, straight into the event gallery.</p>
+    <p class="sub">Upload a photo instead of using the camera. Same magic, same themes, straight into the gallery.</p>
     
     <h2>1 · Add your photos</h2>
     <div id="drop">
@@ -99,7 +99,7 @@
 
   <div class="screen" id="result">
     <h1>Here you go</h1>
-    <p class="sub">It's also been added to the <a href="/tveggo-gallery-26" style="color:#8b8b9e;">event gallery</a>.</p>
+    <p class="sub">It's also been added to the <a href="/cindy-gallery" style="color:#8b8b9e;">gallery</a>.</p>
     <img id="resImg" alt="Generated photo">
     <div class="row">
       <button class="go" id="dlBtn">Download</button>
@@ -113,7 +113,7 @@
     <button class="go" id="retryBtn" style="max-width:300px;margin:0 auto;">Try again</button>
   </div>
 
-  <footer>Made for <a href="/tveggo-gallery-26">TVE + GGO '26 Offsite</a><br>Slack Mike Macadaan if anything breaks here</footer>
+  <footer>Made for <a href="/cindy-gallery">TVE + GGO '26 Offsite</a><br>Slack Mike Macadaan if anything breaks here</footer>
 </div>
 
 <script>
@@ -201,6 +201,7 @@
     var body = CFG.single
       ? { imageB64: files[0].b64 }
       : { imagesB64: files.map(function (f) { return f.b64; }) };
+    body.gallery = 'cindy';
     if (CFG.pickParam && picked) body[CFG.pickParam] = picked;
     fetch(CFG.api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
