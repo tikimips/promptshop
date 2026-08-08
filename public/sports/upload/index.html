@@ -98,7 +98,7 @@
     <input id="notes" type="text" maxlength="300" placeholder="Example: make it funnier, or more fierce"
       style="width:100%;background:#14141c;border:1px solid #ffffff22;border-radius:12px;padding:.9rem 1rem;color:#fff;font-family:inherit;font-size:1rem;font-weight:500;outline:none;">
     <h2>4 · Pose reference <span style="color:#8b8b9e;font-weight:500;font-size:.85em;">(optional)</span></h2>
-    <div id="poseDrop" style="border:2px dashed #ffffff33;border-radius:12px;padding:1rem 1.2rem;text-align:center;cursor:pointer;color:#8b8b9e;font-size:.95rem;">Tap to add a photo showing how everyone should pose</div>
+    <div id="poseDrop" style="border:2px dashed #ffffff33;border-radius:12px;padding:1rem 1.2rem;text-align:center;cursor:pointer;color:#8b8b9e;font-size:.95rem;">Tap or drop a photo showing how everyone should pose</div>
     <input type="file" id="poseIn" accept="image/*">
     <div id="poseThumbWrap" style="display:none;position:relative;width:110px;margin-top:.8rem;">
       <img id="poseThumb" alt="pose reference" style="width:110px;border-radius:10px;display:block;">
@@ -301,9 +301,19 @@
   var poseB64 = null;
   var poseDrop = $('poseDrop'), poseIn = $('poseIn');
   poseDrop.addEventListener('click', function () { poseIn.click(); });
+  ['dragover', 'dragenter'].forEach(function (t) {
+    poseDrop.addEventListener(t, function (e) { e.preventDefault(); poseDrop.style.borderColor = '#fff'; poseDrop.style.background = '#ffffff0d'; });
+  });
+  ['dragleave', 'drop'].forEach(function (t) {
+    poseDrop.addEventListener(t, function (e) { e.preventDefault(); poseDrop.style.borderColor = '#ffffff33'; poseDrop.style.background = 'none'; });
+  });
+  poseDrop.addEventListener('drop', function (e) { setPose(e.dataTransfer.files[0]); });
   poseIn.addEventListener('change', function () {
     var f = poseIn.files[0];
     poseIn.value = '';
+    setPose(f);
+  });
+  function setPose(f) {
     if (!f) return;
     prep(f).then(function (b64) {
       poseB64 = b64;
@@ -311,7 +321,7 @@
       $('poseThumbWrap').style.display = 'block';
       poseDrop.style.display = 'none';
     }).catch(function () { showNote("Couldn't read that pose photo — try a JPEG."); });
-  });
+  }
   $('poseRemove').addEventListener('click', function () {
     poseB64 = null;
     $('poseThumbWrap').style.display = 'none';
