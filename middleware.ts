@@ -10,7 +10,7 @@ const CINDY_COOKIE = 'cindy_auth';
 function realm(pathname: string): 'cindy' | 'main' | 'api' {
   if (pathname === '/cindy' || pathname.startsWith('/cindy/')) return 'cindy';
   if (pathname === '/cindy-gallery' || pathname.startsWith('/cindy-gallery/')) return 'cindy';
-  if (/^\/(superhero|anime|cyberpunk|sports|film)\/upload(\/|$)/.test(pathname)) return 'cindy';
+  if (/^\/(superhero|anime|sports|film)\/upload(\/|$)/.test(pathname)) return 'cindy';
   if (pathname.startsWith('/api/')) return 'api';
   return 'main';
 }

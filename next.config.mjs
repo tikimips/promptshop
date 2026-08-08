@@ -10,7 +10,6 @@ const nextConfig = {
       { source: '/anime', destination: '/anime/index.html' },
       { source: '/anime/upload', destination: '/anime/upload/index.html' },
       { source: '/cyberpunk', destination: '/cyberpunk/index.html' },
-      { source: '/cyberpunk/upload', destination: '/cyberpunk/upload/index.html' },
       { source: '/sports', destination: '/sports/index.html' },
       { source: '/sports/upload', destination: '/sports/upload/index.html' },
       { source: '/film', destination: '/film/index.html' },
