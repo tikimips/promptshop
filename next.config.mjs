@@ -17,6 +17,7 @@ const nextConfig = {
       { source: '/film/upload', destination: '/film/upload/index.html' },
       { source: '/architecture', destination: '/architecture/index.html' },
       { source: '/tveggo-gallery-26', destination: '/tveggo-gallery-26/index.html' },
+      { source: '/cindy', destination: '/cindy/index.html' },
       { source: '/cindy-gallery', destination: '/cindy-gallery/index.html' },
       { source: '/cindy-gallery/create', destination: '/cindy-gallery/create/index.html' },
       { source: '/tveggo-gallery-26/upload', destination: '/tveggo-gallery-26/upload/index.html' },

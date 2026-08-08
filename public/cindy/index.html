@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cindy's Photo Booth</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #0b0b12; color: #fff; min-height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 500; line-height: 1.5; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 3rem 1.2rem 4rem; }
+  h1 { font-size: clamp(1.2rem, 4vw, 1.5rem); font-weight: 600; }
+  p.sub { color: #8b8b9e; margin: .3rem 0 1.6rem; font-size: .98rem; }
+  a.b { display: flex; align-items: center; gap: .9rem; background: #14141c; border: 1px solid #ffffff22;
+    border-radius: 14px; padding: 1rem 1.2rem; color: #fff; text-decoration: none; font-size: 1.05rem; margin-top: .8rem; }
+  a.b:active { background: #1d1d28; }
+  a.b span.e { font-size: 1.4rem; }
+  a.b.gal { background: #ffffff; color: #000; font-weight: 600; margin-top: 1.6rem; }
+  footer { text-align: center; color: #8b8b9e; font-size: .9rem; line-height: 1.6; font-weight: 500; padding: 2.5rem 1rem 1rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cindy's Photo Booth</h1>
+  <p class="sub">Upload a photo, pick a theme, get the shot.</p>
+  <a class="b" href="/sports/upload"><span class="e">⚾</span> Sports</a>
+  <a class="b" href="/film/upload"><span class="e">🎬</span> Film</a>
+  <a class="b" href="/superhero/upload"><span class="e">🦸</span> Superhero</a>
+  <a class="b" href="/anime/upload"><span class="e">🌸</span> Anime</a>
+  <a class="b gal" href="/cindy-gallery"><span class="e">🖼</span> The gallery</a>
+  <footer>Slack Mike Macadaan if anything breaks here</footer>
+</div>
+</body>
+</html>

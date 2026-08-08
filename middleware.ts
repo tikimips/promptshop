@@ -8,6 +8,7 @@ const CINDY_COOKIE = 'cindy_auth';
 // The upload booths and Cindy's gallery live behind their own password.
 // The shared /api/* routes accept either login.
 function realm(pathname: string): 'cindy' | 'main' | 'api' {
+  if (pathname === '/cindy' || pathname.startsWith('/cindy/')) return 'cindy';
   if (pathname === '/cindy-gallery' || pathname.startsWith('/cindy-gallery/')) return 'cindy';
   if (/^\/(superhero|anime|cyberpunk|sports|film)\/upload(\/|$)/.test(pathname)) return 'cindy';
   if (pathname.startsWith('/api/')) return 'api';
@@ -108,6 +109,7 @@ export const config = {
     '/film', '/film/:path*', '/api/film', '/api/film/:path*',
     '/architecture', '/architecture/:path*',
     '/tveggo-gallery-26', '/tveggo-gallery-26/:path*', '/api/gallery', '/api/gallery/:path*',
+    '/cindy', '/cindy/:path*',
     '/cindy-gallery', '/cindy-gallery/:path*',
   ],
 };
