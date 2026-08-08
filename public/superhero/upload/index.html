@@ -284,6 +284,11 @@
         c.getContext('2d').drawImage(img, x, 0, cw, ch, 0, 0, cw, ch);
         portraitUrl = c.toDataURL('image/png');
         $('resImgP').src = portraitUrl;
+        c.toBlob(function (b) {
+          if (!b) return;
+          fetch('/api/gallery/upload?g=cindy', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: b })
+            .catch(function () {});
+        }, 'image/jpeg', 0.95);
       });
     };
     img.src = full;
