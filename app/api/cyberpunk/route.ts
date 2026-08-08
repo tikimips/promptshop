@@ -5,6 +5,12 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+const SITE_SLUG_RE_B = /^[a-z0-9-]{2,32}$/;
+function bucketOf(b: { gallery?: string; site?: string }): string {
+  if (typeof b.site === 'string' && SITE_SLUG_RE_B.test(b.site)) return `site-${b.site}`;
+  return b.gallery === 'cindy' ? 'cindy' : 'gallery';
+}
+
 // Upload booths send whole snapshots (possibly groups), not per-person face crops.
 const EVERYONE_NOTE =
   ' NOTE: the attached photo(s) are ordinary snapshots and one photo may contain several people. Apply everything described above exactly as written, as if each person had been attached as a separate photo: every person visible across the attached photo(s) appears in the finished image — the same people, no more, no fewer — all together in the foreground as equal subjects, never as spectators or background figures.';
@@ -24,7 +30,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imageB64?: string; gender?: string; gallery?: string };
+  let body: { imageB64?: string; gender?: string; gallery?: string; site?: string };
   try {
     body = await req.json();
   } catch {
@@ -67,7 +73,7 @@ export async function POST(req: Request) {
       for (const p of ps) {
         const d = p?.inlineData?.data || p?.inline_data?.data;
         if (d) {
-          await saveToGallery(d, 'cyberpunk', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
+          await saveToGallery(d, 'cyberpunk', bucketOf(body)).catch(() => {});
           return NextResponse.json({ image: d });
         }
       }

@@ -11,7 +11,8 @@ export async function GET(req: Request) {
     }
     const { searchParams } = new URL(req.url);
     const cursor = searchParams.get('cursor') || undefined;
-    const prefix = searchParams.get('g') === 'cindy' ? 'cindy/' : 'gallery/';
+    const g = searchParams.get('g') || '';
+    const prefix = g === 'cindy' || /^site-[a-z0-9-]{2,32}$/.test(g) ? `${g}/` : 'gallery/';
     const { blobs, cursor: next, hasMore } = await list({ prefix, limit: 40, cursor });
     return NextResponse.json({
       photos: blobs.map((b) => ({ url: b.url, name: b.pathname.split('/').pop() })),

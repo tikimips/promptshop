@@ -5,12 +5,15 @@ import { put } from '@vercel/blob';
 // Silently does nothing until a Blob store is connected to the project.
 // prefix 'gallery' = the offsite event gallery; 'cindy' = Cindy's gallery
 // (the upload booths).
+const PREFIX_RE = /^(gallery|cindy|site-[a-z0-9-]{2,32})$/;
+
 export async function saveToGallery(
   b64: string,
   theme: string,
-  prefix: 'gallery' | 'cindy' = 'gallery'
+  prefix: string = 'gallery'
 ): Promise<void> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+  if (!PREFIX_RE.test(prefix)) prefix = 'gallery';
   const key = `${prefix}/${String(1e13 - Date.now()).padStart(13, '0')}_${theme}.png`;
   await put(key, Buffer.from(b64, 'base64'), {
     access: 'public',

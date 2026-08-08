@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as { url?: string };
     const url = String(body?.url || '');
-    if (!/\/(cindy|gallery)\//.test(new URL(url).pathname)) {
+    if (!/\/(cindy|gallery|site-[a-z0-9-]{2,32})\//.test(new URL(url).pathname)) {
       return NextResponse.json({ error: 'not a gallery photo' }, { status: 400 });
     }
     await del(url);

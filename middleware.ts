@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
+import { verifyToken, PB_INTERNAL_HEADER, PB_INTERNAL_VALUE, PB_SITE_COOKIE } from './lib/pbauth';
 
 const PASSWORD = process.env.SUPERHERO_PASSWORD || 'LA28';
 const CINDY_PASSWORD = process.env.CINDY_PASSWORD || 'cindychu';
@@ -52,15 +53,24 @@ const loginPage = (bad: boolean, title: string) => `<!DOCTYPE html>
 </body>
 </html>`;
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
+
+  // Our own server-side template fetches carry this header
+  if (req.headers.get(PB_INTERNAL_HEADER) === PB_INTERNAL_VALUE) {
+    return NextResponse.next();
+  }
+
   const zone = realm(pathname);
 
   const hasMain = req.cookies.get(COOKIE)?.value === PASSWORD;
   const hasCindy = req.cookies.get(CINDY_COOKIE)?.value === CINDY_PASSWORD;
+  // Published photobooth sites carry a signed site cookie; their booths
+  // share the /api/* generation routes.
+  const siteSlug = zone === 'api' ? await verifyToken(req.cookies.get(PB_SITE_COOKIE)?.value) : null;
 
   const authorized =
-    zone === 'api' ? hasMain || hasCindy : zone === 'cindy' ? hasCindy : hasMain;
+    zone === 'api' ? hasMain || hasCindy || !!siteSlug : zone === 'cindy' ? hasCindy : hasMain;
   if (authorized) return NextResponse.next();
 
   const pw = searchParams.get('pw');

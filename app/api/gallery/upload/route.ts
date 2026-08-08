@@ -16,7 +16,8 @@ export async function POST(req: Request) {
     const buf = Buffer.from(await req.arrayBuffer());
     if (!buf.length) return NextResponse.json({ error: 'empty body' }, { status: 400 });
     if (buf.length > 8 * 1024 * 1024) return NextResponse.json({ error: 'file too large' }, { status: 400 });
-    const prefix = url.searchParams.get('g') === 'cindy' ? 'cindy' : 'gallery';
+    const g = url.searchParams.get('g') || '';
+    const prefix = g === 'cindy' || /^site-[a-z0-9-]{2,32}$/.test(g) ? g : 'gallery';
     const key = `${prefix}/${String(1e13 - ts).padStart(13, '0')}_upload.jpg`;
     const blob = await put(key, buf, {
       access: 'public',

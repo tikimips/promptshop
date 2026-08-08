@@ -5,6 +5,12 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+const SITE_SLUG_RE_B = /^[a-z0-9-]{2,32}$/;
+function bucketOf(b: { gallery?: string; site?: string }): string {
+  if (typeof b.site === 'string' && SITE_SLUG_RE_B.test(b.site)) return `site-${b.site}`;
+  return b.gallery === 'cindy' ? 'cindy' : 'gallery';
+}
+
 const POSE_NOTE =
   ' POSE REFERENCE: the very last attached image is a pose reference only. Arrange the people in the same body poses, grouping, spacing and camera framing as that reference. Do NOT include any person from the pose reference in the finished image and do not copy their faces, identities, clothing or uniforms from it — only the poses and composition. The people in the finished image are exactly those from the other attached photo(s).';
 
@@ -73,7 +79,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imageB64?: string; imagesB64?: string[]; team?: string; gallery?: string; notes?: string; poseB64?: string };
+  let body: { imageB64?: string; imagesB64?: string[]; team?: string; gallery?: string; notes?: string; poseB64?: string; site?: string };
   try {
     body = await req.json();
   } catch {
@@ -168,7 +174,7 @@ export async function POST(req: Request) {
       for (const p of ps) {
         const d = p?.inlineData?.data || p?.inline_data?.data;
         if (d) {
-          await saveToGallery(d, 'sports', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
+          await saveToGallery(d, 'sports', bucketOf(body)).catch(() => {});
           return NextResponse.json({ image: d });
         }
       }
