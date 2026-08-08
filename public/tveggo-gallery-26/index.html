@@ -74,6 +74,7 @@
     <div id="lbActions">
       <button class="lb-btn" id="lbDownload">⬇ Save</button>
       <button class="lb-btn" id="lbShare">⤴ Share</button>
+      <button class="lb-btn" id="lbDelete" style="color:#ff8a96;">🗑 Delete</button>
     </div>
   </div>
   <div id="lbStage">
@@ -232,6 +233,40 @@
       setTimeout(function () { URL.revokeObjectURL(u); }, 5000);
       showToast('Saved');
     }).catch(function () { showToast('Could not save'); });
+  });
+
+  var delArmed = null;
+  $('lbDelete').addEventListener('click', function () {
+    if (current < 0) return;
+    var btn = $('lbDelete');
+    if (delArmed !== current) {
+      delArmed = current;
+      btn.textContent = 'Really delete?';
+      setTimeout(function () { if (delArmed === current) { delArmed = null; btn.textContent = '🗑 Delete'; } }, 3500);
+      return;
+    }
+    delArmed = null;
+    btn.textContent = '🗑 Delete';
+    var i = current;
+    var p = photos[i];
+    fetch('/api/gallery/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: p.url })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || !j.ok) { showToast('Could not delete'); return; }
+      photos.splice(i, 1);
+      if (grid.children[i]) grid.children[i].remove();
+      if (filmstrip.children[i]) filmstrip.children[i].remove();
+      showToast('Deleted');
+      if (!photos.length) {
+        closeLightbox();
+        status.textContent = 'No photos yet — go take some at the booths!';
+        status.style.display = 'block';
+        return;
+      }
+      show(Math.min(i, photos.length - 1));
+    }).catch(function () { showToast('Could not delete'); });
   });
 
   $('lbShare').addEventListener('click', function () {
