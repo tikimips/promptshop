@@ -89,6 +89,7 @@
     </div>
     <input type="file" id="picker" accept="image/*" multiple>
     <div id="thumbs"></div>
+    <div id="upNote" style="color:#ff8a96;font-size:.9rem;margin-top:.6rem;display:none;"></div>
     <button class="go" id="goBtn" disabled>Create my photo</button>
   </div>
 
@@ -114,7 +115,7 @@
     <button class="go" id="retryBtn" style="max-width:300px;margin:0 auto;">Try again</button>
   </div>
 
-  <footer>Made for <a href="/cindy-gallery">TVE + GGO '26 Offsite</a><br>Slack Mike Macadaan if anything breaks here</footer>
+  <footer>Made for Cindy<br>Slack Mike Macadaan if anything breaks here</footer>
 </div>
 
 <script>
@@ -193,14 +194,53 @@
   ['dragleave', 'drop'].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('hover'); }); });
   drop.addEventListener('drop', function (e) { handle(e.dataTransfer.files); });
 
+  var note = $('upNote');
+  function showNote(msg) { note.textContent = msg; note.style.display = msg ? 'block' : 'none'; }
+
+  // iPhone photos are often HEIC, which most browsers can't decode natively.
+  // Convert those with heic2any (loaded on demand).
+  var heicLib = null;
+  function loadHeic() {
+    if (window.heic2any) return Promise.resolve();
+    if (!heicLib) heicLib = new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js';
+      s.onload = res;
+      s.onerror = function () {
+        var s2 = document.createElement('script');
+        s2.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+        s2.onload = res; s2.onerror = rej;
+        document.head.appendChild(s2);
+      };
+      document.head.appendChild(s);
+    });
+    return heicLib;
+  }
+
+  function prep(f) {
+    return reencode(f).catch(function () {
+      if (!/heic|heif/i.test(f.type + ' ' + f.name)) throw new Error('unreadable');
+      return loadHeic().then(function () {
+        return window.heic2any({ blob: f, toType: 'image/jpeg', quality: 0.9 });
+      }).then(function (out) {
+        return reencode(Array.isArray(out) ? out[0] : out);
+      });
+    });
+  }
+
   function handle(list) {
+    showNote('');
     Array.prototype.slice.call(list).forEach(function (f) {
-      if (!/^image\//.test(f.type)) return;
-      if (files.length >= CFG.max) return;
-      reencode(f).then(function (b64) {
+      var looksImage = /^image\//.test(f.type) || /\.(heic|heif)$/i.test(f.name || '');
+      if (!looksImage) { showNote("That file isn't a photo."); return; }
+      if (files.length >= CFG.max) { showNote('Up to ' + CFG.max + ' photo' + (CFG.max > 1 ? 's' : '') + ' only.'); return; }
+      var slot = files.length;
+      prep(f).then(function (b64) {
         files.push({ b64: b64 });
         render();
-      }).catch(function () {});
+      }).catch(function () {
+        showNote("Couldn't read " + (f.name || 'that photo') + " — try exporting it as a JPEG.");
+      });
     });
   }
 
