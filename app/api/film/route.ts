@@ -116,12 +116,18 @@ export async function POST(req: Request) {
   const TRADE_DRESS = 'original little yellow capsule-shaped cartoon helpers in goggles and blue overalls';
   const promptVariants: string[] = [prompt];
   if (movie === 'minions' && prompt.includes(TRADE_DRESS)) {
+    // Refusals are stochastic: give the canon look several rolls, and keep
+    // every fallback rung visually on-model (goggles + blue overalls always).
     promptVariants.push(
+      prompt, // second roll of the exact canon wording
       prompt.replace(
         TRADE_DRESS,
-        'small cheerful original yellow cartoon helper creatures with big goggled eyes, wearing little blue work clothes'
+        'knee-high glossy yellow pill-shaped original cartoon creatures, each with one or two huge round eyes behind silver-rimmed goggles, wearing tiny blue denim dungarees with shoulder straps, black gloves and stubby black boots'
       ),
-      prompt.replace(TRADE_DRESS, 'small cheerful original yellow cartoon helper creatures')
+      prompt.replace(
+        TRADE_DRESS,
+        'small original yellow cartoon helper creatures with big round goggled eyes, wearing little blue overalls'
+      )
     );
   }
 
