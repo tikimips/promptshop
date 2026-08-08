@@ -14,12 +14,12 @@ function realm(pathname: string): 'cindy' | 'main' | 'api' {
   return 'main';
 }
 
-const loginPage = (bad: boolean) => `<!DOCTYPE html>
+const loginPage = (bad: boolean, title: string) => `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TVE + Growth GTM Ops Gallery</title>
+<title>${title}</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html,body { height:100%; background:#000; color:#fff;
@@ -41,7 +41,7 @@ const loginPage = (bad: boolean) => `<!DOCTYPE html>
 </style>
 </head>
 <body>
-  <h1>TVE + Growth GTM Ops Gallery</h1>
+  <h1>${title}</h1>
   <p class="bad">Wrong password, try again.</p>
   <form method="GET">
     <input name="pw" type="password" placeholder="Password" autofocus autocomplete="off">
@@ -93,7 +93,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  return new NextResponse(loginPage(pw !== null), {
+  return new NextResponse(loginPage(pw !== null, zone === 'cindy' ? "Cindy's Photo Booth" : 'TVE + Growth GTM Ops Gallery'), {
     status: 401,
     headers: { 'Content-Type': 'text/html; charset=utf-8' },
   });
