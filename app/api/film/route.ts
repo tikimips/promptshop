@@ -6,7 +6,7 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 export const maxDuration = 60;
 
 // Upload booths send whole snapshots (possibly groups), not per-person face crops.
-const EVERYONE_NOTE = " IMPORTANT OVERRIDE ON PEOPLE: the attached photo(s) are ordinary snapshots, and one snapshot may contain several people. Ignore any earlier statement about exactly how many people or characters the image must contain. The finished image must include EVERY person visible across the attached photo(s) — the same people, no more, no fewer, adults and children alike — and ALL of them are equal co-stars: every one of them appears together in the FOREGROUND, in the same themed role, uniform or costume treatment as each other, posed as one group at similar size and prominence, like teammates in the action or heroes in the key visual. Never render any of them as a spectator, background figure or crowd member. Each preserves that person's real facial features, expression, skin tone, apparent age, gender and hair exactly.";
+const EVERYONE_NOTE = " IMPORTANT OVERRIDE ON PEOPLE: the attached photo(s) are ordinary snapshots, and one snapshot may contain several people. Ignore any earlier statement about exactly how many people or characters the image must contain. The finished image must include EVERY person visible across the attached photo(s) — the same people, no more, no fewer, adults and children alike — and ALL of them are equal co-stars: every one of them appears together in the FOREGROUND, in the same themed role, uniform or costume treatment as each other, posed as one group at similar size and prominence, like teammates in the action or heroes in the key visual. Never render any of them as a spectator, background figure or crowd member. FIRST count every person in the attached photo(s), then double-check the finished image contains exactly that many humans — leaving anyone out is a failure. The people always remain clearly HUMAN: never dress, color or shape any of them like the theme's creatures, mascots, sidekicks or background characters. Each preserves that person's real facial features, expression, skin tone, apparent age, gender and hair exactly.";
 
 const MOVIES: Record<string, { render: string; scene: string }> = {
   mario: {
@@ -25,7 +25,7 @@ const MOVIES: Record<string, { render: string; scene: string }> = {
     render:
       "rendered as 3D-animated family-movie characters, keeping each person's real facial features and hair recognizable in cartoon form",
     scene:
-      'on a chaotic Hollywood movie-studio backlot surrounded by a swarm of original little yellow capsule-shaped cartoon helpers with round silver goggles over big cartoon eyes, wearing blue denim overalls, scrambling to wrangle the silly original cartoon monsters they accidentally unleashed — toppled film sets, cameras and studio lights everywhere, gleeful comedy mayhem',
+      'on a chaotic Hollywood movie-studio backlot surrounded by a swarm of original little yellow capsule-shaped cartoon helpers with round silver goggles over big cartoon eyes, wearing blue denim overalls, scrambling to wrangle the silly original cartoon monsters they accidentally unleashed — toppled film sets, cameras and studio lights everywhere, gleeful comedy mayhem. The real people stay fully human in their own everyday clothes with their natural skin tones — absolutely no goggles, no overalls and no yellow coloring on any of the humans',
   },
   odyssey: {
     render:
