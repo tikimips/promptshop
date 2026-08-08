@@ -100,14 +100,13 @@
 
   <div class="screen" id="result">
     <h1>Here you go</h1>
-    <p class="sub">Both orientations at full size, print-ready. Also saved to the <a href="/cindy-gallery" style="color:#8b8b9e;">gallery</a>.</p>
+    <p class="sub">Both orientations, saved to the gallery. Press and hold an image to save it to your phone.</p>
     <h2 style="margin-top:.6rem">Landscape</h2>
     <img id="resImg" alt="Generated photo, landscape">
-    <button class="go" id="dlBtn">Download landscape</button>
     <h2>Portrait</h2>
-    <img id="resImgP" alt="Generated photo, portrait" style="max-width:66%;margin:0 auto;">
-    <button class="go" id="dlBtnP">Download portrait</button>
-    <button class="go ghost" id="againBtn" style="margin-top:1.4rem">Make another</button>
+    <img id="resImgP" alt="Generated photo, portrait" style="max-width:66%;margin:0 auto;display:block;">
+    <button class="go" id="againBtn" style="margin-top:1.6rem">Make more</button>
+    <a class="go ghost" href="/cindy-gallery" style="text-align:center;text-decoration:none;margin-top:.8rem;display:block;">Open the gallery</a>
   </div>
 
   <div class="screen" id="err">
@@ -304,17 +303,7 @@
       } else finish(img.width / 2);
     } catch (e) { finish(img.width / 2); }
   }
-  function dl(url, name) {
-    var a = document.createElement('a');
-    a.href = url; a.download = name;
-    document.body.appendChild(a); a.click(); a.remove();
-  }
-  $('dlBtn').addEventListener('click', function () {
-    if (resultB64) dl('data:image/png;base64,' + resultB64, CFG.slug + '_landscape.png');
-  });
-  $('dlBtnP').addEventListener('click', function () {
-    if (portraitUrl) dl(portraitUrl, CFG.slug + '_portrait.png');
-  });
+
   $('againBtn').addEventListener('click', function () {
     files = []; resultB64 = null; render(); show('home');
     window.scrollTo(0, 0);
