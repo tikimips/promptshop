@@ -97,6 +97,13 @@
     <h2>3 · Add a request <span style="color:#8b8b9e;font-weight:500;font-size:.85em;">(optional)</span></h2>
     <input id="notes" type="text" maxlength="300" placeholder="Example: make it funnier, or more fierce"
       style="width:100%;background:#14141c;border:1px solid #ffffff22;border-radius:12px;padding:.9rem 1rem;color:#fff;font-family:inherit;font-size:1rem;font-weight:500;outline:none;">
+    <h2>4 · Pose reference <span style="color:#8b8b9e;font-weight:500;font-size:.85em;">(optional)</span></h2>
+    <div id="poseDrop" style="border:2px dashed #ffffff33;border-radius:12px;padding:1rem 1.2rem;text-align:center;cursor:pointer;color:#8b8b9e;font-size:.95rem;">Tap to add a photo showing how everyone should pose</div>
+    <input type="file" id="poseIn" accept="image/*">
+    <div id="poseThumbWrap" style="display:none;position:relative;width:110px;margin-top:.8rem;">
+      <img id="poseThumb" alt="pose reference" style="width:110px;border-radius:10px;display:block;">
+      <button id="poseRemove" aria-label="Remove pose reference" style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.72);color:#fff;cursor:pointer;line-height:1;">✕</button>
+    </div>
     <button class="go" id="goBtn" disabled>Create my photo</button>
   </div>
 
@@ -286,6 +293,27 @@
     goBtn.disabled = !files.length || (CFG.needsPick && !picked);
   }
 
+  // Pose reference (optional, single photo)
+  var poseB64 = null;
+  var poseDrop = $('poseDrop'), poseIn = $('poseIn');
+  poseDrop.addEventListener('click', function () { poseIn.click(); });
+  poseIn.addEventListener('change', function () {
+    var f = poseIn.files[0];
+    poseIn.value = '';
+    if (!f) return;
+    prep(f).then(function (b64) {
+      poseB64 = b64;
+      $('poseThumb').src = 'data:image/jpeg;base64,' + b64;
+      $('poseThumbWrap').style.display = 'block';
+      poseDrop.style.display = 'none';
+    }).catch(function () { showNote("Couldn't read that pose photo — try a JPEG."); });
+  });
+  $('poseRemove').addEventListener('click', function () {
+    poseB64 = null;
+    $('poseThumbWrap').style.display = 'none';
+    poseDrop.style.display = 'block';
+  });
+
   // ===== Generate =====
   goBtn.addEventListener('click', function () { generate(false); });
   $('retryBtn').addEventListener('click', function () { show('home'); });
@@ -305,6 +333,7 @@
     if (CFG.pickParam && picked) body[CFG.pickParam] = picked;
     var nv = $('notes').value.trim();
     if (nv) body.notes = nv;
+    if (poseB64) body.poseB64 = poseB64;
     fetch(CFG.api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
@@ -373,6 +402,9 @@
   $('againBtn').addEventListener('click', function () {
     files = []; resultB64 = null; render(); show('home');
     $('notes').value = '';
+    poseB64 = null;
+    $('poseThumbWrap').style.display = 'none';
+    poseDrop.style.display = 'block';
     window.scrollTo(0, 0);
   });
 })();

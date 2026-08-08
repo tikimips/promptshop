@@ -5,6 +5,10 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+const POSE_NOTE =
+  ' POSE REFERENCE: the very last attached image is a pose reference only. Arrange the people in the same body poses, grouping, spacing and camera framing as that reference. Do NOT include any person from the pose reference in the finished image and do not copy their faces, identities, clothing or uniforms from it — only the poses and composition. The people in the finished image are exactly those from the other attached photo(s).';
+
+
 async function callModels(key: string, parts: object[]): Promise<{ image?: string; error: string }> {
   let lastError = 'all models failed';
   for (const model of MODELS) {
@@ -115,7 +119,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imagesB64?: string[]; imageB64?: string; movie?: string; gallery?: string; notes?: string };
+  let body: { imagesB64?: string[]; imageB64?: string; movie?: string; gallery?: string; notes?: string; poseB64?: string };
   try {
     body = await req.json();
   } catch {
@@ -153,6 +157,9 @@ export async function POST(req: Request) {
     'knee-high glossy yellow pill-shaped original cartoon creatures, each with one or two huge round eyes behind silver-rimmed goggles, wearing tiny blue denim dungarees with shoulder straps, black gloves and stubby black boots',
   ];
   const faceParts: object[] = faces.map((f) => ({ inline_data: { mime_type: 'image/jpeg', data: f } }));
+  const hasPose = typeof body.poseB64 === 'string' && body.poseB64.length > 0;
+  const poseParts: object[] = hasPose ? [{ inline_data: { mime_type: 'image/jpeg', data: String(body.poseB64) } }] : [];
+  if (hasPose) prompt += POSE_NOTE;
 
   const finish = async (d: string) => {
     await saveToGallery(d, 'film', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
@@ -172,7 +179,7 @@ export async function POST(req: Request) {
       "keeping each person's real facial features, expression, skin tone, apparent age, gender, hair and clothing clearly recognizable in stylized cartoon form. " +
       'Every person visible across the attached photo(s) appears — the same people, no more, no fewer — standing together as one group, full body, all equally prominent. ' +
       'Plain soft neutral studio background, even lighting. Landscape orientation. No text, no watermark.';
-    const s1 = await callModels(key, [{ text: toonPrompt }, ...faceParts]);
+    const s1 = await callModels(key, [{ text: hasPose ? toonPrompt + POSE_NOTE : toonPrompt }, ...faceParts, ...poseParts]);
     if (s1.image) {
       for (const dress of DRESS_VARIANTS) {
         const scene = m.scene.replace(TRADE_DRESS, dress);
@@ -195,13 +202,13 @@ export async function POST(req: Request) {
       lastError = s1.error;
     }
     // Last resort: single-shot canon prompt, one pass
-    const single = await callModels(key, [{ text: prompt }, ...faceParts]);
+    const single = await callModels(key, [{ text: prompt }, ...faceParts, ...poseParts]);
     if (single.image) return finish(single.image);
     return NextResponse.json({ error: single.error || lastError }, { status: 502 });
   }
 
   // Every other movie: single call as before
-  const res = await callModels(key, [{ text: prompt }, ...faceParts]);
+  const res = await callModels(key, [{ text: prompt }, ...faceParts, ...poseParts]);
   if (res.image) return finish(res.image);
   return NextResponse.json({ error: res.error }, { status: 502 });
 }

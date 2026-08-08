@@ -5,6 +5,10 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+const POSE_NOTE =
+  ' POSE REFERENCE: the very last attached image is a pose reference only. Arrange the people in the same body poses, grouping, spacing and camera framing as that reference. Do NOT include any person from the pose reference in the finished image and do not copy their faces, identities, clothing or uniforms from it — only the poses and composition. The people in the finished image are exactly those from the other attached photo(s).';
+
+
 // Optional free-text creative direction from the booth's notes field
 function noteSuffix(notes: unknown): string {
   const t = typeof notes === 'string' ? notes.trim().slice(0, 300) : '';
@@ -69,7 +73,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imageB64?: string; imagesB64?: string[]; team?: string; gallery?: string; notes?: string };
+  let body: { imageB64?: string; imagesB64?: string[]; team?: string; gallery?: string; notes?: string; poseB64?: string };
   try {
     body = await req.json();
   } catch {
@@ -131,8 +135,10 @@ export async function POST(req: Request) {
       'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text overlays, no watermark.';
     if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
     prompt += noteSuffix(body.notes);
+    if (typeof body.poseB64 === 'string' && body.poseB64.length > 0) prompt += POSE_NOTE;
     parts.push({ text: prompt });
     for (const f of faces) parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
+    if (typeof body.poseB64 === 'string' && body.poseB64.length > 0) parts.push({ inline_data: { mime_type: 'image/jpeg', data: String(body.poseB64) } });
   }
 
   let lastError = 'all models failed';
