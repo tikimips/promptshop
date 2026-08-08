@@ -5,6 +5,12 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+// Optional free-text creative direction from the booth's notes field
+function noteSuffix(notes: unknown): string {
+  const t = typeof notes === 'string' ? notes.trim().slice(0, 300) : '';
+  return t ? ` USER REQUEST: ${t}. Apply this creative direction while still following every rule above.` : '';
+}
+
 // Upload booths send whole snapshots (possibly groups), not per-person face crops.
 const EVERYONE_NOTE = " IMPORTANT OVERRIDE ON PEOPLE: the attached photo(s) are ordinary snapshots, and one snapshot may contain several people. Ignore any earlier statement about exactly how many people or characters the image must contain. The finished image must include EVERY person visible across the attached photo(s) — the same people, no more, no fewer, adults and children alike — and ALL of them are equal co-stars: every one of them appears together in the FOREGROUND, in the same themed role, uniform or costume treatment as each other, posed as one group at similar size and prominence, like teammates in the action or heroes in the key visual. Never render any of them as a spectator, background figure or crowd member. FIRST count every person in the attached photo(s), then double-check the finished image contains exactly that many humans — leaving anyone out is a failure. The people are always the recognizable human stars, rendered in the SAME art style the theme describes for them — photorealistic themes keep them photorealistic, animated themes render them as stylized animated versions of themselves, matching the scene's art style exactly so they belong in the frame — but never dressed, colored or reshaped to look like the theme's creatures, mascots, sidekicks or background characters. Each preserves that person's real facial features, expression, skin tone, apparent age, gender and hair exactly.";
 
@@ -71,7 +77,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
-  let body: { imageB64?: string; imagesB64?: string[]; gallery?: string };
+  let body: { imageB64?: string; imagesB64?: string[]; gallery?: string; notes?: string };
   try {
     body = await req.json();
   } catch {
@@ -112,6 +118,7 @@ export async function POST(req: Request) {
     ' The final result must be one cohesive anime illustration, landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.';
 
   if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
+    prompt += noteSuffix(body.notes);
   const parts: object[] = [{ text: prompt }];
   for (const f of faces) {
     parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });

@@ -94,6 +94,9 @@
     <input type="file" id="picker" accept="image/*" multiple>
     <div id="thumbs"></div>
     <div id="upNote" style="color:#ff8a96;font-size:.9rem;margin-top:.6rem;display:none;"></div>
+    <h2>3 · Add a request <span style="color:#8b8b9e;font-weight:500;font-size:.85em;">(optional)</span></h2>
+    <input id="notes" type="text" maxlength="300" placeholder="Example: make it funnier, or more fierce"
+      style="width:100%;background:#14141c;border:1px solid #ffffff22;border-radius:12px;padding:.9rem 1rem;color:#fff;font-family:inherit;font-size:1rem;font-weight:500;outline:none;">
     <button class="go" id="goBtn" disabled>Create my photo</button>
   </div>
 
@@ -300,6 +303,8 @@
       : { imagesB64: files.map(function (f) { return f.b64; }) };
     body.gallery = 'cindy';
     if (CFG.pickParam && picked) body[CFG.pickParam] = picked;
+    var nv = $('notes').value.trim();
+    if (nv) body.notes = nv;
     fetch(CFG.api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
@@ -367,6 +372,7 @@
 
   $('againBtn').addEventListener('click', function () {
     files = []; resultB64 = null; render(); show('home');
+    $('notes').value = '';
     window.scrollTo(0, 0);
   });
 })();
