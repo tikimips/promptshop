@@ -5,6 +5,9 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+// Upload booths send whole snapshots (possibly groups), not per-person face crops.
+const EVERYONE_NOTE = " IMPORTANT OVERRIDE ON PEOPLE COUNT: the attached photo(s) are ordinary snapshots, and one snapshot may contain several people. Ignore any earlier statement about exactly how many people or characters the image must contain. The finished image must include EVERY person visible across the attached photo(s) — the same people, no more, no fewer, adults and children alike — together in the one scene, each preserving that person's real facial features, expression, skin tone, apparent age, gender and hair exactly.";
+
 // Hero costume looks — one per person, distinct within a group.
 // Every look explicitly keeps the face uncovered so the likeness survives.
 const LOOKS = [
@@ -96,6 +99,7 @@ export async function POST(req: Request) {
     'Match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
     'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.';
 
+  if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
   const parts: object[] = [{ text: prompt }];
   for (const f of faces) {
     parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });

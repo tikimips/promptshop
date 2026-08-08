@@ -5,6 +5,9 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+// Upload booths send whole snapshots (possibly groups), not per-person face crops.
+const EVERYONE_NOTE = " IMPORTANT OVERRIDE ON PEOPLE COUNT: the attached photo(s) are ordinary snapshots, and one snapshot may contain several people. Ignore any earlier statement about exactly how many people or characters the image must contain. The finished image must include EVERY person visible across the attached photo(s) — the same people, no more, no fewer, adults and children alike — together in the one scene, each preserving that person's real facial features, expression, skin tone, apparent age, gender and hair exactly.";
+
 const MOVIES: Record<string, { render: string; scene: string }> = {
   mario: {
     render:
@@ -91,13 +94,14 @@ export async function POST(req: Request) {
       ? `the person in the attached photo, ${m.render},`
       : `the ${n} people in the ${n} attached photos together in one single scene, ${m.render} — the image must contain exactly ${n} characters, one per attached photo, posed together naturally as a group —`;
 
-  const prompt =
+  let prompt =
     `A movie still of ${subject} ${m.scene}. ` +
     "Each character must preserve the corresponding person's real facial features, expression, skin tone, apparent age, gender and hair. " +
     'All background creatures and side characters are original designs merely inspired by the described aesthetic, not copies of any existing copyrighted characters. ' +
     'The result must look like one cohesive frame from the film, not a collage or paste. ' +
     'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.';
 
+  if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
   const parts: object[] = [{ text: prompt }];
   for (const f of faces) {
     parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });

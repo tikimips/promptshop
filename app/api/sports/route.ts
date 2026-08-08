@@ -5,6 +5,9 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+// Upload booths send whole snapshots (possibly groups), not per-person face crops.
+const EVERYONE_NOTE = " IMPORTANT OVERRIDE ON PEOPLE COUNT: the attached photo(s) are ordinary snapshots, and one snapshot may contain several people. Ignore any earlier statement about exactly how many people or characters the image must contain. The finished image must include EVERY person visible across the attached photo(s) — the same people, no more, no fewer, adults and children alike — together in the one scene, each preserving that person's real facial features, expression, skin tone, apparent age, gender and hair exactly.";
+
 const TEAMS: Record<string, string> = {
   yankees:
     'a New York Yankees baseball player in the authentic navy pinstripe home uniform and navy NY cap, mid-swing batting at home plate in Yankee Stadium at night, packed stands, the famous white frieze visible, bright stadium lights',
@@ -96,6 +99,7 @@ export async function POST(req: Request) {
       guests + `. ${preserve}. ` +
       'They hold black broadcast microphones and smile at the camera. Same framing, lighting, color grading and stadium crowd background as the reference so it looks like one seamless professional broadcast photo, not a collage. ' +
       'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No added text overlays, no watermark.';
+    if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
     parts.push({ text: prompt });
     for (const f of faces) parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
     try {
@@ -117,6 +121,7 @@ export async function POST(req: Request) {
       `A photorealistic, cinematic professional sports photograph of ${subject}. ${preserve}, ` +
       'and match the lighting, color grading, grain and camera angle of the scene so it looks like one single professionally shot photograph, not a collage or paste. ' +
       'Landscape orientation, composed with every face comfortably inside the frame, at least 5% away from every edge. No text overlays, no watermark.';
+    if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
     parts.push({ text: prompt });
     for (const f of faces) parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
   }

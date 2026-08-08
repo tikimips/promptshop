@@ -5,6 +5,9 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+// Upload booths send whole snapshots (possibly groups), not per-person face crops.
+const EVERYONE_NOTE = " IMPORTANT OVERRIDE ON PEOPLE COUNT: the attached photo(s) are ordinary snapshots, and one snapshot may contain several people. Ignore any earlier statement about exactly how many people or characters the image must contain. The finished image must include EVERY person visible across the attached photo(s) — the same people, no more, no fewer, adults and children alike — together in the one scene, each preserving that person's real facial features, expression, skin tone, apparent age, gender and hair exactly.";
+
 function scenePrompt(gender: 'man' | 'woman') {
   return (
     `A futuristic cyberpunk aesthetic photo of the person in the attached photo (a ${gender}) playing tennis on a glowing neon court at night. ` +
@@ -32,7 +35,7 @@ export async function POST(req: Request) {
   const gender: 'man' | 'woman' = body.gender === 'woman' ? 'woman' : 'man';
 
   const parts = [
-    { text: scenePrompt(gender) },
+    { text: scenePrompt(gender) + (body.gallery === 'cindy' ? EVERYONE_NOTE : '') },
     { inline_data: { mime_type: 'image/jpeg', data: String(body.imageB64) } },
   ];
 
