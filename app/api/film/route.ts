@@ -31,7 +31,7 @@ const MOVIES: Record<string, { render: string; scene: string }> = {
     render:
       "rendered as 3D-animated family-movie characters, keeping each person's real facial features and hair recognizable in cartoon form",
     scene:
-      'on a chaotic Hollywood movie-studio backlot surrounded by a swarm of original little yellow capsule-shaped cartoon helpers with round silver goggles over big cartoon eyes, wearing blue denim overalls, scrambling to wrangle the silly original cartoon monsters they accidentally unleashed — toppled film sets, cameras and studio lights everywhere, gleeful comedy mayhem. The people are rendered in the same 3D-animated cartoon style as the whole scene — animated versions of themselves in their own everyday clothes with natural human proportions, hair and skin tones — absolutely no goggles, no overalls and no yellow coloring on any of them',
+      'on a chaotic Hollywood movie-studio backlot surrounded by a swarm of original little yellow capsule-shaped cartoon helpers in goggles and blue overalls scrambling to wrangle the silly original cartoon monsters they accidentally unleashed — toppled film sets, cameras and studio lights everywhere, gleeful comedy mayhem; the people themselves wear their own everyday clothes',
   },
   odyssey: {
     render:
