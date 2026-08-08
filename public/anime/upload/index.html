@@ -100,12 +100,14 @@
 
   <div class="screen" id="result">
     <h1>Here you go</h1>
-    <p class="sub">It's also been added to the <a href="/cindy-gallery" style="color:#8b8b9e;">gallery</a>.</p>
-    <img id="resImg" alt="Generated photo">
-    <div class="row">
-      <button class="go" id="dlBtn">Download</button>
-      <button class="go ghost" id="againBtn">Make another</button>
-    </div>
+    <p class="sub">Both orientations at full size, print-ready. Also saved to the <a href="/cindy-gallery" style="color:#8b8b9e;">gallery</a>.</p>
+    <h2 style="margin-top:.6rem">Landscape</h2>
+    <img id="resImg" alt="Generated photo, landscape">
+    <button class="go" id="dlBtn">Download landscape</button>
+    <h2>Portrait</h2>
+    <img id="resImgP" alt="Generated photo, portrait" style="max-width:66%;margin:0 auto;">
+    <button class="go" id="dlBtnP">Download portrait</button>
+    <button class="go ghost" id="againBtn" style="margin-top:1.4rem">Make another</button>
   </div>
 
   <div class="screen" id="err">
@@ -249,7 +251,7 @@
         clearInterval(msgT);
         if (x.ok && x.j && x.j.image) {
           resultB64 = x.j.image;
-          $('resImg').src = 'data:image/png;base64,' + resultB64;
+          prepareResults(resultB64);
           show('result');
         } else if (!isRetry) {
           generate(true);
@@ -265,12 +267,53 @@
       });
   }
 
-  $('dlBtn').addEventListener('click', function () {
-    if (!resultB64) return;
+  // Build both orientations at full resolution; portrait centers on faces when possible
+  var portraitUrl = null;
+  function prepareResults(b64) {
+    var full = 'data:image/png;base64,' + b64;
+    $('resImg').src = full;
+    portraitUrl = null;
+    $('resImgP').removeAttribute('src');
+    var img = new Image();
+    img.onload = function () {
+      detectCenter(img, function (cx) {
+        var ch = img.height, cw = Math.round(ch * 2 / 3);
+        if (cw >= img.width) { portraitUrl = full; $('resImgP').src = full; return; }
+        var x = Math.max(0, Math.min(Math.round(cx - cw / 2), img.width - cw));
+        var c = document.createElement('canvas');
+        c.width = cw; c.height = ch;
+        c.getContext('2d').drawImage(img, x, 0, cw, ch, 0, 0, cw, ch);
+        portraitUrl = c.toDataURL('image/png');
+        $('resImgP').src = portraitUrl;
+      });
+    };
+    img.src = full;
+  }
+  function detectCenter(img, cb) {
+    var done = false;
+    var to = setTimeout(function () { done = true; cb(img.width / 2); }, 1000);
+    function finish(cx) { if (!done) { done = true; clearTimeout(to); cb(cx); } }
+    try {
+      if (window.FaceDetector) {
+        new window.FaceDetector({ fastMode: true, maxDetectedFaces: 8 }).detect(img).then(function (faces) {
+          if (!faces || !faces.length) { finish(img.width / 2); return; }
+          var x0 = Infinity, x1 = -Infinity;
+          faces.forEach(function (f) { x0 = Math.min(x0, f.boundingBox.x); x1 = Math.max(x1, f.boundingBox.x + f.boundingBox.width); });
+          finish((x0 + x1) / 2);
+        }).catch(function () { finish(img.width / 2); });
+      } else finish(img.width / 2);
+    } catch (e) { finish(img.width / 2); }
+  }
+  function dl(url, name) {
     var a = document.createElement('a');
-    a.href = 'data:image/png;base64,' + resultB64;
-    a.download = CFG.slug + '_photo.png';
+    a.href = url; a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
+  }
+  $('dlBtn').addEventListener('click', function () {
+    if (resultB64) dl('data:image/png;base64,' + resultB64, CFG.slug + '_landscape.png');
+  });
+  $('dlBtnP').addEventListener('click', function () {
+    if (portraitUrl) dl(portraitUrl, CFG.slug + '_portrait.png');
   });
   $('againBtn').addEventListener('click', function () {
     files = []; resultB64 = null; render(); show('home');
