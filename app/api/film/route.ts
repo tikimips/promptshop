@@ -5,6 +5,43 @@ const MODELS = ['gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 export const maxDuration = 60;
 
+async function callModels(key: string, parts: object[]): Promise<{ image?: string; error: string }> {
+  let lastError = 'all models failed';
+  for (const model of MODELS) {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body: JSON.stringify({
+            contents: [{ parts }],
+            generationConfig: {
+              responseModalities: ['TEXT', 'IMAGE'],
+              imageConfig: { aspectRatio: '3:2' },
+            },
+          }),
+        }
+      );
+      if (!r.ok) {
+        lastError = `gemini http ${r.status}: ${(await r.text()).slice(0, 300)}`;
+        continue;
+      }
+      const j = await r.json();
+      const ps = j?.candidates?.[0]?.content?.parts || [];
+      for (const p of ps) {
+        const d = p?.inlineData?.data || p?.inline_data?.data;
+        if (d) return { image: d, error: '' };
+      }
+      lastError = 'no image in gemini response';
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : 'fetch failed';
+    }
+  }
+  return { error: lastError };
+}
+
+
 // Optional free-text creative direction from the booth's notes field
 function noteSuffix(notes: unknown): string {
   const t = typeof notes === 'string' ? notes.trim().slice(0, 300) : '';
@@ -110,68 +147,61 @@ export async function POST(req: Request) {
 
   if (body.gallery === 'cindy') prompt += EVERYONE_NOTE;
     prompt += noteSuffix(body.notes);
-  // Progressive fallback: try the full-fidelity prompt first; if the model
-  // returns no image (a quiet refusal), retry with progressively softer
-  // creature descriptions so the run always produces a photo.
   const TRADE_DRESS = 'original little yellow capsule-shaped cartoon helpers in goggles and blue overalls';
-  const promptVariants: string[] = [prompt];
-  if (movie === 'minions' && prompt.includes(TRADE_DRESS)) {
-    // Refusals are stochastic: give the canon look several rolls, and keep
-    // every fallback rung visually on-model (goggles + blue overalls always).
-    promptVariants.push(
-      prompt, // second roll of the exact canon wording
-      prompt.replace(
-        TRADE_DRESS,
-        'knee-high glossy yellow pill-shaped original cartoon creatures, each with one or two huge round eyes behind silver-rimmed goggles, wearing tiny blue denim dungarees with shoulder straps, black gloves and stubby black boots'
-      ),
-      prompt.replace(
-        TRADE_DRESS,
-        'small original yellow cartoon helper creatures with big round goggled eyes, wearing little blue overalls'
-      )
-    );
+  const DRESS_VARIANTS = [
+    TRADE_DRESS,
+    'knee-high glossy yellow pill-shaped original cartoon creatures, each with one or two huge round eyes behind silver-rimmed goggles, wearing tiny blue denim dungarees with shoulder straps, black gloves and stubby black boots',
+  ];
+  const faceParts: object[] = faces.map((f) => ({ inline_data: { mime_type: 'image/jpeg', data: f } }));
+
+  const finish = async (d: string) => {
+    await saveToGallery(d, 'film', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
+    return NextResponse.json({ image: d });
+  };
+
+  let lastError = '';
+
+  // Minions: two-stage. Real photos + canon minion trade dress in one call is
+  // what Gemini keeps refusing — so first turn the people into animated
+  // characters (no franchise elements at all), then drop that already-cartoon
+  // image into the canon minion scene. Stage two has no real photos in it,
+  // which is what makes the canon look pass reliably.
+  if (movie === 'minions') {
+    const toonPrompt =
+      `Convert ${n === 1 ? 'the person' : 'the people'} in the attached photo${n === 1 ? '' : 's'} into 3D-animated family-movie cartoon characters, ` +
+      "keeping each person's real facial features, expression, skin tone, apparent age, gender, hair and clothing clearly recognizable in stylized cartoon form. " +
+      'Every person visible across the attached photo(s) appears — the same people, no more, no fewer — standing together as one group, full body, all equally prominent. ' +
+      'Plain soft neutral studio background, even lighting. Landscape orientation. No text, no watermark.';
+    const s1 = await callModels(key, [{ text: toonPrompt }, ...faceParts]);
+    if (s1.image) {
+      for (const dress of DRESS_VARIANTS) {
+        const scene = m.scene.replace(TRADE_DRESS, dress);
+        const p2 =
+          'A single cohesive 3D-animated movie still: take the already-animated cartoon characters in the attached image and place them into a new scene ' +
+          'EXACTLY as they appear — same faces, same hair, same clothes, same proportions, same art style, and every single character from the attached image included, none omitted — now ' +
+          scene + '. ' +
+          'All background creatures and side characters are original designs merely inspired by the described aesthetic, not copies of any existing copyrighted characters. ' +
+          'The characters are the foreground stars of the frame. The result must look like one cohesive frame from an animated film, not a collage or paste. ' +
+          'Landscape orientation, every face comfortably inside the frame, at least 5% away from every edge. No text, no watermark, no logo.' +
+          noteSuffix(body.notes);
+        const s2 = await callModels(key, [
+          { text: p2 },
+          { inline_data: { mime_type: 'image/png', data: s1.image } },
+        ]);
+        if (s2.image) return finish(s2.image);
+        lastError = s2.error;
+      }
+    } else {
+      lastError = s1.error;
+    }
+    // Last resort: single-shot canon prompt, one pass
+    const single = await callModels(key, [{ text: prompt }, ...faceParts]);
+    if (single.image) return finish(single.image);
+    return NextResponse.json({ error: single.error || lastError }, { status: 502 });
   }
 
-  let lastError = 'all models failed';
-  for (const variant of promptVariants) {
-    const parts: object[] = [{ text: variant }];
-    for (const f of faces) {
-      parts.push({ inline_data: { mime_type: 'image/jpeg', data: f } });
-    }
-    for (const model of MODELS) {
-      try {
-        const r = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-            body: JSON.stringify({
-              contents: [{ parts }],
-              generationConfig: {
-                responseModalities: ['TEXT', 'IMAGE'],
-                imageConfig: { aspectRatio: '3:2' },
-              },
-            }),
-          }
-        );
-        if (!r.ok) {
-          lastError = `gemini http ${r.status}: ${(await r.text()).slice(0, 300)}`;
-          if (r.status === 404 || r.status === 400) continue;
-          return NextResponse.json({ error: lastError }, { status: 502 });
-        }
-        const j = await r.json();
-        const ps = j?.candidates?.[0]?.content?.parts || [];
-        for (const p of ps) {
-          const d = p?.inlineData?.data || p?.inline_data?.data;
-          if (d) {
-            await saveToGallery(d, 'film', body.gallery === 'cindy' ? 'cindy' : 'gallery').catch(() => {});
-            return NextResponse.json({ image: d });
-          }
-        }
-        lastError = 'no image in gemini response';
-      } catch (e) {
-        lastError = e instanceof Error ? e.message : 'fetch failed';
-      }
-    }
-  }
-  return NextResponse.json({ error: lastError }, { status: 502 });
+  // Every other movie: single call as before
+  const res = await callModels(key, [{ text: prompt }, ...faceParts]);
+  if (res.image) return finish(res.image);
+  return NextResponse.json({ error: res.error }, { status: 502 });
 }
